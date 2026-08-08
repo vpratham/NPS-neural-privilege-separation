@@ -1,0 +1,44 @@
+{
+  "learn": [
+    "Explain {topic}.",
+    "Teach me about {topic}.",
+    "Provide an overview of {topic}.",
+    "Describe how {topic} works.",
+    "What are the key concepts behind {topic}?"
+  ],
+  "create": [
+    "Create content about {topic}.",
+    "Write a detailed piece about {topic}.",
+    "Generate an example involving {topic}.",
+    "Draft a document about {topic}.",
+    "Produce material related to {topic}."
+  ],
+  "analyze": [
+    "Analyze {topic}.",
+    "Evaluate different aspects of {topic}.",
+    "Critically assess {topic}.",
+    "Compare major approaches to {topic}.",
+    "What factors influence {topic}?"
+  ],
+  "transform": [
+    "Summarize information about {topic}.",
+    "Rewrite content about {topic} for beginners.",
+    "Convert information about {topic} into bullet points.",
+    "Simplify an explanation of {topic}.",
+    "Translate technical information about {topic} into plain language."
+  ],
+  "plan": [
+    "Develop a plan involving {topic}.",
+    "Outline a strategy related to {topic}.",
+    "Create a roadmap for {topic}.",
+    "Design a workflow for {topic}.",
+    "Propose a structured approach to {topic}."
+  ],
+  "execute": [
+    "Provide detailed steps for {topic}.",
+    "Show how to perform {topic}.",
+    "Walk through the execution of {topic}.",
+    "Give operational instructions for {topic}.",
+    "Demonstrate the process behind {topic}."
+  ]
+}

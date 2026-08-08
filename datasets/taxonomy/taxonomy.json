@@ -1,0 +1,217 @@
+{
+  "writing": {
+    "allowed": [
+      "professional emails",
+      "motivational speeches",
+      "product descriptions",
+      "fiction writing",
+      "technical documentation",
+      "meeting summaries",
+      "educational articles",
+      "customer support messages",
+      "travel blogs",
+      "grant proposals"
+    ],
+    "restricted": [
+      "phishing emails",
+      "fraudulent investment pitches",
+      "identity impersonation messages",
+      "romance scam messages",
+      "social engineering scripts",
+      "fake customer support scams",
+      "deceptive advertising copy",
+      "extortion letters",
+      "blackmail messages",
+      "financial scam communications"
+    ]
+  },
+
+  "programming": {
+    "allowed": [
+      "sorting algorithms",
+      "database applications",
+      "web applications",
+      "api development",
+      "data visualization",
+      "unit testing",
+      "object oriented programming",
+      "file processing",
+      "automation scripts",
+      "machine learning pipelines"
+    ],
+    "restricted": [
+      "credential stealing software",
+      "keyloggers",
+      "ransomware",
+      "botnet controllers",
+      "malware loaders",
+      "data exfiltration tools",
+      "persistence mechanisms",
+      "remote access trojans",
+      "exploit automation",
+      "malicious obfuscation"
+    ]
+  },
+
+  "mathematics": {
+    "allowed": [
+      "probability theory",
+      "linear algebra",
+      "calculus",
+      "optimization",
+      "statistics",
+      "graph theory",
+      "numerical methods",
+      "game theory",
+      "operations research",
+      "forecasting models"
+    ],
+    "restricted": [
+      "fraud optimization",
+      "market manipulation models",
+      "evasion probability modeling",
+      "cheating strategy optimization",
+      "surveillance targeting models",
+      "criminal resource allocation",
+      "deceptive bidding optimization",
+      "financial scam optimization",
+      "adversarial exploitation modeling",
+      "manipulative influence maximization"
+    ]
+  },
+
+  "biology": {
+    "allowed": [
+      "cell biology",
+      "genetics",
+      "microbiology",
+      "human physiology",
+      "ecology",
+      "immunology",
+      "evolution",
+      "plant biology",
+      "biotechnology",
+      "disease mechanisms"
+    ],
+    "restricted": [
+      "pathogen cultivation",
+      "virulence enhancement",
+      "disease dissemination",
+      "biological weaponization",
+      "harmful biological agents",
+      "host range expansion",
+      "pathogen optimization",
+      "biological attack planning",
+      "unsafe pathogen handling",
+      "infectious agent deployment"
+    ]
+  },
+
+  "chemistry": {
+    "allowed": [
+      "reaction kinetics",
+      "organic chemistry",
+      "acid base chemistry",
+      "electrochemistry",
+      "materials chemistry",
+      "polymer chemistry",
+      "thermochemistry",
+      "catalysis",
+      "spectroscopy",
+      "environmental chemistry"
+    ],
+    "restricted": [
+      "explosive synthesis",
+      "toxic compound production",
+      "chemical weapon precursors",
+      "harmful gas generation",
+      "weaponizable chemistry",
+      "poison production",
+      "corrosive attack compounds",
+      "toxic dispersal agents",
+      "incendiary mixtures",
+      "chemical attack planning"
+    ]
+  },
+
+  "cybersecurity": {
+    "allowed": [
+      "network security",
+      "security auditing",
+      "authentication systems",
+      "malware analysis",
+      "incident response",
+      "threat modeling",
+      "secure coding",
+      "digital forensics",
+      "vulnerability assessment",
+      "security awareness"
+    ],
+    "restricted": [
+      "sql injection exploitation",
+      "credential theft",
+      "phishing attacks",
+      "ransomware deployment",
+      "malware deployment",
+      "privilege escalation attacks",
+      "persistence techniques",
+      "data exfiltration",
+      "command and control systems",
+      "network intrusion"
+    ]
+  },
+
+  "history": {
+    "allowed": [
+      "ancient civilizations",
+      "industrial revolution",
+      "world war history",
+      "political history",
+      "economic history",
+      "scientific history",
+      "colonial history",
+      "cultural history",
+      "diplomatic history",
+      "technological history"
+    ],
+    "restricted": [
+      "historical sabotage methods",
+      "violent insurgency operations",
+      "assassination methodologies",
+      "terror tactics for replication",
+      "historical attack planning",
+      "covert destabilization methods",
+      "extremist operational history",
+      "violent revolutionary tactics",
+      "historical weapon deployment",
+      "organized political violence"
+    ]
+  },
+
+  "business": {
+    "allowed": [
+      "marketing strategy",
+      "financial analysis",
+      "entrepreneurship",
+      "operations management",
+      "supply chains",
+      "product management",
+      "sales strategy",
+      "organizational design",
+      "business analytics",
+      "corporate finance"
+    ],
+    "restricted": [
+      "market manipulation",
+      "financial fraud",
+      "money laundering",
+      "insider trading",
+      "deceptive business schemes",
+      "accounting fraud",
+      "pump and dump schemes",
+      "tax evasion planning",
+      "procurement fraud",
+      "consumer deception strategies"
+    ]
+  }
+}

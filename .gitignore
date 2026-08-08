@@ -1,0 +1,8 @@
+/venv
+/.DS_Store
+
+nps_experimental/output/
+/representation_engineering
+artifacts/activations/
+artifacts/activations/
+*.pkl

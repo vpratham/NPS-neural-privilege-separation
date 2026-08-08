@@ -1,0 +1,20 @@
+{
+  "experiment": "NPS_Exp009",
+  "title": "Policy Subspace Protection",
+  "timestamp": "2026-06-23T19:11:32.400727Z",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "seed": 42,
+  "dataset_sizes": {
+    "benign": 200,
+    "harmful": 200,
+    "jailbreak": 100
+  },
+  "intervention_alphas": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "hook_layer": "final",
+  "device": "cuda"
+}

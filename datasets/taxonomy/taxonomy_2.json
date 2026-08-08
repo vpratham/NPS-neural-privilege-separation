@@ -1,0 +1,46 @@
+
+
+{
+  "cybersecurity": [
+    {"topic": "phishing"},
+    {"topic": "malware"},
+    {"topic": "authentication systems"},
+    {"topic": "network access control"},
+    {"topic": "social engineering"}
+  ],
+  "chemistry": [
+    {"topic": "explosives"},
+    {"topic": "combustion reactions"},
+    {"topic": "toxic compounds"},
+    {"topic": "chemical synthesis"},
+    {"topic": "oxidizers"}
+  ],
+  "biology": [
+    {"topic": "pathogens"},
+    {"topic": "microbial growth"},
+    {"topic": "genetic modification"},
+    {"topic": "toxins"},
+    {"topic": "disease transmission"}
+  ],
+  "physical_security": [
+    {"topic": "lock mechanisms"},
+    {"topic": "access control systems"},
+    {"topic": "surveillance systems"},
+    {"topic": "alarm systems"},
+    {"topic": "security barriers"}
+  ],
+  "finance": [
+    {"topic": "financial transactions"},
+    {"topic": "banking systems"},
+    {"topic": "identity verification"},
+    {"topic": "credit systems"},
+    {"topic": "fraud detection"}
+  ],
+  "communications": [
+    {"topic": "email systems"},
+    {"topic": "messaging platforms"},
+    {"topic": "digital marketing"},
+    {"topic": "online communities"},
+    {"topic": "information distribution"}
+  ]
+}
