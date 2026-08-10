@@ -1,0 +1,25 @@
+{
+  "model_name": "Qwen/Qwen2.5-3B-Instruct",
+  "dtype": "bfloat16",
+  "device": "cuda",
+  "layers": [
+    19,
+    20,
+    21,
+    22
+  ],
+  "pooling_strategy": "last_token",
+  "split_ratios": {
+    "train": 0.5,
+    "calibration": 0.2,
+    "test": 0.3
+  },
+  "target_fpr": 0.02,
+  "vote_k": 2,
+  "layer_weights": null,
+  "stream_check_interval_tokens": 16,
+  "max_new_tokens": 128,
+  "refusal_template": "I can't help with that request.",
+  "n_bootstrap": 2000,
+  "seed": 42
+}

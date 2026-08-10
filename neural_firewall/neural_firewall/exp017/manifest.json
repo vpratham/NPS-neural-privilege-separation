@@ -1,0 +1,14 @@
+{
+  "completed_stages": [
+    "model_loaded_check",
+    "hs_train_extracted",
+    "hs_cal_extracted",
+    "hs_test_extracted",
+    "hs_adv_extracted",
+    "probes_trained",
+    "calibration_done",
+    "evaluation_done"
+  ],
+  "last_updated": "2026-07-29T01:47:05.528590",
+  "dataset_fingerprint": "da2bc1b45efdf2b9"
+}

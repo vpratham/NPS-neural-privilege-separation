@@ -6,3 +6,6 @@ nps_experimental/output/
 artifacts/activations/
 artifacts/activations/
 *.pkl
+/neural_firewall/venv
+/neural_firewall/neural_firewall/__pycache__
+*.csv

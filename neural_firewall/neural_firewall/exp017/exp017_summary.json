@@ -1,0 +1,52 @@
+{
+  "experiment": "Exp017 \u2014 Activation-Space Firewall POC (probe-direction ensemble)",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "layers": [
+    19,
+    20,
+    21,
+    22
+  ],
+  "pooling_strategy": "last_token",
+  "vote_k": 2,
+  "of_n_layers": 4,
+  "target_fpr": 0.02,
+  "split_sizes": {
+    "train": 225,
+    "calibration": 90,
+    "held_out_test": 135,
+    "adversarial": 100
+  },
+  "held_out_test_performance": {
+    "split": "held_out_test",
+    "n": 135,
+    "tp": 48,
+    "fn": 16,
+    "tn": 71,
+    "fp": 0,
+    "tpr_recall": 0.75,
+    "fpr": 0.0
+  },
+  "adversarial_performance": {
+    "split": "adversarial",
+    "n": 100,
+    "tp": 44,
+    "fn": 56,
+    "tn": 0,
+    "fp": 0,
+    "tpr_recall": 0.44,
+    "fpr": NaN
+  },
+  "tpr_gap_clean_minus_adversarial": 0.31,
+  "pure_detection_overhead_pct": 44.76087789789502,
+  "end_to_end_latency_change_pct": -40.70572528964467,
+  "timestamp": "2026-07-29T01:58:32.444959",
+  "reproducibility": {
+    "model_name": "Qwen/Qwen2.5-3B-Instruct",
+    "transformers_version": "5.13.1",
+    "torch_version": "2.11.0+cu128",
+    "seed": 42,
+    "timestamp": "2026-07-29T01:47:05.553035"
+  },
+  "caveats": []
+}

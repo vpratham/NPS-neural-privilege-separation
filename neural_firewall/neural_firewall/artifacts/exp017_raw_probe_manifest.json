@@ -1,0 +1,38 @@
+{
+  "source": "/mnt/data/firewall_probes.pkl",
+  "description": "Exp017 raw logistic-regression coefficients; NOT unit-normalized.",
+  "layers": [
+    {
+      "layer": 19,
+      "norm": 0.4639081060886383,
+      "bias": -0.0018189595728672176,
+      "shape": [
+        2048
+      ]
+    },
+    {
+      "layer": 20,
+      "norm": 0.47214028239250183,
+      "bias": -0.0013992954092182308,
+      "shape": [
+        2048
+      ]
+    },
+    {
+      "layer": 21,
+      "norm": 0.43328341841697693,
+      "bias": -0.0019615710003075527,
+      "shape": [
+        2048
+      ]
+    },
+    {
+      "layer": 22,
+      "norm": 0.4238564968109131,
+      "bias": -0.0012584459911801687,
+      "shape": [
+        2048
+      ]
+    }
+  ]
+}
