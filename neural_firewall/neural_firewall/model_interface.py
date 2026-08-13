@@ -106,6 +106,30 @@ class ModelAdapter(ABC):
             handles.append(layer.register_forward_hook(_hook))
         return handles
 
+    def register_input_hooks(
+        self,
+        layer_indices: Sequence[int],
+        callback: Callable[[int, torch.Tensor], None],
+    ) -> list[torch.utils.hooks.RemovableHandle]:
+        """Register forward-pre-hooks that capture decoder-layer inputs.
+
+        callback(layer_idx, input_hidden_state) is invoked before each
+        selected decoder layer runs. The captured tensor is the layer INPUT,
+        matching the Exp017/18/19 extraction convention.
+        """
+        handles = []
+
+        for idx in layer_indices:
+            layer = self.get_decoder_layer(idx)
+
+            def _hook(module, inputs, _idx=idx):
+                hs = inputs[0]
+                callback(_idx, hs)
+
+            handles.append(layer.register_forward_pre_hook(_hook))
+
+        return handles
+
     def register_pre_hooks_for_intervention(
         self,
         layer_indices: Sequence[int],
@@ -160,11 +184,12 @@ class HFCausalLMAdapter(ModelAdapter):
             obj = getattr(obj, attr)
         return obj
 
-    def tokenize(self, prompt: str, **kwargs) -> dict[str, torch.Tensor]:
+    def tokenize(self, prompt, **kwargs) -> dict[str, torch.Tensor]:
         enc = self.tokenizer(
             prompt,
             return_tensors="pt",
             truncation=True,
+            padding=True,
             max_length=kwargs.get("max_length", self.max_length),
         )
         return {k: v.to(self.device()) for k, v in enc.items()}
@@ -206,6 +231,14 @@ def build_qwen_adapter(model_name: str = "Qwen/Qwen2.5-3B-Instruct", **kwargs) -
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name, **kwargs)
+
+    if tokenizer.pad_token_id is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        **kwargs,
+    )
+    
     model.eval()
     return HFCausalLMAdapter(model, tokenizer, layer_path="model.layers")

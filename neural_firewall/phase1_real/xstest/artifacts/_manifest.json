@@ -1,0 +1,14 @@
+{
+  "unsafe_intent__layer19": {
+    "threshold": 1.4099419116973877
+  },
+  "unsafe_intent__layer20": {
+    "threshold": 1.49944269657135
+  },
+  "unsafe_intent__layer21": {
+    "threshold": 2.3126769065856934
+  },
+  "unsafe_intent__layer22": {
+    "threshold": 2.3357579708099365
+  }
+}

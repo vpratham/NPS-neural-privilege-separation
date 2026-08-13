@@ -67,7 +67,7 @@ class ActivationExtractor:
         def _callback(layer_idx: int, hs: torch.Tensor) -> None:
             captured[layer_idx] = hs
 
-        handles = self.adapter.register_output_hooks(self.layer_indices, _callback)
+        handles = self.adapter.register_input_hooks(self.layer_indices, _callback)
         try:
             enc = self.adapter.tokenize(prompt)
             # A plain forward pass is enough to populate hidden states via
@@ -81,4 +81,51 @@ class ActivationExtractor:
             idx: self._pool(hs, enc.get("attention_mask"))
             for idx, hs in captured.items()
         }
+        return ExtractedActivations(pooled=pooled)
+
+    @torch.no_grad()
+    def extract_batch(self, prompts: list[str]) -> ExtractedActivations:
+        """Batched extraction matching the Exp019/19 convention.
+
+        Captures decoder-layer INPUTS, then pools the last valid token using
+        attention_mask.sum(dim=1) - 1.
+
+        Returns:
+            pooled[layer_idx]: Tensor of shape (batch, d_model)
+        """
+        if not prompts:
+            raise ValueError("prompts must not be empty")
+
+        captured: dict[int, torch.Tensor] = {}
+
+        def _callback(layer_idx: int, hs: torch.Tensor) -> None:
+            captured[layer_idx] = hs.detach()
+
+        handles = self.adapter.register_input_hooks(
+            self.layer_indices,
+            _callback,
+        )
+
+        try:
+            enc = self.adapter.tokenize(prompts,max_length=512)
+
+            if not hasattr(self.adapter, "model"):
+                raise RuntimeError(
+                    "Batched extraction requires an adapter exposing .model"
+                )
+
+            self.adapter.model(**enc)
+
+        finally:
+            for h in handles:
+                h.remove()
+
+        pooled = {
+            idx: self._pool(
+                hs,
+                enc.get("attention_mask"),
+            )
+            for idx, hs in captured.items()
+        }
+
         return ExtractedActivations(pooled=pooled)

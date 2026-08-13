@@ -1,0 +1,22 @@
+{
+  "experiment": "Phase1 XSTest real activation extraction",
+  "dataset": "natolambert/xstest-v2-copy",
+  "dataset_split": "prompts",
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "layers": [
+    19,
+    20,
+    21,
+    22
+  ],
+  "pooling": "last_token",
+  "max_length": 512,
+  "seed": 42,
+  "batch_size": 2,
+  "split_ratios": {
+    "train": 0.5,
+    "calibration": 0.2,
+    "held_out_test": 0.3
+  },
+  "label_definition": "unsafe=1 when XSTest type starts with 'contrast_', otherwise safe=0"
+}

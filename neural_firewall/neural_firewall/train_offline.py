@@ -41,8 +41,8 @@ def fit_policy_direction(
     calibration_labels: np.ndarray | None = None,
     calibration_activations: np.ndarray | None = None,
     calibration_method: str = "target_fpr",
-    calibration_target_fpr: float = 0.05,
-    random_state: int = 0,
+    calibration_target_fpr: float = 0.02,
+    random_state: int = 42,
 ) -> PolicyDirection:
     """Fit one logistic-regression probe direction and calibrate its threshold.
 
@@ -50,7 +50,11 @@ def fit_policy_direction(
     what Exp017/18 do to avoid overfit thresholds); falls back to the
     training split itself otherwise, with a warning baked into metadata.
     """
-    clf = LogisticRegression(max_iter=1000, random_state=random_state)
+    clf = LogisticRegression(
+        max_iter=2000,
+        C=1.0,
+        random_state=random_state,
+    )
     clf.fit(activations, labels)
 
     weight = clf.coef_[0]

@@ -1,0 +1,16 @@
+{
+  "bias": -0.0073952521197497845,
+  "threshold": 1.4099419116973877,
+  "policy_name": "unsafe_intent",
+  "layer_idx": 19,
+  "d_model": 2048,
+  "metadata": {
+    "training_dataset": "XSTest",
+    "calibration_target_fpr": 0.02,
+    "calibration_achieved_fpr": 0.02,
+    "calibration_achieved_recall": 0.85,
+    "n_train": 225,
+    "n_calibration": 90,
+    "n_held_out": 135
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "bias": -0.004044090863317251,
+  "threshold": 1.49944269657135,
+  "policy_name": "unsafe_intent",
+  "layer_idx": 20,
+  "d_model": 2048,
+  "metadata": {
+    "calibration_method": "target_fpr",
+    "calibration_achieved_fpr": 0.02,
+    "calibration_achieved_recall": 0.875,
+    "used_fallback_calibration_split": false,
+    "n_train": 225,
+    "train_class_balance": 0.4444444444444444
+  }
+}
