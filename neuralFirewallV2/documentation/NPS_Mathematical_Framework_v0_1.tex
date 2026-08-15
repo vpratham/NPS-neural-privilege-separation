@@ -1,0 +1,492 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\Psafe}{\mathcal{P}_{\mathrm{safe}}}
+\newcommand{\KL}{D_{\mathrm{KL}}}
+\newcommand{\E}{\mathbb{E}}
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+
+\title{\textbf{A Mathematical Framework for Neural Privilege Separation}\\
+\large Toward a Formal Theory of the Neural Firewall}
+\author{NPS Research Project}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document develops a preliminary mathematical framework for Neural
+Privilege Separation (NPS), with the goal of formalizing a neural firewall as
+an internal security boundary within a transformer model. The central
+hypothesis is that policy-relevant computation may admit a representation
+that can be identified, causally manipulated, and ultimately protected from
+attacker-controlled input while preserving legitimate model capabilities.
+The framework deliberately separates mathematical definitions from empirical
+claims: the existence of a useful policy representation and the feasibility
+of the proposed guarantees remain open research questions.
+\end{abstract}
+
+\section{Research Goal}
+
+The long-term objective of NPS is to treat policy enforcement as a property
+of internal model computation rather than solely as an external guardrail.
+
+The desired security property is analogous to privilege separation:
+user-controlled computation should be able to access legitimate model
+capabilities without being able to arbitrarily modify the internal state that
+governs whether those capabilities may be used.
+
+The mathematical objectives are to define:
+\begin{enumerate}[label=\arabic*.]
+\item a policy-relevant internal state,
+\item a policy-safe region,
+\item a mechanism for constraining internal computation,
+\item an information-flow boundary,
+\item a policy invariant, and
+\item robustness against an explicit attacker model.
+\end{enumerate}
+
+\section{The Transformer as a Dynamical System}
+
+Let a transformer $M_\theta$ have $L$ computational layers. For input $x$,
+\begin{equation}
+h_0=E(x),
+\end{equation}
+and
+\begin{equation}
+h_{\ell+1}=F_\ell(h_\ell),\qquad \ell=0,\ldots,L-1.
+\end{equation}
+
+The output distribution is
+\begin{equation}
+p_\theta(y\mid x)=\operatorname{softmax}(W_oh_L).
+\end{equation}
+
+Thus the model is a dynamical system
+\begin{equation}
+h_0\rightarrow h_1\rightarrow\cdots\rightarrow h_L
+\rightarrow p_\theta(y\mid x).
+\end{equation}
+
+\section{Formalizing the Security Problem}
+
+Conceptually decompose the input as
+\begin{equation}
+x=(u,t),
+\end{equation}
+where $u$ is user-controlled information and $t$ is task/environment
+information.
+
+A security violation is formulated as a trajectory problem:
+\begin{equation}
+x\rightarrow h_0\rightarrow h_1\rightarrow\cdots\rightarrow h_L
+\end{equation}
+that causes the model to enter a policy-violating computational state.
+
+Let
+\begin{equation}
+\pi(h_\ell)\in[0,1]
+\end{equation}
+be a statistical estimate of policy-violation probability at state
+$h_\ell$. This is initially a representation-reading quantity, not itself a
+firewall.
+
+\section{The Policy-Safe Set}
+
+Define a policy-safe region
+\begin{equation}
+\Psafe\subseteq\R^d.
+\end{equation}
+
+A state is policy-safe when
+\begin{equation}
+h_\ell\in\Psafe.
+\end{equation}
+
+This does not assume that policy is represented by a single vector
+$v_{\mathrm{policy}}\in\R^d$. The safe set could instead be a half-space,
+subspace, manifold, or more general region.
+
+\section{A Neural Firewall Operator}
+
+Introduce
+\begin{equation}
+\mathcal{F}_\ell:\R^d\rightarrow\R^d.
+\end{equation}
+
+The protected transition is
+\begin{equation}
+h_{\ell+1}=F_\ell\!\left(\mathcal{F}_\ell(h_\ell)\right).
+\end{equation}
+
+The firewall should preserve already-safe states:
+\begin{equation}
+\mathcal{F}_\ell(h)=h,\qquad \forall h\in\Psafe,
+\end{equation}
+and map unsafe states into the safe region:
+\begin{equation}
+h\notin\Psafe\Longrightarrow
+\mathcal{F}_\ell(h)\in\Psafe.
+\end{equation}
+
+\begin{definition}[Policy-preserving firewall]
+A firewall operator $\mathcal F$ is policy-preserving if
+\begin{equation}
+\mathcal F(h)\in\Psafe,\qquad\forall h\in\R^d,
+\end{equation}
+and
+\begin{equation}
+\mathcal F(h)=h,\qquad\forall h\in\Psafe.
+\end{equation}
+\end{definition}
+
+Safety alone is insufficient: the degenerate map $\mathcal F(h)=0$ could
+destroy all useful behavior. Capability preservation is therefore required.
+
+\section{Capability Preservation}
+
+Let $D$ measure behavioral deviation between output distributions. A
+capability-preserving firewall seeks
+\begin{equation}
+\mathcal F^*(h)
+=
+\arg\min_{z\in\Psafe}
+D\!\left(p_\theta(\cdot\mid h),p_\theta(\cdot\mid z)\right).
+\end{equation}
+
+For example,
+\begin{equation}
+D(p,q)=\KL(p\Vert q).
+\end{equation}
+
+The intended interpretation is: change internal state as little as
+necessary to restore policy compliance.
+
+\section{The Neural Privilege Separation Hypothesis}
+
+The central NPS hypothesis is that hidden computation may admit
+\begin{equation}
+\phi:\R^d\rightarrow
+\mathcal U\times\mathcal C\times\mathcal P,
+\end{equation}
+with
+\begin{equation}
+\phi(h)=(u,c,p),
+\end{equation}
+where $u$ is user/task information, $c$ is capability information, and $p$
+is policy information.
+
+This decomposition is a hypothesis, not an established property of
+transformers.
+
+\section{The Privilege Boundary}
+
+Suppose the internal transition can be approximated by
+\begin{align}
+u'&=f_u(u,c),\\
+c'&=f_c(u,c,p),\\
+p'&=f_p(c,p).
+\end{align}
+
+The critical property is
+\begin{equation}
+p'=f_p(c,p),
+\end{equation}
+rather than
+\begin{equation}
+p'=f_p(u,c,p).
+\end{equation}
+
+The intended information-flow restriction is therefore
+\begin{equation}
+U\not\rightarrow P
+\end{equation}
+within the protected policy transition, while legitimate flow such as
+\begin{equation}
+U\rightarrow C
+\end{equation}
+remains possible.
+
+\section{Local Policy Isolation}
+
+Define local policy sensitivity as
+\begin{equation}
+J=
+\left\|
+\frac{\partial p'}{\partial u}
+\right\|.
+\end{equation}
+
+Approximate isolation requires
+\begin{equation}
+\boxed{
+\left\|
+\frac{\partial p'}{\partial u}
+\right\|\leq\epsilon.
+}
+\end{equation}
+
+An empirical finite-difference analogue is
+\begin{equation}
+\Delta_u=
+\frac{
+\left\|\phi_p(h(u+\delta))-\phi_p(h(u))\right\|
+}{
+\|\delta\|
+}.
+\end{equation}
+
+\section{Global Policy Isolation}
+
+Let $\A(x)$ be the set of allowed attacker transformations of $x$. Require
+\begin{equation}
+\boxed{
+\sup_{x'\in\A(x)}
+d_P\!\left(p(x'),p(x)\right)\leq\epsilon,
+}
+\end{equation}
+where $d_P$ is a metric over policy representations.
+
+This expresses the intended property that no permitted attacker transformation
+can move protected policy state by more than a bounded amount.
+
+\section{Policy Invariance}
+
+Let $\Psafe$ be the safe policy set. Assume
+\begin{equation}
+p_0\in\Psafe
+\end{equation}
+and
+\begin{equation}
+p_\ell\in\Psafe
+\Longrightarrow
+p_{\ell+1}\in\Psafe.
+\end{equation}
+
+\begin{proposition}[Policy-state invariance]
+Under the above conditions,
+\begin{equation}
+\boxed{
+p_\ell\in\Psafe,\qquad\forall\ell.
+}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+By induction. The base case is $p_0\in\Psafe$. If $p_\ell\in\Psafe$, the
+assumed transition property gives $p_{\ell+1}\in\Psafe$. Therefore the
+property holds for all layers.
+\end{proof}
+
+This is the mathematical analogue of protecting privileged state from being
+driven outside its permitted region.
+
+\section{Connecting Policy State to Behavior}
+
+Let
+\begin{equation}
+V(y)\in[0,1]
+\end{equation}
+be a policy-violation function over outputs. Define
+\begin{equation}
+R(x)=
+\E_{y\sim p_\theta(\cdot\mid x)}[V(y)].
+\end{equation}
+
+For a protected model $M_F$, the desired security condition is
+\begin{equation}
+\boxed{
+\sup_{x\in\X_{\mathrm{adv}}}R_F(x)\leq\epsilon.
+}
+\end{equation}
+
+\section{Capability Preservation Constraint}
+
+Let $\X_{\mathrm{benign}}$ denote legitimate tasks. Require
+\begin{equation}
+\E_{x\sim\X_{\mathrm{benign}}}
+D\!\left(p_F(\cdot\mid x),p_M(\cdot\mid x)\right)
+\leq\delta.
+\end{equation}
+
+Thus the firewall must satisfy both security and capability preservation:
+\begin{align}
+\sup_{x\in\X_{\mathrm{adv}}}R_F(x)&\leq\epsilon,\\
+\E_{x\sim\X_{\mathrm{benign}}}D(p_F,p_M)&\leq\delta.
+\end{align}
+
+\section{Recovery and Adversarial Robustness}
+
+Let $\mathcal A$ denote an attacker class capable of optimizing prompts or
+other permitted inputs. Define recovery risk
+\begin{equation}
+R_A(M_F)=
+\max_{A\in\mathcal A}
+V\!\left(A(M_F,x)\right).
+\end{equation}
+
+A robust firewall should satisfy
+\begin{equation}
+\boxed{
+R_A(M_F)\leq\rho.
+}
+\end{equation}
+
+The intended requirement is that the policy constraint remains effective under
+adversarial optimization rather than only under ordinary prompting.
+
+\section{Representation Identifiability}
+
+The existence of a useful policy representation cannot simply be assumed.
+Let $\Pi$ denote the underlying policy state and
+$X_{\mathrm{surface}}$ denote surface-level prompt properties.
+
+A desired information-theoretic condition is
+\begin{equation}
+I(P;\Pi)>0,
+\end{equation}
+while ideally
+\begin{equation}
+I(P;X_{\mathrm{surface}}\mid\Pi)\approx0.
+\end{equation}
+
+The first condition expresses policy information content; the second
+expresses conditional independence from irrelevant surface features.
+Causal meaning must still be established separately through intervention.
+
+\section{Policy--User Independence}
+
+A stronger privilege-separation objective is
+\begin{equation}
+\boxed{
+I(P;U\mid\Pi)\approx0.
+}
+\end{equation}
+
+The intended interpretation is that protected policy state should not contain
+unnecessary user-controlled degrees of freedom that can be exploited to
+rewrite the policy mechanism.
+
+\section{Neural Firewall Optimization Problem}
+
+Let $\theta_F$ denote firewall parameters and $\phi$ the representation map.
+A preliminary optimization problem is
+\begin{equation}
+\boxed{
+\begin{aligned}
+\min_{\theta_F,\phi}\quad&
+\mathcal L_{\mathrm{cap}}
++\lambda\mathcal L_{\mathrm{iso}}
+\\
+\text{s.t.}\quad&
+\sup_{x\in\X_{\mathrm{adv}}}R_F(x)\leq\epsilon,
+\\
+&
+\sup_{x'\in\A(x)}
+d_P\!\left(p_F(x'),p_F(x)\right)\leq\eta,
+\\
+&
+\sup_{A\in\mathcal A}R_A(M_F)\leq\rho.
+\end{aligned}
+}
+\end{equation}
+
+This is a research formulation, not a solved optimization problem.
+
+\section{The Central Mathematical Question}
+
+The unresolved question is whether a transformer admits a useful
+\begin{equation}
+\phi(h)=(u,c,p)
+\end{equation}
+for which the following can simultaneously hold:
+\begin{align}
+I(P;\Pi)&>0,\\
+I(P;U\mid\Pi)&\approx0,\\
+\left\|\frac{\partial p'}{\partial u}\right\|&\leq\epsilon,\\
+\sup_{x'\in\A(x)}d_P(p(x'),p(x))&\leq\eta,\\
+p_\ell\in\Psafe&\Rightarrow p_{\ell+1}\in\Psafe,\\
+\sup_{x\in\X_{\mathrm{adv}}}R_F(x)&\leq\epsilon,\\
+\E_{x\sim\X_{\mathrm{benign}}}D(p_F,p_M)&\leq\delta,\\
+\sup_{A\in\mathcal A}R_A(M_F)&\leq\rho.
+\end{align}
+
+If such a representation and transition system can be constructed and
+validated, NPS moves from activation steering toward an explicit theory of
+privileged internal computation.
+
+\section{Research Program}
+
+\subsection{Stage 1: Representation}
+Establish empirically whether a policy-relevant representation exists:
+\begin{equation}
+h\rightarrow p.
+\end{equation}
+
+\subsection{Stage 2: Causality}
+Establish that intervention on $p$ changes policy-relevant behavior:
+\begin{equation}
+do(p\leftarrow p')\Longrightarrow Y\text{ changes}.
+\end{equation}
+
+\subsection{Stage 3: Isolation}
+Measure whether attacker-controlled input can alter protected policy state:
+\begin{equation}
+\sup_{x'\in\A(x)}d_P(p(x'),p(x))\leq\epsilon.
+\end{equation}
+
+\subsection{Stage 4: Invariance}
+Establish that the protected transition preserves the safe set:
+\begin{equation}
+p_\ell\in\Psafe\Longrightarrow p_{\ell+1}\in\Psafe.
+\end{equation}
+
+\subsection{Stage 5: Robustness}
+Evaluate whether an explicit attacker can recover policy-violating behavior:
+\begin{equation}
+\sup_{A\in\mathcal A}V(A(M_F))\leq\epsilon.
+\end{equation}
+
+\section{Current Status}
+
+The framework above consists of definitions, hypotheses, candidate
+constraints, and desired theorems. The following remain unestablished:
+\begin{itemize}
+\item that a universal policy representation exists;
+\item that user, capability, and policy states are cleanly separable;
+\item that the policy state is low-dimensional;
+\item that policy can be isolated from user-controlled computation;
+\item that an invariant safe set exists for an arbitrary transformer;
+\item that the proposed constraints can be jointly satisfied without
+unacceptable capability loss.
+\end{itemize}
+
+\section{Conclusion}
+
+The proposed mathematical view of a neural firewall is
+\begin{equation}
+\boxed{
+\text{Protected policy state}
++
+\text{constrained transition}
++
+\text{capability-preserving projection}.
+}
+\end{equation}
+
+The objective is not merely to identify a safety vector. It is to determine
+whether policy-relevant computation can behave like privileged state: it
+remains within a policy-safe region, preserves legitimate capabilities, and
+resists modification or recovery through attacker-controlled inputs.
+
+The strongest eventual result would therefore be a construction of a
+protected policy state together with an explicit attacker model, measurable
+isolation conditions, and a provable or bounded policy invariant.
+
+\end{document}
