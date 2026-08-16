@@ -1,0 +1,15 @@
+{
+  "policy": "unsafe_intent",
+  "layer_idx": 19,
+  "weight_shape": [
+    2048
+  ],
+  "weight_dtype": "float32",
+  "weight_normalized": false,
+  "weight_norm": 0.4639081060886383,
+  "bias": -0.0018189595728672176,
+  "bias_source": "sklearn LogisticRegression.intercept_[0]",
+  "source": "firewall_probes.pkl",
+  "scoring": "dot(raw_coef, activation) + intercept",
+  "threshold": 5.209300046
+}

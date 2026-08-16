@@ -1,0 +1,44 @@
+{
+  "source": "Exp017",
+  "policy_name": "unsafe_intent",
+  "model_name": "Qwen/Qwen2.5-3B-Instruct",
+  "pooling_strategy": "last_token",
+  "layers": [
+    19,
+    20,
+    21,
+    22
+  ],
+  "vote_k": 2,
+  "target_fpr": 0.02,
+  "artifacts": [
+    {
+      "layer": 19,
+      "weight_file": "unsafe_intent__layer19.weight.npy",
+      "meta_file": "unsafe_intent__layer19.meta.json",
+      "threshold": 5.209300045675993,
+      "weight_norm_after_import": 1.0
+    },
+    {
+      "layer": 20,
+      "weight_file": "unsafe_intent__layer20.weight.npy",
+      "meta_file": "unsafe_intent__layer20.meta.json",
+      "threshold": 4.96769504093344,
+      "weight_norm_after_import": 1.0
+    },
+    {
+      "layer": 21,
+      "weight_file": "unsafe_intent__layer21.weight.npy",
+      "meta_file": "unsafe_intent__layer21.meta.json",
+      "threshold": 4.373584791504052,
+      "weight_norm_after_import": 1.0
+    },
+    {
+      "layer": 22,
+      "weight_file": "unsafe_intent__layer22.weight.npy",
+      "meta_file": "unsafe_intent__layer22.meta.json",
+      "threshold": 4.119622408086451,
+      "weight_norm_after_import": 1.0
+    }
+  ]
+}
