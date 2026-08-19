@@ -1,0 +1,28 @@
+diff --git a/neural_firewall/neural_firewall/model_interface.py b/neural_firewall/neural_firewall/model_interface.py
+index 32dc95f..400ae82 100644
+--- a/neural_firewall/neural_firewall/model_interface.py
++++ b/neural_firewall/neural_firewall/model_interface.py
+@@ -215,9 +215,20 @@ class HFCausalLMAdapter(ModelAdapter):
+             output_hidden_states=True,
+             use_cache=True,
+         )
+-        # out.hidden_states: tuple(len = num_layers + 1), index 0 is the
+-        # embedding output, index i+1 is the output of decoder layer i.
+-        hs_by_layer = {i: out.hidden_states[i + 1] for i in range(self.num_layers())}
++        # NFW-001 fix (documented per project engineering rule 12, see
++        # experiments/NFW-001/ for the discovery writeup): out.hidden_states
++        # is tuple(len = num_layers + 1), index 0 = embedding output,
++        # index i+1 = OUTPUT of decoder layer i (== INPUT of decoder layer
++        # i+1). register_input_hooks()/ActivationExtractor (used for every
++        # probe-scoring path outside streaming) captures each layer's
++        # INPUT, i.e. layer i's input == hidden_states[i]. The previous
++        # line here (`hidden_states[i + 1]`) captured layer i's OUTPUT
++        # instead -- a one-layer offset versus the extraction convention
++        # the PolicyDirection thresholds were calibrated against. Left
++        # uncorrected, StreamingFirewall's per-token risk scores (streaming.py)
++        # would be systematically scored against the wrong layer's
++        # activation relative to the canonical NFW-000/Exp017 artifacts.
++        hs_by_layer = {i: out.hidden_states[i] for i in range(self.num_layers())}
+         return out.logits, out.past_key_values, hs_by_layer
+ 
+ 
