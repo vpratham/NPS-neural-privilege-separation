@@ -1,0 +1,8 @@
+{
+  "n_samples": 20,
+  "raw_mean_s": 2.5825089812278748,
+  "raw_stdev_s": 0.5382036442788384,
+  "monitored_mean_s": 2.540533757209778,
+  "monitored_stdev_s": 0.48304931484325214,
+  "overhead_pct": -1.6253660422175715
+}

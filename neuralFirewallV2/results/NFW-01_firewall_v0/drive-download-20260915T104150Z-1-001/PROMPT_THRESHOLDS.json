@@ -1,0 +1,10 @@
+{
+  "thresholds_by_layer": {
+    "19": 0.9618462920188904,
+    "20": 0.9473254680633545,
+    "21": 0.963296115398407,
+    "22": 0.9587390422821045
+  },
+  "target_fpr": 0.02,
+  "calibrated_on": "calibration split, prompt_harmful ONLY"
+}
