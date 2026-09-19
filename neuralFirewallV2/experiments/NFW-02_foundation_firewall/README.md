@@ -2,6 +2,8 @@
 
 `NFW_002_Foundational_Monitor_Block_POC.ipynb` is the starting point for a defensible neural-firewall implementation. It is a frozen-model, pre-generation activation-monitor and block experiment. It is intentionally not an activation-steering experiment and makes no neural-privilege-separation claim.
 
+For a complete walk-through of its design, safeguards, outputs, and interpretation, read [the notebook guide](NFW_002_NOTEBOOK_GUIDE.md).
+
 It requires a reviewed local prompt dataset at `data/foundation_prompts.jsonl`. Each JSONL record needs:
 
 ```json
