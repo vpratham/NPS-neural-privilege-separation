@@ -1,0 +1,8 @@
+split,n,prompt_harmful_rate,response_harmful_missing_n,response_harmful_labeled_n,response_harmful_rate_of_labeled,n_distinct_sources,n_distinct_response_models
+calibration,1000,0.453,736,264,0.2689393939393939,31,4
+test_benign,1000,0.0,937,63,0.0,17,2
+test_harmful,1000,1.0,497,503,0.39363817097415504,25,5
+test_jailbreak,1000,0.808,619,381,0.23097112860892388,9,2
+test_injection,1000,0.0,1000,0,,10,1
+test_ood,1000,0.75,362,638,0.8448275862068966,26,3
+behavioral_test,1000,0.769,0,1000,0.215,3,2

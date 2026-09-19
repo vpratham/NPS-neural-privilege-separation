@@ -1,0 +1,5 @@
+split,n,prompt_fpr,prompt_detection_rate,precision,recall,f1,balanced_accuracy,auroc
+test_benign,1000,0.033,,,,,,
+test_harmful,1000,,0.25,,,,,
+test_jailbreak,1000,0.0,0.055693069306930694,1.0,0.055693069306930694,0.10550996483001172,0.5278465346534653,0.6825881806930694
+test_injection,1000,0.013,,,,,,
