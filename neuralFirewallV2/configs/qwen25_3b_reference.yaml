@@ -1,0 +1,27 @@
+# Reference configuration for NFW-002. The experiment notebook records the
+# exact resolved revision and tokenizer template in its run manifest.
+model:
+  id: Qwen/Qwen2.5-3B-Instruct
+  revision: aa8e72537993ba99e69dfaafa59ed015b17504d1
+  dtype: bfloat16
+  canonical_chat_template: true
+
+activation:
+  site: decoder_block_output
+  layer_indices_zero_based: [18, 19, 20, 21]
+  pooling: last_nonpadding_token
+  max_input_tokens: 512
+
+monitor:
+  classifier: logistic_regression
+  select_layer_on: development
+  calibrate_on: calibration
+  target_fpr: 0.02
+
+generation:
+  max_new_tokens: 128
+  do_sample: false
+
+evaluation:
+  split_policy: grouped_train_development_calibration_final
+  require_target_model_response_labels: true

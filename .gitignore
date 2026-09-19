@@ -1,11 +1,26 @@
-/venv
-/.DS_Store
+# Local environments and editor files
+.venv/
+venv/
+.DS_Store
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
 
+# Local model/download caches and offload directories
+qwen_offload/
+offload/
+hf_cache/
+
+# Generated activations, checkpoints, and experiment runs
+artifacts/activations/
 nps_experimental/output/
-/representation_engineering
-artifacts/activations/
-artifacts/activations/
+representation_engineering/
+neural_firewall/phase1_real/*/cache/
+neuralFirewallV2/**/nfw002_outputs/
+neuralFirewallV2/**/runs/
+
+# Keep small dataset manifests and metric tables under version control.
+# Store large model artifacts in a release or external artifact store.
 *.pkl
-/neural_firewall/venv
-/neural_firewall/neural_firewall/__pycache__
-*.csv
+*.pt
+*.safetensors
