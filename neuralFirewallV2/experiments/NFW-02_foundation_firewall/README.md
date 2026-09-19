@@ -1,5 +1,19 @@
 # NFW-002 Foundational Monitor-and-Block PoC
 
+## Recommended: standalone v2 for a fresh Colab session
+
+Open **[NFW_002_Foundational_Monitor_Block_POC_v2.ipynb](NFW_002_Foundational_Monitor_Block_POC_v2.ipynb)**.
+It includes installation, private Hugging Face authentication, Necent streaming/preparation,
+source-disjoint splits, memory-conscious Qwen loading, monitor calibration, response checkpoints,
+and blinded evaluation inside the notebook. No terminal, repository clone, or helper scripts are needed.
+It uses a separate `MyDrive/NFW-002-v2/<RUN_ID>/` directory and does not modify v1 runs.
+
+Read the **[v2 run guide](NFW_002_V2_COLAB_GUIDE.md)** for fresh-run and reconnect instructions,
+labeling requirements, verification evidence, and limitations. Use `REVIEW_ONLY = True` to
+return to a completed run on a CPU runtime without loading Qwen or downloading Necent again.
+
+## Original notebook and historical workflow
+
 `NFW_002_Foundational_Monitor_Block_POC.ipynb` is the starting point for a defensible neural-firewall implementation. It is a frozen-model, pre-generation activation-monitor and block experiment. It is intentionally not an activation-steering experiment and makes no neural-privilege-separation claim.
 
 For a complete walk-through of its design, safeguards, outputs, and interpretation, read [the notebook guide](NFW_002_NOTEBOOK_GUIDE.md).
