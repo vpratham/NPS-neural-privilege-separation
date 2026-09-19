@@ -42,7 +42,11 @@ The model itself remains frozen. The only learned object is a logistic-regressio
 
 The first code cell defines the run ID, deterministic seed, Qwen reference model, model revision, candidate decoder blocks, input and generation limits, and target false-positive rate.
 
-The notebook writes every artifact beneath `nfw002_outputs/<run_id>/`. The directory is created with `exist_ok=False`, so a run never silently writes over another run's results. The reference configuration is mirrored in [qwen25_3b_reference.yaml](../../configs/qwen25_3b_reference.yaml).
+In Colab, the notebook mounts Google Drive and writes every artifact beneath `Drive/NFW-002/<run_id>/`. Locally, it defaults to `nfw002_outputs/<run_id>/`, which can be overridden with `NFW002_OUTPUT_ROOT`. Set `NFW002_RUN_ID` before the first run and reuse that exact identifier after a Colab reconnect. The reference configuration is mirrored in [qwen25_3b_reference.yaml](../../configs/qwen25_3b_reference.yaml).
+
+The first pass creates `manifest.json` and `splits.json`. A later pass validates the immutable configuration rather than overwriting it: dataset hash, split hash, model ID and revision, tokenizer/chat-template hash, padding, token limits, candidate layers, activation site, pooling, seed, and dtype must match. Once training completes, the manifest additionally binds the exact `intent_monitor.json` hash, selected layer, and calibrated threshold. Any mismatch rejects reuse and requires a new run ID.
+
+Response generation is checkpointed record by record. Each terminal response is flushed to `target_model_responses.jsonl`, then recorded in `completed_ids.jsonl`. On restart, the notebook validates each checkpoint against the run and monitor identities, repairs only the harmless case of an output written just before its completion marker, and generates only missing `(id, condition)` pairs. It never silently retries a terminal error or rewrites an existing response; correct the fault and use a new run ID.
 
 For a final research run, record the exact environment in the run manifest and do not change the model revision, tokenizer template, dataset, split, threshold rule, or evaluator after inspecting final outcomes.
 
@@ -181,6 +185,7 @@ These values should be reported alongside counts, uncertainty intervals, source-
 | `splits.json` | Immutable IDs assigned to the four experiment partitions |
 | `intent_monitor.json` | Frozen raw logistic detector and calibration metadata |
 | `target_model_responses.jsonl` | Actual baseline and firewall Qwen response records, including terminal status |
+| `completed_ids.jsonl` | Per-condition completion markers used to resume interrupted generation safely |
 | `response_labels.jsonl` | Independent labels supplied after generation; required for final evaluation |
 | `final_behavioral_results.parquet` | Joined example-level experimental record |
 | `final_report.json` | Aggregate, explicitly scoped final metrics and limitations |
