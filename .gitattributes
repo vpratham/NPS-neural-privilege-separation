@@ -1,0 +1,5 @@
+# Keep notebook changes reviewable in GitHub and avoid noisy generated outputs.
+*.ipynb linguist-documentation=true
+*.parquet binary
+*.npy binary
+*.npz binary

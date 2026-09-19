@@ -1,0 +1,14 @@
+{
+  "response_harmful_column": "response_harmful",
+  "model_name_column_found": true,
+  "response_text_column_found": true,
+  "model_name_values": [
+    "",
+    "ChatGPT",
+    "Claude",
+    "llama2-7b-chat",
+    "llama3"
+  ],
+  "matches_target_model": false,
+  "verdict": "model_name values do NOT match CONFIG['model_id'] (Qwen/Qwen2.5-3B-Instruct): ['', 'ChatGPT', 'Claude', 'llama2-7b-chat', 'llama3']. response_harmful reflects a DIFFERENT model's response \u2014 it is NOT Qwen-specific behavioral ground truth. This notebook still uses it as the task's designated behavioral label, but it is, at best, a proxy for 'can this prompt elicit a harmful response from *some* model' rather than 'does Qwen2.5-3B-Instruct produce a harmful response'. Carried verbatim into the final report."
+}
