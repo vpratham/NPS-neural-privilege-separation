@@ -16,6 +16,8 @@ It requires a reviewed local prompt dataset at `data/foundation_prompts.jsonl`. 
 }
 ```
 
+In Colab, the default path is `Drive/NFW-002/foundation_prompts.jsonl`; override it with `NFW002_DATA_PATH` if needed. You can make a **development-only** JSONL from the older NFW-01 CSVs with [prepare_development_dataset.py](prepare_development_dataset.py). It assigns each row its own group because the source CSVs do not contain paraphrase-family annotation, so do not use that output as a paper's frozen evaluation dataset.
+
 `intent_label` is the experiment's request-level block label. It is not a label for whether a generated response is harmful. `group_id` must keep paraphrases, templates, and a common base behavior together during splitting.
 
 In Colab, the notebook mounts Google Drive and writes to `Drive/NFW-002/<run_id>/` by default. Set `NFW002_RUN_ID` once and reuse it after a reconnect. The run directory contains the grouped split manifest, model/tokenizer/activation-site provenance, monitor artifact, actual baseline/firewall Qwen responses, and final report.

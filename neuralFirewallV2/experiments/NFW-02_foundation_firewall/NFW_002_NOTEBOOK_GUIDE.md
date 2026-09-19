@@ -52,7 +52,9 @@ For a final research run, record the exact environment in the run manifest and d
 
 ### 2. Dataset contract and validation
 
-The notebook requires `data/foundation_prompts.jsonl`. It does not manufacture a synthetic prompt set when the file is missing. That avoids accidentally publishing a detector that succeeds only on templates made by the same codebase.
+The notebook requires `foundation_prompts.jsonl`. In Colab the default is `Drive/NFW-002/foundation_prompts.jsonl`; locally the default is `nfw002_outputs/foundation_prompts.jsonl`. Set `NFW002_DATA_PATH` before the setup cell to use another location. It does not manufacture a synthetic prompt set when the file is missing. That avoids accidentally publishing a detector that succeeds only on templates made by the same codebase.
+
+For a smoke test or engineering run, [prepare_development_dataset.py](prepare_development_dataset.py) converts the existing NFW-01 safe/refusal CSVs into this schema. Its rows receive unique group IDs because the CSVs lack verified paraphrase-family groups. That is adequate for checking runtime and checkpoint behavior, but it is explicitly unsuitable as a research final set until real group annotations are supplied.
 
 Each record needs:
 
