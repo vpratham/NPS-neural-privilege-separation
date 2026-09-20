@@ -1,0 +1,38 @@
+{
+  "run_id": "nfw002_colab_poc_001",
+  "code_commit": null,
+  "dataset_hash": "cbbe0df0d0a1d86fe4bea2e3cecd9b521e90b16ed2857a36a2332454732ce91f",
+  "split_hash": "e06937cb40a834abc8193ab4de15266b0530b8b467c238f2cf0a04d550c6c10c",
+  "model_id": "Qwen/Qwen2.5-3B-Instruct",
+  "requested_model_revision": "aa8e72537993ba99e69dfaafa59ed015b17504d1",
+  "loaded_model_revision": "aa8e72537993ba99e69dfaafa59ed015b17504d1",
+  "tokenizer_name": "Qwen/Qwen2.5-3B-Instruct",
+  "chat_template_hash": "cd8e9439f0570856fd70470bf8889ebd8b5d1107207f67a5efb46e342330527f",
+  "padding_side": "right",
+  "max_input_tokens": 512,
+  "max_new_tokens": 128,
+  "candidate_layers_zero_based": [
+    18,
+    19,
+    20,
+    21
+  ],
+  "activation_site": "decoder_block_output",
+  "pooling": "last_nonpadding_token",
+  "seed": 42,
+  "dtype": "torch.bfloat16",
+  "packages": {
+    "torch": "2.11.0+cu128",
+    "transformers": "5.16.1",
+    "datasets": "4.8.5",
+    "scikit-learn": "1.6.1",
+    "pandas": "2.2.3"
+  },
+  "split_file": "splits.json",
+  "created_at_utc": "2026-09-19T11:35:08Z",
+  "intent_monitor": {
+    "artifact_sha256": "ab8bb400fb5a642c922e5b224c1c3b85fda0500e2a6fae548d20529a470c213c",
+    "selected_layer": 18,
+    "threshold": -1.3650686709026416
+  }
+}
