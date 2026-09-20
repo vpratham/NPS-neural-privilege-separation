@@ -1,0 +1,1752 @@
+% NPS Mathematical Framework — Draft v0.2
+% Expanded theory + mathematical definitions
+% Source basis: RepE, ITI, WMDP/RMU, Rethinking Backdoor Attacks,
+% and the NPS research charter.
+
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{xcolor}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\Psafe}{\mathcal{P}_{\mathrm{safe}}}
+\newcommand{\KL}{D_{\mathrm{KL}}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+\title{\textbf{A Mathematical Framework for Neural Privilege Separation}\\
+\large Toward a Formal Theory of the Neural Firewall}
+\author{NPS Research Project}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document develops a preliminary mathematical theory for Neural Privilege
+Separation (NPS). The goal is to formalize a neural firewall as an internal
+security boundary in a transformer: user-controlled computation should remain
+able to access legitimate capabilities while being unable to arbitrarily
+rewrite the internal state governing policy.
+
+The document deliberately uses two layers in every major section. First,
+the \emph{mathematical explanation} gives the intuition for why the object is
+needed and how it relates to the neural-firewall problem. Second, the
+\emph{theoretical definition} states the corresponding mathematical object,
+constraint, or property.
+
+The source literature establishes important ingredients---representation
+reading and control, inference-time activation intervention, representation
+misdirection for unlearning, and the necessity of explicit assumptions for
+robust detection. It does not establish the existence of a universal policy
+representation or a provably protected policy state. Those remain the central
+open questions of NPS.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Research Objective and Theoretical Position}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+The starting point is to treat an LLM as a dynamical system rather than only
+as a function from text to text. A user supplies an input, the transformer
+maps that input through a sequence of hidden states, and the final state
+produces an output distribution.
+
+A conventional guardrail observes either the input or the output. NPS asks a
+different question:
+
+\begin{quote}
+Can the security constraint be represented and enforced inside the
+computational state of the model?
+\end{quote}
+
+This changes the mathematical target. We are not primarily searching for a
+classifier that says ``unsafe.'' We are searching for a state variable whose
+dynamics can be constrained.
+
+The NPS research charter proposes a conceptual decomposition into user/task,
+capability, and policy information, with policy treated analogously to
+privileged memory. This is a hypothesis rather than an established
+architectural fact.
+
+\subsection*{Theoretical definition}
+
+The long-term NPS objective is to construct a protected internal state $P$
+such that, for an explicit attacker class $\mathcal A$,
+
+\begin{equation}
+\text{attacker-controlled input}
+\not\Rightarrow
+\text{unauthorized policy transition}.
+\end{equation}
+
+The desired result is stronger than ordinary refusal behavior:
+
+\begin{equation}
+\boxed{
+\text{legitimate capability access}
+\quad+\quad
+\text{protected policy state}
+\quad+\quad
+\text{bounded attacker influence}.
+}
+\end{equation}
+
+The research question is therefore:
+
+\begin{equation}
+\boxed{
+\text{Can policy-relevant computation be identified, isolated,
+and protected from user-controlled influence?}
+}
+\end{equation}
+
+The NPS charter explicitly frames this as a progression from representation
+detection to policy-manifold discovery, intervention, and finally protected
+policy representations. \cite{nps}
+
+% ============================================================
+\section{The Transformer as a Dynamical System}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+A transformer does not make its final decision in one step. Information is
+repeatedly transformed through layers. This matters because a neural
+firewall can potentially constrain the trajectory rather than merely inspect
+the final answer.
+
+If a hidden state at layer $\ell$ contains information relevant to policy,
+then changing that state can change what later layers compute. Conversely, if
+a protected region can be made invariant under later transitions, a policy
+constraint could persist throughout generation.
+
+This is the dynamical-systems view underlying the later notions of
+trajectory, invariant set, and transition operator.
+
+\subsection*{Theoretical definition}
+
+Let $M_\theta$ be a transformer with $L$ layers. For an input sequence $x$,
+
+\begin{equation}
+h_0=E(x),
+\end{equation}
+
+and
+
+\begin{equation}
+h_{\ell+1}=F_\ell(h_\ell),
+\qquad
+\ell=0,\ldots,L-1.
+\end{equation}
+
+The final output distribution is
+
+\begin{equation}
+p_\theta(y\mid x)
+=
+\operatorname{softmax}(W_o h_L).
+\end{equation}
+
+The internal computation is therefore represented as
+
+\begin{equation}
+h_0
+\rightarrow
+h_1
+\rightarrow
+\cdots
+\rightarrow
+h_L
+\rightarrow
+p_\theta(y\mid x).
+\end{equation}
+
+NPS will treat this sequence as a state trajectory.
+
+% ============================================================
+\section{Representation Theory: Why Search in Activation Space?}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+Representation Engineering (RepE) provides the first major theoretical
+motivation. Its central idea is to study high-level concepts through the
+representations in which they appear, rather than assuming that a single
+neuron or circuit is the correct unit of analysis.
+
+The important theoretical distinction is between \emph{readability} and
+\emph{control}. If a classifier can recover a concept from hidden states, the
+concept is represented in a statistically usable way. That does not yet prove
+that the representation causes the behavior.
+
+RepE therefore proposes a hierarchy of evidence:
+
+\begin{equation}
+\text{correlation}
+\rightarrow
+\text{manipulation}
+\rightarrow
+\text{termination}
+\rightarrow
+\text{recovery}.
+\end{equation}
+
+Correlation establishes that a representation is informative. Manipulation
+asks whether changing it changes behavior. Termination asks whether removing
+it destroys the behavior. Recovery asks whether restoring it restores the
+behavior.
+
+For NPS this hierarchy is crucial. A high-accuracy policy probe is only the
+first step.
+
+\subsection*{Theoretical definition}
+
+Let
+
+\begin{equation}
+r_\ell(x)\in\R^d
+\end{equation}
+
+be a representation at layer $\ell$. A linear representation reader is
+
+\begin{equation}
+s(x)=w^\top r_\ell(x)+b.
+\end{equation}
+
+The vector $w$ defines a candidate representation direction.
+
+A representation is \emph{readable} for target variable $Z$ if
+
+\begin{equation}
+\Prob\left[
+\hat Z(r_\ell(x))=Z
+\right]
+\gg
+\Prob[\text{chance}].
+\end{equation}
+
+This is a correlation statement, not automatically a causal statement.
+
+A candidate policy representation must therefore progress through stronger
+tests:
+
+\begin{align}
+\text{Reading:}\quad&
+P\text{ is predictive of policy},\\
+\text{Manipulation:}\quad&
+do(P\leftarrow P')\Rightarrow Y\text{ changes},\\
+\text{Termination:}\quad&
+P\text{ removed}\Rightarrow Y\text{ degrades},\\
+\text{Recovery:}\quad&
+P\text{ restored}\Rightarrow Y\text{ recovers}.
+\end{align}
+
+RepE also notes that effective reading vectors need not be effective control
+vectors and that concepts can occupy subspaces rather than single
+directions. \cite{repe}
+
+% ============================================================
+\section{Geometry: Vector, Subspace, Manifold, or Trajectory?}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+A major danger is assuming that policy is one vector:
+
+\begin{equation}
+p=w^\top h.
+\end{equation}
+
+That may be too restrictive. The ITI experiments found truth-related
+information distributed across multiple attention heads, and RepE explicitly
+suggests that future work should investigate subspaces, manifolds, and
+state-space trajectories.
+
+For NPS, this means the protected object should initially be allowed to have
+general geometry.
+
+The policy state might be:
+\begin{itemize}
+    \item a scalar score,
+    \item a direction,
+    \item a low-dimensional subspace,
+    \item a nonlinear manifold,
+    \item or a trajectory through representation space.
+\end{itemize}
+
+We should not decide this before the evidence.
+
+\subsection*{Theoretical definition}
+
+Let the policy representation be a map
+
+\begin{equation}
+\phi_P:\R^d\rightarrow\mathcal P.
+\end{equation}
+
+The policy-safe set is
+
+\begin{equation}
+\Psafe\subseteq\mathcal P.
+\end{equation}
+
+Special cases include:
+
+\paragraph{Half-space}
+\begin{equation}
+\Psafe=\{p:a^\top p+b\geq0\}.
+\end{equation}
+
+\paragraph{Subspace}
+\begin{equation}
+\Psafe=\{p:Ap=0\}.
+\end{equation}
+
+\paragraph{Manifold}
+\begin{equation}
+\Psafe=\mathcal M_P.
+\end{equation}
+
+The theory should remain agnostic until empirical experiments determine which
+geometry is supported.
+
+% ============================================================
+\section{Policy as a State Variable}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+The word ``policy'' is often used informally to describe a refusal. NPS needs
+a more precise object.
+
+A refusal is an output. A policy state is an internal variable that
+constrains what computations are permitted.
+
+The distinction is important:
+
+\begin{equation}
+\text{policy state}
+\neq
+\text{refusal token}.
+\end{equation}
+
+The model might internally represent a conflict or prohibition before any
+refusal is generated. A firewall should ideally act at that earlier stage.
+
+\subsection*{Theoretical definition}
+
+Let
+
+\begin{equation}
+P_\ell=\phi_P(h_\ell)
+\end{equation}
+
+be the policy state at layer $\ell$.
+
+Let
+
+\begin{equation}
+\Pi
+\end{equation}
+
+denote the underlying policy condition that the model is supposed to obey.
+
+The desired relation is
+
+\begin{equation}
+P_\ell
+\approx
+g(\Pi,\text{relevant context}),
+\end{equation}
+
+rather than
+
+\begin{equation}
+P_\ell
+\approx
+g(\text{surface form of the prompt}).
+\end{equation}
+
+This distinction motivates the identifiability and invariance conditions
+introduced later.
+
+% ============================================================
+\section{User, Capability, and Policy Decomposition}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+The NPS architecture hypothesizes three conceptually different kinds of
+information:
+
+\begin{enumerate}
+    \item what the user is asking or attempting to cause,
+    \item what computation or knowledge is needed to answer,
+    \item what the model is permitted to do.
+\end{enumerate}
+
+These are not assumed to correspond to three existing neural modules.
+Instead, we ask whether there is a transformation of the hidden state under
+which these roles become sufficiently distinguishable.
+
+The desired property is asymmetric information flow. User information should
+be allowed to affect capability computation, but policy should not be freely
+writable by the user.
+
+\subsection*{Theoretical definition}
+
+Assume a representation map
+
+\begin{equation}
+\phi:\R^d
+\rightarrow
+\mathcal U\times\mathcal C\times\mathcal P
+\end{equation}
+
+such that
+
+\begin{equation}
+\phi(h)=(U,C,P).
+\end{equation}
+
+A protected transition has the form
+
+\begin{align}
+U'&=f_U(U,C),\\
+C'&=f_C(U,C,P),\\
+P'&=f_P(C,P).
+\end{align}
+
+The key restriction is
+
+\begin{equation}
+\boxed{
+P'=f_P(C,P)
+}
+\end{equation}
+
+rather than
+
+\begin{equation}
+P'=f_P(U,C,P).
+\end{equation}
+
+This is the mathematical abstraction of the NPS privilege boundary.
+
+% ============================================================
+\section{Information Flow and Privilege Separation}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+The operating-system analogy becomes useful only if it is expressed as
+information flow.
+
+In a privileged-memory system, unprivileged code may read or use certain
+resources but cannot arbitrarily write protected memory.
+
+NPS seeks an analogous property:
+
+\begin{equation}
+U\rightarrow C
+\end{equation}
+
+may be allowed, while
+
+\begin{equation}
+U\not\rightarrow P
+\end{equation}
+
+is restricted.
+
+The point is not that user information literally disappears. The model must
+still understand the request. The point is that the user should not obtain
+unrestricted control over the state that determines policy.
+
+\subsection*{Theoretical definition}
+
+Let $U$ and $P$ be random variables representing user and policy states.
+One information-theoretic formulation of conditional isolation is
+
+\begin{equation}
+\boxed{
+I(P;U\mid\Pi)\approx0.
+}
+\end{equation}
+
+Here $I(\cdot;\cdot\mid\cdot)$ is conditional mutual information.
+
+The causal version is represented by the structural transition
+
+\begin{equation}
+P'=f_P(C,P),
+\end{equation}
+
+which excludes a direct user-to-policy edge.
+
+These two formulations are related but not identical:
+statistical independence does not by itself prove causal independence.
+
+% ============================================================
+\section{Policy Isolation as a Sensitivity Problem}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+Perfect isolation is probably too strong for a practical transformer. The
+useful question is therefore:
+
+\begin{quote}
+How much can attacker-controlled input change protected policy state?
+\end{quote}
+
+If a tiny change in user input produces a huge policy-state change, the
+boundary is weak. If even large allowed transformations of the prompt barely
+move policy state, the boundary is stronger.
+
+This turns privilege separation into a measurable sensitivity problem.
+
+\subsection*{Theoretical definition}
+
+For local analysis, define
+
+\begin{equation}
+J_{U\rightarrow P}
+=
+\left\|
+\frac{\partial P'}{\partial U}
+\right\|.
+\end{equation}
+
+Approximate local isolation requires
+
+\begin{equation}
+\boxed{
+J_{U\rightarrow P}\leq\epsilon.
+}
+\end{equation}
+
+For finite perturbations,
+
+\begin{equation}
+\Delta_U
+=
+\frac{
+d_P(P(x+\delta),P(x))
+}{
+\norm{\delta}
+}.
+\end{equation}
+
+A small value indicates local stability of the protected state with respect
+to user-controlled perturbations.
+
+% ============================================================
+\section{Global Isolation and the Attacker Set}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+Local derivatives are not enough for security. A nonlinear system can have
+small local gradients while still allowing a sufficiently large or
+well-chosen input transformation to move the state into a different region.
+
+Therefore the attacker must be defined explicitly.
+
+The backdoor literature is particularly relevant here: its central lesson is
+that robust guarantees require assumptions about what distinguishes the
+adversarial feature from ordinary features. Without such assumptions, the
+delineation can be fundamentally ambiguous.
+
+NPS should therefore never claim ``robustness'' without specifying the
+attacker's allowed transformations and budget.
+
+\subsection*{Theoretical definition}
+
+Let
+
+\begin{equation}
+\A(x)
+\end{equation}
+
+be the set of allowed attacker transformations of input $x$.
+
+Global policy isolation is
+
+\begin{equation}
+\boxed{
+\sup_{x'\in\A(x)}
+d_P\!\left(P(x'),P(x)\right)
+\leq\eta.
+}
+\end{equation}
+
+The attacker model may include, depending on the experiment:
+
+\begin{itemize}
+    \item paraphrasing,
+    \item instruction reordering,
+    \item role/context changes,
+    \item adversarial suffixes,
+    \item semantic-preserving transformations,
+    \item long-context composition.
+\end{itemize}
+
+The theorem can only be as strong as the assumptions defining $\A$.
+
+% ============================================================
+\section{Causal Intervention}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+A probe can tell us that a policy variable is readable. It cannot tell us
+whether changing that variable actually controls behavior.
+
+Causal intervention asks a counterfactual question:
+
+\begin{quote}
+What happens if the representation is changed while the rest of the
+computation is held as fixed as possible?
+\end{quote}
+
+ITI provides a direct precedent. It identifies attention heads with strong
+truth-related probe performance and shifts their activations during inference.
+The paper also demonstrates a trade-off between truthfulness and helpfulness,
+showing why intervention strength cannot simply be increased without limit.
+
+For NPS, causal intervention is therefore a required stage, not the final
+security guarantee.
+
+\subsection*{Theoretical definition}
+
+Let $P$ be a candidate policy representation. A causal intervention is written
+
+\begin{equation}
+do(P\leftarrow p').
+\end{equation}
+
+Let $Y$ be a policy-relevant behavioral variable. A candidate representation
+has causal influence if
+
+\begin{equation}
+\Prob(Y\mid do(P=p_1))
+\neq
+\Prob(Y\mid do(P=p_2))
+\end{equation}
+
+for some $p_1,p_2$.
+
+A stronger bidirectional requirement is
+
+\begin{align}
+do(P\leftarrow P_{\mathrm{safe}})
+&\Rightarrow
+\text{safer behavior},\\
+do(P\leftarrow P_{\mathrm{unsafe}})
+&\Rightarrow
+\text{less-safe behavior}.
+\end{align}
+
+The second direction is especially useful because it tests whether the
+representation is actually coupled to the behavior rather than merely
+correlated with it.
+
+% ============================================================
+\section{Firewall as a Projection or Constraint Operator}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+Once a policy-safe set exists, a firewall can be understood geometrically.
+
+Suppose the model's current state lies outside the permitted region. We do
+not necessarily want to replace it with an unrelated safe state. We want the
+nearest or least disruptive state that satisfies the policy.
+
+This is analogous to constrained optimization or projection onto a feasible
+set.
+
+The idea is therefore:
+
+\begin{equation}
+\text{unsafe state}
+\longrightarrow
+\text{closest policy-feasible state}.
+\end{equation}
+
+This is conceptually stronger than subtracting a fixed vector because the
+constraint can be state-dependent and nonlinear.
+
+\subsection*{Theoretical definition}
+
+Define a firewall operator
+
+\begin{equation}
+\mathcal F_\ell:\R^d\rightarrow\R^d.
+\end{equation}
+
+The protected transition is
+
+\begin{equation}
+h_{\ell+1}
+=
+F_\ell\!\left(\mathcal F_\ell(h_\ell)\right).
+\end{equation}
+
+A policy-preserving firewall satisfies
+
+\begin{equation}
+\mathcal F_\ell(h)=h,
+\qquad
+\forall h\in\Psafe,
+\end{equation}
+
+and
+
+\begin{equation}
+\mathcal F_\ell(h)\in\Psafe,
+\qquad
+\forall h.
+\end{equation}
+
+A minimum-distortion projection can be written
+
+\begin{equation}
+\mathcal F^*(h)
+=
+\argmin_{z\in\Psafe}
+D\!\left(
+p_\theta(\cdot\mid h),
+p_\theta(\cdot\mid z)
+\right).
+\end{equation}
+
+% ============================================================
+\section{Capability Preservation}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+Safety alone admits a trivial solution:
+
+\begin{equation}
+M_F(x)=\text{refuse}
+\qquad
+\forall x.
+\end{equation}
+
+That is not a useful neural firewall.
+
+The firewall therefore needs a second objective: preserve legitimate
+capabilities. This creates a constrained optimization problem with two
+competing requirements:
+
+\begin{equation}
+\text{security}
+\quad\text{versus}\quad
+\text{capability preservation}.
+\end{equation}
+
+This trade-off is visible in the intervention literature and especially in
+representation-based unlearning. RMU reduces hazardous performance while
+retaining much general capability, but it also reports capability loss in
+related domains. Therefore capability preservation must be measured, not
+assumed.
+
+\subsection*{Theoretical definition}
+
+Let $\X_{\mathrm{benign}}$ be the legitimate-task distribution. Define
+
+\begin{equation}
+\mathcal L_{\mathrm{cap}}
+=
+\E_{x\sim\X_{\mathrm{benign}}}
+D\!\left(
+p_F(\cdot\mid x),
+p_M(\cdot\mid x)
+\right).
+\end{equation}
+
+Require
+
+\begin{equation}
+\boxed{
+\mathcal L_{\mathrm{cap}}\leq\delta.
+}
+\end{equation}
+
+This formalizes the requirement that the firewall should alter behavior as
+little as possible on legitimate tasks.
+
+% ============================================================
+\section{RMU and the Forget--Retain Principle}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+RMU contributes an important mathematical pattern to NPS.
+
+Instead of optimizing only for removal, it simultaneously:
+
+\begin{enumerate}
+    \item disrupts representations on hazardous data, and
+    \item preserves representations on benign data.
+\end{enumerate}
+
+The general principle is:
+
+\begin{equation}
+\text{remove the dangerous computation}
++
+\text{retain useful computation}.
+\end{equation}
+
+This is directly relevant to a firewall because a safe transformation that
+destroys the model's capabilities is not sufficient.
+
+However, RMU is not equivalent to NPS. RMU modifies the model to remove
+hazardous knowledge, whereas NPS seeks an inference-time protected boundary.
+Moreover, the WMDP paper reports that finetuning can recover the unlearned
+capability in its open-source threat model. Thus representation disruption
+does not automatically imply permanent privilege separation.
+
+\subsection*{Theoretical definition}
+
+A generic forget--retain objective is
+
+\begin{equation}
+\mathcal L
+=
+\mathcal L_{\mathrm{forget}}
++
+\alpha
+\mathcal L_{\mathrm{retain}}.
+\end{equation}
+
+For RMU specifically, the forget objective pushes hazardous activations
+toward a fixed random direction while the retain objective keeps benign
+activations near the frozen model's activations.
+
+NPS generalizes the principle into a constraint problem:
+
+\begin{equation}
+\min
+\quad
+\mathcal L_{\mathrm{cap}}
++
+\lambda\mathcal L_{\mathrm{iso}}
+\end{equation}
+
+subject to a policy-safety condition.
+
+The conceptual shift is
+
+\begin{equation}
+\boxed{
+\text{representation removal}
+\quad\rightarrow\quad
+\text{representation protection}.
+}
+\end{equation}
+
+% ============================================================
+\section{Policy Invariance}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+A true firewall should not merely correct a state once. If later transformer
+layers can immediately recreate the forbidden state, the correction is not a
+security boundary.
+
+This motivates the concept of an invariant set from dynamical-systems
+theory.
+
+If the policy state begins inside the safe region, every subsequent protected
+transition should remain inside it.
+
+The key idea is:
+
+\begin{equation}
+\text{safe now}
+\Rightarrow
+\text{safe after the next transition}.
+\end{equation}
+
+Repeated application then gives safety throughout the entire computation.
+
+\subsection*{Theoretical definition}
+
+Let
+
+\begin{equation}
+P_\ell\in\mathcal P
+\end{equation}
+
+be the policy state and let
+
+\begin{equation}
+\Psafe\subseteq\mathcal P.
+\end{equation}
+
+The safe set is invariant if
+
+\begin{equation}
+\boxed{
+P_\ell\in\Psafe
+\Longrightarrow
+P_{\ell+1}\in\Psafe.
+}
+\end{equation}
+
+\begin{proposition}[Policy-state invariance]
+If
+\begin{equation}
+P_0\in\Psafe
+\end{equation}
+and
+\begin{equation}
+P_\ell\in\Psafe
+\Longrightarrow
+P_{\ell+1}\in\Psafe
+\end{equation}
+for every layer, then
+\begin{equation}
+\boxed{
+P_\ell\in\Psafe,\qquad\forall\ell.
+}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+By induction. The base case is $P_0\in\Psafe$. If $P_\ell\in\Psafe$, the
+invariance condition implies $P_{\ell+1}\in\Psafe$. Therefore the property
+holds for all layers.
+\end{proof}
+
+This is the core candidate security invariant of NPS.
+
+% ============================================================
+\section{Policy Violation as a Behavioral Quantity}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+An internal state is only useful if it connects to the behavior we actually
+care about.
+
+A policy violation should therefore be represented as a measurable function
+of the model's output or action. The internal firewall then has a chain of
+meaning:
+
+\begin{equation}
+P
+\rightarrow
+\text{allowed/forbidden computation}
+\rightarrow
+Y
+\rightarrow
+\text{policy violation}.
+\end{equation}
+
+This prevents us from protecting an arbitrary latent feature that has no
+reliable relationship to safety.
+
+\subsection*{Theoretical definition}
+
+Let
+
+\begin{equation}
+V(y)\in[0,1]
+\end{equation}
+
+be a policy-violation function.
+
+For input $x$, define expected violation
+
+\begin{equation}
+R(x)
+=
+\E_{y\sim p_\theta(\cdot\mid x)}
+[V(y)].
+\end{equation}
+
+For an adversarial input domain $\X_{\mathrm{adv}}$, the desired worst-case
+security bound is
+
+\begin{equation}
+\boxed{
+\sup_{x\in\X_{\mathrm{adv}}}
+R_F(x)
+\leq\epsilon.
+}
+\end{equation}
+
+% ============================================================
+\section{Adversarial Robustness and Recovery}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+A firewall is not secure merely because ordinary prompts fail to bypass it.
+An attacker can optimize against the mechanism.
+
+This creates a second-order question:
+
+\begin{quote}
+Can the attacker discover a different route through the model that avoids the
+protected representation?
+\end{quote}
+
+RMU's evaluations illustrate the importance of this distinction: the authors
+tested probes and adversarial attacks, but also found that open-source
+finetuning could recover the unlearned capability. The lesson for NPS is that
+``not currently observable'' and ``not recoverable under the threat model''
+are different claims.
+
+\subsection*{Theoretical definition}
+
+Let $\mathcal A$ be an attacker class. Define
+
+\begin{equation}
+R_{\mathrm{adv}}(M_F)
+=
+\sup_{A\in\mathcal A}
+V(A(M_F,x)).
+\end{equation}
+
+Require
+
+\begin{equation}
+\boxed{
+R_{\mathrm{adv}}(M_F)\leq\rho.
+}
+\end{equation}
+
+A stronger recovery formulation is
+
+\begin{equation}
+\sup_{A\in\mathcal A}
+\Prob\left[
+\text{recover forbidden behavior}
+\right]
+\leq\rho.
+\end{equation}
+
+The strength of this guarantee depends completely on the definition of
+$\mathcal A$.
+
+% ============================================================
+\section{Representation Identifiability}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+Before protecting a policy state, we must establish that the candidate state
+actually represents policy.
+
+This is harder than obtaining high probe accuracy.
+
+A classifier may exploit:
+
+\begin{itemize}
+    \item vocabulary,
+    \item topic,
+    \item prompt template,
+    \item refusal style,
+    \item dataset artifacts,
+    \item or other variables correlated with the label.
+\end{itemize}
+
+The representation is interesting only if it continues to carry policy
+information under changes that break those superficial correlations.
+
+The backdoor paper reinforces this general lesson: robust conclusions require
+explicit assumptions about what distinguishes the target feature from
+naturally occurring features.
+
+\subsection*{Theoretical definition}
+
+Let $\Pi$ denote the underlying policy variable, $P$ the candidate latent
+representation, and $X_{\mathrm{surface}}$ surface-level prompt properties.
+
+A minimal information condition is
+
+\begin{equation}
+\boxed{
+I(P;\Pi)>0.
+}
+\end{equation}
+
+A desired specificity condition is
+
+\begin{equation}
+\boxed{
+I(P;X_{\mathrm{surface}}\mid\Pi)\approx0.
+}
+\end{equation}
+
+These conditions are not sufficient for causality. They motivate
+intervention experiments.
+
+% ============================================================
+\section{Policy--User Independence}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+Suppose we find a representation that predicts policy perfectly but also
+contains a large amount of user-controlled information.
+
+That representation may be dangerous to protect because the attacker may be
+able to use that extra information as a control channel.
+
+Therefore NPS needs a stronger property than policy predictability:
+
+\begin{equation}
+\text{policy information}
+\quad\text{without unnecessary attacker-controlled degrees of freedom}.
+\end{equation}
+
+This is the information-theoretic analogue of a privilege boundary.
+
+\subsection*{Theoretical definition}
+
+Let $U$ be user state and $P$ protected policy state. A desired conditional
+independence property is
+
+\begin{equation}
+\boxed{
+I(P;U\mid\Pi)\approx0.
+}
+\end{equation}
+
+This should be interpreted carefully. It does not mean that the model cannot
+understand the user's request. It means that, once the actual policy state is
+fixed, the protected representation should contain little additional
+user-controlled information.
+
+% ============================================================
+\section{The Backdoor Paper and the Need for Assumptions}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+The backdoor work provides a methodological warning that is directly relevant
+to NPS.
+
+There is no universal mathematical procedure for identifying ``the malicious
+feature'' without assumptions. A malicious feature can be statistically
+indistinguishable from a naturally occurring feature.
+
+Their solution is to make an assumption tied to the effectiveness of the
+attack---specifically, that the backdoor trigger is the strongest feature in
+the relevant sense---and then derive a detection procedure under that
+assumption.
+
+NPS should adopt the same discipline.
+
+We should not state:
+
+\begin{equation}
+\text{``there exists a universal policy representation''}
+\end{equation}
+
+without stating why such a representation should be identifiable.
+
+Instead, we should formulate explicit structural assumptions and then derive
+conditional guarantees.
+
+\subsection*{Theoretical definition}
+
+Let $\mathcal H$ denote the set of possible hypotheses about representation
+structure and $\mathcal A$ the attacker class.
+
+A theorem of the form
+
+\begin{equation}
+\mathcal H\land\mathcal A
+\Longrightarrow
+\text{security guarantee}
+\end{equation}
+
+is meaningful only when $\mathcal H$ and $\mathcal A$ are stated explicitly.
+
+The backdoor paper provides an example of this methodology through assumptions
+about feature strength and datamodel accuracy. \cite{backdoor}
+
+For NPS, candidate assumptions may concern:
+
+\begin{enumerate}
+    \item existence of a stable policy representation,
+    \item separability of policy from user-controlled state,
+    \item bounded policy-state sensitivity,
+    \item bounded attacker access,
+    \item stability of protected transitions.
+\end{enumerate}
+
+These are hypotheses to test, not facts to assume silently.
+
+% ============================================================
+\section{Neural Firewall Security Definition}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+We can now combine the pieces.
+
+A neural firewall should simultaneously provide:
+
+\begin{enumerate}
+    \item a meaningful policy representation,
+    \item a protected safe region,
+    \item limited user influence over that region,
+    \item invariance of the region during computation,
+    \item low policy violation under attack,
+    \item and preservation of legitimate capabilities.
+\end{enumerate}
+
+No single scalar captures all of these properties. The firewall is therefore
+best understood as a constrained dynamical system with a security invariant
+and performance constraints.
+
+\subsection*{Theoretical definition}
+
+A candidate neural firewall consists of
+
+\begin{equation}
+\mathfrak F=
+(M_F,\phi_P,\Psafe,\mathcal A,V,D),
+\end{equation}
+
+where:
+
+\begin{itemize}
+    \item $M_F$ is the protected model,
+    \item $\phi_P$ extracts policy state,
+    \item $\Psafe$ is the safe policy set,
+    \item $\mathcal A$ is the attacker class,
+    \item $V$ is the policy-violation function,
+    \item $D$ measures capability deviation.
+\end{itemize}
+
+A strong NPS candidate should satisfy
+
+\begin{align}
+\text{Identifiability:}\qquad
+&I(P;\Pi)>0,
+\\
+\text{User isolation:}\qquad
+&I(P;U\mid\Pi)\approx0,
+\\
+\text{Local isolation:}\qquad
+&
+\left\|
+\frac{\partial P'}{\partial U}
+\right\|
+\leq\epsilon,
+\\
+\text{Global isolation:}\qquad
+&
+\sup_{x'\in\A(x)}
+d_P(P(x'),P(x))
+\leq\eta,
+\\
+\text{Invariance:}\qquad
+&
+P_\ell\in\Psafe
+\Rightarrow
+P_{\ell+1}\in\Psafe,
+\\
+\text{Security:}\qquad
+&
+\sup_{x\in\X_{\mathrm{adv}}}R_F(x)
+\leq\epsilon,
+\\
+\text{Capability:}\qquad
+&
+\E_{x\sim\X_{\mathrm{benign}}}D(p_F,p_M)
+\leq\delta,
+\\
+\text{Recovery resistance:}\qquad
+&
+\sup_{A\in\mathcal A}R_{\mathrm{adv}}(M_F)
+\leq\rho.
+\end{align}
+
+This is a target specification, not an established theorem.
+
+% ============================================================
+\section{The Neural Firewall Optimization Problem}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+The previous section gives constraints. We also need a constructive problem:
+how should a firewall be learned or engineered?
+
+The natural formulation is constrained optimization.
+
+We want to minimize the amount of capability lost and the amount of policy
+state exposed to user control, subject to a hard or soft security constraint.
+
+This formulation makes the trade-offs explicit instead of hiding them in one
+``safety score.''
+
+\subsection*{Theoretical definition}
+
+Let $\theta_F$ denote firewall parameters and $\phi$ the policy representation
+map. Define
+
+\begin{equation}
+\boxed{
+\begin{aligned}
+\min_{\theta_F,\phi}\quad&
+\mathcal L_{\mathrm{cap}}
++
+\lambda\mathcal L_{\mathrm{iso}}
+\\[3pt]
+\text{s.t.}\quad&
+\sup_{x\in\X_{\mathrm{adv}}}R_F(x)\leq\epsilon,
+\\
+&
+\sup_{x'\in\A(x)}
+d_P(P_F(x'),P_F(x))
+\leq\eta,
+\\
+&
+\sup_{A\in\mathcal A}
+R_{\mathrm{adv}}(M_F)
+\leq\rho.
+\end{aligned}
+}
+\end{equation}
+
+The objective may be expanded as
+
+\begin{equation}
+\mathcal L_{\mathrm{cap}}
+=
+\E_{x\sim\X_{\mathrm{benign}}}
+D\!\left(
+p_F(\cdot\mid x),
+p_M(\cdot\mid x)
+\right),
+\end{equation}
+
+with $\mathcal L_{\mathrm{iso}}$ representing a chosen measure of
+user-to-policy leakage or sensitivity.
+
+This is a research formulation rather than a solved optimization problem.
+
+% ============================================================
+\section{What Has Been Established Versus What NPS Must Prove}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+The four papers provide pieces of the theory, but they do not prove the NPS
+claim.
+
+RepE supports the idea that high-level concepts can be read and manipulated
+in representation space and explicitly recommends converging evidence beyond
+correlation.
+
+ITI demonstrates inference-time causal intervention on a sparse set of
+attention heads, while also exposing the truthfulness--helpfulness trade-off.
+
+WMDP/RMU demonstrates representation-based suppression of hazardous knowledge
+with retain objectives and evaluates recovery through probes and attacks, but
+also shows that finetuning can recover the capability in an open-source
+setting.
+
+The backdoor paper demonstrates that robust feature identification requires
+explicit assumptions.
+
+Together, these sources motivate the framework but leave the central NPS
+problem open:
+
+\begin{equation}
+\boxed{
+\text{Can policy computation itself be protected from user-controlled
+computation?}
+}
+\end{equation}
+
+\subsection*{Theoretical definition}
+
+The current state of knowledge can be summarized as:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Question & Status \\
+\midrule
+Meaningful latent concepts exist & Supported \\
+Concepts can be probed & Supported \\
+Some concepts can be causally manipulated & Supported \\
+Representation-level suppression is possible & Supported \\
+Robustness requires explicit threat assumptions & Supported \\
+Universal policy representation exists & Open \\
+User/capability/policy separation exists & Open \\
+Protected policy state exists & Open \\
+Policy safe-set invariance is achievable & Open \\
+Capability-preserving privilege separation is achievable & Open \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ============================================================
+\section{Research Program Derived from the Theory}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+The mathematics gives us a sequence of increasingly strong claims. This
+prevents NPS from jumping directly from a successful probe to a claim of
+security.
+
+The progression is:
+
+\begin{equation}
+\boxed{
+\text{representation}
+\rightarrow
+\text{causality}
+\rightarrow
+\text{isolation}
+\rightarrow
+\text{invariance}
+\rightarrow
+\text{robust security}.
+}
+\end{equation}
+
+Each step adds a stronger requirement.
+
+\subsection*{Theoretical definition}
+
+\paragraph{Stage 1: Representation}
+
+Establish
+
+\begin{equation}
+h\rightarrow P.
+\end{equation}
+
+\paragraph{Stage 2: Causality}
+
+Establish
+
+\begin{equation}
+do(P\leftarrow P')
+\Rightarrow
+Y\text{ changes}.
+\end{equation}
+
+\paragraph{Stage 3: Isolation}
+
+Establish
+
+\begin{equation}
+\sup_{x'\in\A(x)}
+d_P(P(x'),P(x))
+\leq\eta.
+\end{equation}
+
+\paragraph{Stage 4: Invariance}
+
+Establish
+
+\begin{equation}
+P_\ell\in\Psafe
+\Rightarrow
+P_{\ell+1}\in\Psafe.
+\end{equation}
+
+\paragraph{Stage 5: Robustness}
+
+Establish
+
+\begin{equation}
+\sup_{A\in\mathcal A}
+V(A(M_F))
+\leq\epsilon.
+\end{equation}
+
+% ============================================================
+\section{The Central Theorem We Ultimately Want}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+The ultimate goal is not a theorem saying that a probe is accurate. It is a
+theorem saying that a protected policy state is an invariant under an
+explicitly defined attacker model.
+
+Conceptually:
+
+\begin{equation}
+\text{safe initial policy state}
++
+\text{protected transition}
+\Rightarrow
+\text{safe policy state for all computation}.
+\end{equation}
+
+If policy safety can also be shown to imply bounded behavioral violation,
+then the latent invariant becomes a behavioral security guarantee.
+
+This would be the mathematical core of a neural firewall.
+
+\subsection*{Theoretical definition}
+
+A target theorem has the form:
+
+\begin{assumption}
+For every allowed attacker input $x\in\X_{\mathrm{adv}}$, the protected
+transition satisfies
+
+\begin{equation}
+P_\ell\in\Psafe
+\Longrightarrow
+P_{\ell+1}\in\Psafe.
+\end{equation}
+
+Furthermore, every state in $\Psafe$ induces bounded policy violation:
+
+\begin{equation}
+P_\ell\in\Psafe
+\Longrightarrow
+R_F(x)\leq\epsilon.
+\end{equation}
+\end{assumption}
+
+\begin{proposition}[Target NPS security invariant]
+Under the above assumptions, if
+
+\begin{equation}
+P_0\in\Psafe,
+\end{equation}
+
+then
+
+\begin{equation}
+P_\ell\in\Psafe
+\qquad
+\forall\ell,
+\end{equation}
+
+and consequently
+
+\begin{equation}
+R_F(x)\leq\epsilon
+\qquad
+\forall x\in\X_{\mathrm{adv}}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The invariant follows by induction from the protected transition condition.
+The behavioral bound follows from the assumption that every state in
+$\Psafe$ induces violation at most $\epsilon$.
+\end{proof}
+
+The difficult research problem is therefore not the induction itself. It is
+constructing and validating the representation, safe set, transition
+restriction, and attacker assumptions required for the theorem to apply.
+
+% ============================================================
+\section{Current Theoretical Boundary}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+At this point we have a coherent mathematical language for NPS, but not yet
+a proof that real transformers satisfy it.
+
+The following statements remain hypotheses:
+
+\begin{itemize}
+    \item a universal policy representation exists;
+    \item policy can be separated from user-controlled computation;
+    \item policy state has a stable geometry across prompts and tasks;
+    \item the safe set can be characterized reliably;
+    \item a protected transition can be implemented without unacceptable
+          capability loss;
+    \item the resulting invariant survives a sufficiently strong attacker.
+\end{itemize}
+
+This boundary is important. The mathematical framework should guide the
+experiments rather than be mistaken for evidence that the desired structure
+already exists.
+
+\subsection*{Theoretical definition}
+
+NPS is currently a conditional theory:
+
+\begin{equation}
+\boxed{
+\text{If a stable, isolatable policy state exists,}
+}
+\end{equation}
+
+then we seek to construct
+
+\begin{equation}
+\boxed{
+\text{a protected invariant over that state}
+}
+\end{equation}
+
+such that
+
+\begin{equation}
+\boxed{
+\text{attacker-controlled input cannot induce unauthorized policy
+violation within the stated threat model.}
+}
+\end{equation}
+
+The next experiments therefore determine whether the premises of this theory
+are empirically satisfied.
+
+% ============================================================
+\section{Conclusion}
+% ============================================================
+
+\subsection*{Mathematical explanation}
+
+The current theory can be summarized as a progression from representation
+science to security theory.
+
+Representation Engineering motivates the search for meaningful latent
+variables. ITI shows that some latent variables can be manipulated at
+inference time. RMU shows that representation-level modification can suppress
+hazardous capability while retaining some useful behavior, but also exposes
+recovery and capability-loss problems. The backdoor work establishes the need
+for explicit assumptions when making robust feature-level claims.
+
+NPS adds a stronger target:
+
+\begin{equation}
+\text{not merely ``find and steer a safety direction,''}
+\end{equation}
+
+but
+
+\begin{equation}
+\boxed{
+\text{identify}
+\rightarrow
+\text{isolate}
+\rightarrow
+\text{protect}
+\rightarrow
+\text{prove invariance}.
+}
+\end{equation}
+
+The proposed neural firewall is therefore a constrained dynamical system
+whose protected policy state acts as privileged internal state.
+
+\subsection*{Theoretical definition}
+
+The current mathematical abstraction is
+
+\begin{equation}
+\boxed{
+\text{Neural Firewall}
+=
+\text{Protected Policy State}
++
+\text{Constrained Transition}
++
+\text{Capability Preservation}
++
+\text{Adversarial Robustness}.
+}
+\end{equation}
+
+The central open problem is
+
+\begin{equation}
+\boxed{
+\exists\,\phi,\Psafe,\mathcal F
+\quad\text{such that}\quad
+\begin{cases}
+P=\phi_P(h)\text{ is policy-relevant},\\
+U\not\rightarrow P\text{ under }\mathcal A,\\
+P_\ell\in\Psafe\Rightarrow P_{\ell+1}\in\Psafe,\\
+R_F(x)\leq\epsilon,\\
+\mathcal L_{\mathrm{cap}}\leq\delta.
+\end{cases}
+}
+\end{equation}
+
+That existence question is the mathematical heart of NPS.
+
+% ============================================================
+\begin{thebibliography}{9}
+
+\bibitem{repe}
+Andy Zou et al.
+\newblock \emph{Representation Engineering: A Top-Down Approach to AI
+Transparency}.
+\newblock arXiv:2310.01405, v4, 2025.
+
+\bibitem{iti}
+Kenneth Li et al.
+\newblock \emph{Inference-Time Intervention: Eliciting Truthful Answers from
+a Language Model}.
+\newblock arXiv:2306.03341, v6.
+
+\bibitem{wmdp}
+Nathaniel Li et al.
+\newblock \emph{The WMDP Benchmark: Measuring and Reducing Malicious Use With
+Unlearning}.
+\newblock arXiv:2403.03218, v7, 2024.
+
+\bibitem{backdoor}
+Khaddaj et al.
+\newblock \emph{Rethinking Backdoor Attacks}.
+\newblock arXiv:2307.10163, v1.
+
+\bibitem{nps}
+NPS Research Charter.
+\newblock \emph{Neural Privilege Separation: Research Vision and Roadmap}.
+\newblock Internal project document.
+
+\end{thebibliography}
+
+\end{document}
