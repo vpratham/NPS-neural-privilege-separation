@@ -1,8 +1,34 @@
+<div align="center">
+
 # Neural Privilege Separation
 
-Neural Privilege Separation (NPS) is an AI-security research project studying whether a language model can maintain policy-relevant computation under attacker-controlled input. The long-term objective is a neural firewall: an internal monitor and controller that reduces unsafe or unauthorized behavior while preserving legitimate capability.
+**A research program for internal policy-state protection in language models.**
 
-The project distinguishes five claims that need different evidence:
+[![Status](https://img.shields.io/badge/status-active%20research-0f766e)](#current-status)
+[![Stage](https://img.shields.io/badge/stage-monitor--and--block%20baseline-2563eb)](#current-status)
+[![Reference Model](https://img.shields.io/badge/reference-Qwen2.5--3B--Instruct-7c3aed)](neuralFirewallV2/)
+[![Claims](https://img.shields.io/badge/security%20claims-explicitly%20scoped-b45309)](#scope-and-limitations)
+
+</div>
+
+Neural Privilege Separation (NPS) studies whether a language model can maintain
+policy-relevant computation under attacker-controlled input. The long-term goal
+is a **neural firewall**: an internal monitor and controller that reduces unsafe
+or unauthorized behavior while preserving legitimate capability.
+
+This repository is a research workspace, not a deployed safety product. It
+contains theory notes, historical activation experiments, reproducible monitor
+baselines, implementation audits, and current neural-firewall experiments.
+
+## Why This Exists
+
+Most guardrails inspect text at the boundary: the prompt, the response, or both.
+NPS asks a different question:
+
+> Can policy-relevant computation be identified, monitored, and eventually
+> protected inside the model's internal state?
+
+The project separates five claims that are often conflated:
 
 | Claim | Evidence required |
 |---|---|
@@ -12,62 +38,123 @@ The project distinguishes five claims that need different evidence:
 | Policy state is protected | Measured resistance to unauthorized influence |
 | The mechanism generalizes | Held-out domains, attacks, and model families |
 
-The first two are useful scientific steps. They are not security guarantees by themselves.
+The first two are useful scientific steps. They are not security guarantees by
+themselves.
 
-## Current direction
+## Current Status
 
-The repository contains exploratory experiments, legacy activation artifacts, and a new foundational monitor-and-block proof of concept. The recommended entry point is [NFW-002](neuralFirewallV2/experiments/NFW-02_foundation_firewall/), which creates one reproducible activation-monitoring experiment with:
+| Area | Status |
+|---|---|
+| Theory | Draft mathematical framework for NPS and neural-firewall security objectives |
+| Historical experiments | Activation probes, policy-vector experiments, causal pilots, and audits |
+| Current baseline | NFW-002 monitor-and-block proof of concept |
+| Reference model | `Qwen/Qwen2.5-3B-Instruct` |
+| Security claim | No robust NPS claim yet; current work is a scoped research baseline |
+
+The immediate objective is **not** to claim a finished neural firewall. It is to
+obtain complete, reproducible, target-model behavioral evaluations for
+activation-monitoring baselines. Those results determine whether to invest in
+continuation monitoring, selective intervention, and protected policy-state
+experiments.
+
+## Research Roadmap
+
+```text
+Readable representation
+        |
+        v
+Validated monitor-and-block baseline
+        |
+        v
+Selective causal controller
+        |
+        v
+Policy-conditioned authority experiments
+        |
+        v
+Adaptive robustness and cross-model validation
+```
+
+The eventual NPS target is an internal security boundary with:
+
+- an explicit attacker model;
+- measurable policy-state isolation;
+- a protected policy invariant;
+- acceptable capability retention; and
+- adaptive robustness evidence.
+
+## Repository Map
+
+```text
+datasets/                 Prompt sources, taxonomies, and generated datasets
+docs/                     Charter, implementation audit, and forensic notes
+experiments/              Historical notebooks and exploratory runs
+neural_firewall/          Earlier modular firewall prototype and experiments
+neuralFirewallV2/         Current NFW experiment series and engineering branch
+results/                  Historical result summaries and archived artifacts
+theory/                   Mathematical framework and NPS theory notes
+```
+
+## Start Here
+
+| Goal | Entry point |
+|---|---|
+| Understand the research claim boundary | [Implementation audit](docs/NPS_IMPLEMENTATION_AUDIT.md) |
+| Read the theory foundation | [NPS mathematical framework](theory/NPS_Mathematical_Framework_v0_2.tex) |
+| Run the current monitor baseline | [NFW-002 experiment guide](neuralFirewallV2/experiments/NFW-02_foundation_firewall/README.md) |
+| Review the engineering program | [Neural Firewall v2](neuralFirewallV2/README.md) |
+| See the original research vision | [NPS charter](docs/NPS_Charter.md) |
+
+## Current Experiment Track
+
+The recommended current entry point is
+[NFW-002](neuralFirewallV2/experiments/NFW-02_foundation_firewall/), a
+foundational activation-monitoring experiment with:
 
 - canonical Qwen chat serialization;
-- explicit, verified activation-site conventions;
+- explicit activation-site conventions;
 - grouped train/development/calibration/final splits;
 - frozen detector artifacts and provenance manifests;
 - complete response accounting; and
 - behavioral evaluation on actual target-model outputs.
 
-Read the [implementation audit](docs/NPS_IMPLEMENTATION_AUDIT.md) before interpreting historical results. It documents known dataset, evaluation, and runtime limitations in prior experiments.
+NFW-002 is intentionally a **monitor-and-block baseline**. It does not establish
+neural privilege separation, policy-state invariance, adaptive robustness, or a
+deployed safety guarantee.
 
-## Repository layout
+## Paper Groundwork
 
-```text
-datasets/                 Prompt sources, taxonomies, and generated datasets
-docs/                     Research charter and implementation audit
-experiments/              Historical NPS notebooks and exploratory runs
-neural_firewall/          Earlier modular firewall prototype and experiments
-neuralFirewallV2/         Current research program and NFW experiment series
-results/                  Historical result summaries and archived artifacts
-theory/                   Notes on the NPS hypothesis
-```
-
-## Research sequence
+The theory draft frames NPS as a conditional security objective:
 
 ```text
-Readable representation
-        ↓
-Validated monitor-and-block baseline
-        ↓
-Selective causal controller
-        ↓
-Policy-conditioned authority experiments
-        ↓
-Adaptive robustness and cross-model validation
+identify policy-relevant state
+        |
+isolate trusted policy configuration from untrusted influence
+        |
+constrain internal transitions
+        |
+measure behavioral security and capability preservation
 ```
 
-The next objective is not to claim a finished neural firewall. It is to obtain a complete, target-model behavioral evaluation for the monitor-and-block baseline. That result determines whether to invest in continuation monitoring and intervention.
+The current paper-ready contribution is best positioned as a **formal framework
+and evaluation ladder** for neural-firewall research, supported by preliminary
+monitoring experiments and explicit negative/limitation findings.
 
-## Getting started
+## Scope and Limitations
 
-1. Review [NFW-002's experiment guide](neuralFirewallV2/experiments/NFW-02_foundation_firewall/README.md).
-2. Prepare a reviewed two-class prompt dataset with stable IDs and paraphrase/behavior group IDs.
-3. Run `NFW_002_Foundational_Monitor_Block_POC.ipynb` in Colab or a CUDA environment.
-4. Independently label the target model's released responses before opening the final report cell.
+NPS is active research. Existing activation probes and interventions are
+experimental and should not be represented as deployed safety guarantees.
 
-## Scope and limitations
+Important boundaries:
 
-NPS is an active research project. Existing activation probes and interventions are experimental; they should not be represented as a deployed safety guarantee. A blocked request is not, by itself, proof that a harmful output was prevented, and a high probe AUC is not proof of privilege separation.
+- A high probe AUC is not proof of privilege separation.
+- A blocked request is not, by itself, proof that harmful output was prevented.
+- A successful intervention is not automatically a security guarantee.
+- Robustness claims require an explicit attacker model and adaptive evaluation.
+- Historical results must be interpreted through the implementation audit.
 
-## Reference materials
+## Contributing
 
-- [NPS Charter](docs/NPS_Charter.md)
-- [Implementation audit](docs/NPS_IMPLEMENTATION_AUDIT.md)
-- [Neural Firewall v2 program](neuralFirewallV2/README.md)
+Contributions should preserve the distinction between evidence and hypothesis.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for experiment, artifact, and reporting
+guidelines.
