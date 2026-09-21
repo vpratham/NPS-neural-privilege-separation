@@ -1,0 +1,383 @@
+% NFW theory document. Compile with: pdflatex NFW_theory.tex (twice).
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{booktabs,longtable,array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{listings}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black}
+\setlist{nosep}
+
+\newtheorem{definition}{Definition}[section]
+\newtheorem{assumption}[definition]{Assumption}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{corollary}[definition]{Corollary}
+\newtheorem{remark}[definition]{Remark}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cT}{\mathcal{T}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\cY}{\mathcal{Y}}
+
+\title{\textbf{Neural Privilege Separation:}\\
+Trajectory Risk Monitoring and Capability-Gated Tool Use}
+\author{Neural Privilege Separation (NPS) research project}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Large language models can be useful proposers of plans and tool calls while remaining unsafe principals for direct authority. This document develops a theory of neural privilege separation (NPS): a model may generate text and candidate actions, but an independent host-side broker decides whether any externally visible effect occurs. A learned trajectory monitor, potentially inspired by state-space models (SSMs), estimates whether the model is entering a hazardous behavioral region. The monitor can veto, slow, or request approval; it never mints authority. Cryptographically scoped, expiring, replay-resistant capabilities and a typed request parser enforce the final boundary.
+
+We formalize the architecture as a stochastic transition system, prove safety and non-escalation theorems under explicit assumptions, derive bounds for monitor error and adaptive attack episodes, and explain exactly where those proofs stop applying. We then report the NFW-005, NFW-006, and NFW-007 repository experiments. They validate a narrow mock-tool boundary: the tested broker rejected unauthorized requests, preserved capability scope and replay rules, detected audit tampering, resumed from checkpoints, and separated authorized utility from attack outcomes. They do not prove security of an operating-system sandbox, a neural detector, a production deployment, or arbitrary future attacks.
+\end{abstract}
+
+\tableofcontents
+
+\section{Preamble and scope}
+
+\subsection{The motivating failure mode}
+An LLM is optimized to produce a continuation, not to preserve the security invariant of an external system. A prompt injection, malicious retrieved document, compromised memory, or ordinary model error can therefore alter the model's proposed next action. If the application treats a valid-looking output as authority, the model becomes a confused deputy: a component that possesses more authority than the untrusted request should receive.
+
+The NPS proposal begins with a simple separation:
+\begin{equation}
+  \underbrace{\text{model output}}_{\text{untrusted proposal}}
+  \quad\longrightarrow\quad
+  \underbrace{\text{host parser + policy + capability broker}}_{\text{authority decision}}
+  \quad\longrightarrow\quad
+  \underbrace{\text{isolated tool}}_{\text{effect}}.
+\end{equation}
+The model can request an action, but a request does not confer permission. Permission is a separately issued, narrowly scoped object checked by code outside the model.
+
+\subsection{Claims and non-claims}
+This paper makes four kinds of claim.
+\begin{enumerate}
+  \item \emph{Architectural claim:} authority can be placed on a host-side path that does not depend on the truthfulness of model-generated fields.
+  \item \emph{Formal claim:} if the parser, capability verifier, policy, state machine, and effect adapter satisfy stated assumptions, unauthorized effects are unreachable in the model of the system.
+  \item \emph{Statistical claim:} a trajectory monitor can estimate risk and support a bounded decision rule, subject to calibration, distribution shift, and evasion limits.
+  \item \emph{Empirical claim:} the NFW notebooks provide reproducible evidence for the tested finite workloads and mock tools.
+\end{enumerate}
+The paper does not claim that a monitor detects all harmful intent, that activation geometry has a universal ``harmful direction,'' or that in-memory mock tools equal a process, container, VM, filesystem, network, or cloud security boundary.
+
+\section{Literature review}
+
+\subsection{Sequence models and dynamical state}
+Classical state-space models represent a sequence by a latent state $z_t$ updated from an input $u_t$ and emitted as an observation $y_t$:
+\begin{align}
+ z_{t+1} &= A z_t + B u_t, & y_t &= C z_t + D u_t.
+\end{align}
+Structured State Space (S4) models make this idea computationally practical for long sequences while preserving useful dynamical structure \cite{gu2022s4}. Later work shows that input dependence, gating, and selective retention matter for associative recall and long-range behavior \cite{poli2023zoology}. These results motivate an SSM-inspired monitor over a model's hidden-state trajectory, but they do not by themselves imply that the monitor is a security proof.
+
+\subsection{Representations, probes, and interventions}
+Transformer residual streams contain information that can be extracted with probes and interventions. Work on activation engineering demonstrates that inference-time changes to intermediate activations can steer high-level properties \cite{turner2023activation}. Work on causal representation analysis emphasizes that predictive probes alone do not establish that a representation is causally used; interventions and ablations provide stronger evidence \cite{elhage2022toy}. Accordingly, NPS treats a neural monitor as a risk signal whose causal effect is limited to a broker decision, while the authority invariant is enforced by explicit host-side state.
+
+\subsection{Jailbreaks, deceptive behavior, and model organisms}
+Jailbreak defenses based on input and output classifiers show that learned monitors can reduce attack success on selected distributions, but also illustrate the need to test adaptive attackers and false refusals \cite{anthropic2025cc}. Research on sleeper agents constructs model organisms with deployment-conditional behavior and warns that ordinary training performance does not establish deployment safety \cite{hubinger2024sleeper}. NPS adopts the corresponding threat-model discipline: attack evaluation must include feedback, adaptation, replay, scope confusion, and side effects.
+
+\subsection{Capability security and least authority}
+Capability systems represent authority as an unforgeable reference or token that names a permitted object and operation. The principle of least authority gives each component only the authority required for its task \cite{miller2006robust}. This is a better fit for tool-using models than trusting a free-form string such as ``administrator'' or a model-produced approval field. The broker in this work is a small capability verifier and effect dispatcher, with nonce consumption, expiry, revocation, and audit state.
+
+\subsection{Operational AI security guidance}
+OWASP identifies prompt injection, sensitive information disclosure, insecure plugin design, and excessive agency as major risks in LLM applications \cite{owasp2025top10}. NIST's AI Risk Management Framework recommends documenting context, measuring risks, managing them, and governing the lifecycle \cite{tabassi2023airmf}. NPS maps these recommendations to a concrete control: model behavior may be monitored, but privilege is decided by a separately testable and auditable enforcement mechanism.
+
+\section{Problem formulation and threat model}
+
+\subsection{System variables}
+Let $x_t$ be the complete model-visible context at step $t$, including user input, system instructions, retrieved data, conversation history, and tool results. Let $h_t\in\R^d$ be a hidden representation selected from the model, and let $a_t$ be the model's proposed action. The action alphabet is
+\[
+  \cA = \{\textsf{respond},\textsf{request-tool},\textsf{stop},\textsf{error}\}.
+\]
+For a tool request, let $r_t$ be a canonical request containing exactly a tool name and typed arguments. Let $e_t$ be the externally observable effect, including reads, writes, messages, network calls, or process creation.
+
+The host maintains state $q_t$ containing consumed nonces, key epochs, revocation entries, audit-chain state, rate limits, and tool-local state. The transition is
+\begin{equation}
+ (x_t,h_t,q_t) \xrightarrow{M} (a_t,r_t) \xrightarrow{B} (d_t,q_{t+1},e_t),
+\end{equation}
+where $M$ is the model and $B$ is the broker. The crucial design constraint is that $B$ does not obtain authority from $h_t$, $a_t$, or unverified request fields.
+
+\subsection{Adversary}
+The adversary may choose arbitrary user prompts, retrieved text, tool-result text, malformed JSON, duplicate keys, Unicode edge cases, replayed tokens, expired tokens, revoked tokens, scope-confused tokens, and sequences designed after observing denial reasons. The adversary may also control or influence the model's generated request. In the strongest software threat model, the adversary may cause arbitrary model output.
+
+The base theorem does \emph{not} assume the adversary can read the broker's signing key, alter broker memory, bypass the parser, execute arbitrary code in the host process, or corrupt the isolated tool. Those are separate trusted-computing-base assumptions. If any is false, the theorem's conclusion must be weakened.
+
+\begin{definition}[Unauthorized effect]
+An effect $e_t$ is unauthorized if it changes an external state outside the union of resources and operations granted by a valid capability consumed for the exact request and principal at time $t$.
+\end{definition}
+
+\section{Proposed architecture}
+
+\subsection{Layered control path}
+The proposed system has five layers:
+\begin{enumerate}
+  \item \textbf{Model proposer.} Produces language and candidate tool requests.
+  \item \textbf{Trajectory monitor.} Reads a bounded feature stream derived from hidden states and request/context metadata. It produces a risk score and uncertainty estimate.
+  \item \textbf{Canonical parser.} Converts bytes to one typed request or rejects. Duplicate keys, non-finite numbers, unknown authority fields, invalid Unicode, oversized fields, and malformed structures are errors.
+  \item \textbf{Capability broker.} Verifies a host-issued token against subject, tool, resource, action, expiry, key epoch, revocation, and nonce state. It applies policy and monitor veto.
+  \item \textbf{Effect adapter.} Executes only the exact allowlisted operation, ideally in a separately isolated process with its own OS-level limits.
+\end{enumerate}
+
+The monitor is useful because the broker may need to stop a suspicious sequence, require human approval, or reduce a capability's scope. The monitor is not sufficient because false negatives are unavoidable under finite data and adaptive distribution shift. The broker is useful because it establishes a non-statistical gate: if no valid capability exists, no effect adapter call occurs.
+
+\subsection{State-space trajectory monitor}
+Let $v_t=\phi(x_t,h_t,a_t,r_t)$ be a bounded feature vector. A continuous-time conceptual model is
+\begin{equation}
+ \dot z(t)=f_\theta(z(t),v(t))+\eta(t), \qquad s(t)=g_\theta(z(t),v(t)),
+\end{equation}
+where $z(t)\in\R^m$ is monitor state, $s(t)\in[0,1]$ is a hazard score, and $\eta$ models observation and approximation noise. A discrete implementation may use
+\begin{equation}
+ z_{t+1}=\alpha(z_t,v_t;\theta), \qquad s_t=\sigma(w^\top z_t+b),
+\end{equation}
+with a stable or gated recurrence. Define the $k$-step hazard event
+\[
+ H_{t,k}=\{\text{a policy-relevant unsafe transition or attempted out-of-scope action occurs in }[t,t+k]\}.
+\]
+The training target is a conditional probability, not a moral label:
+\begin{equation}
+ s_t \approx \Prob(H_{t,k}=1\mid \mathcal{F}_t),
+\end{equation}
+where $\mathcal{F}_t$ is the monitor's observed history. Calibration can be evaluated with reliability diagrams, Brier score, expected calibration error, and attack-family-stratified recall. The monitor must also expose an abstain/unknown state when its input is outside its calibration support.
+
+\section{Formal security model}
+
+\subsection{Canonical requests}
+Let $\mathsf{Parse}:\{0,1\}^*\to\cR\cup\{\bot\}$ be deterministic. The parser accepts only a schema
+\[
+ r=(\texttt{tool},\texttt{arguments}),
+\]
+with a unique set of keys, finite values, bounded strings, typed arguments, and no authority-bearing fields. Let $\mathsf{Canon}(r)$ be a unique byte representation. The broker authorizes the canonical bytes, not the original ambiguous syntax.
+
+\begin{assumption}[Parser soundness]
+If $\mathsf{Parse}(w)=r$, then $r$ has exactly one interpretation, and $\mathsf{Canon}(r)$ preserves every security-relevant field. If $\mathsf{Parse}(w)=\bot$, no effect is attempted.
+\end{assumption}
+
+\subsection{Capabilities}
+A capability is
+\begin{equation}
+ C=(v,\mathsf{sub},\mathsf{tool},\mathsf{res},\mathsf{ops},t_0,t_1,n,e,\tau),
+\end{equation}
+where $v$ is key epoch, $\mathsf{sub}$ is subject, $\mathsf{tool}$ is an exact tool identifier, $\mathsf{res}$ is a resource predicate, $\mathsf{ops}$ is an allowed operation set, $[t_0,t_1]$ is validity, $n$ is a unique nonce, $e$ is an epoch/revocation binding, and $\tau$ is a MAC or digital signature. A host-side issuer computes
+\[
+ \tau=\mathsf{MAC}_{K_v}(\mathsf{Encode}(C\setminus\{\tau\})).
+\]
+The model can see a token string if the application supplies one, but cannot mint a valid token without $K_v$.
+
+Define validity at broker state $q$ and time $t$:
+\begin{align}
+ \mathsf{Valid}(C,r,s,q,t) \iff{}& \mathsf{Verify}_{K_v}(\tau,C)\\
+ &\land\ v\in\mathsf{ActiveEpochs}(q)\land e\notin\mathsf{Revoked}(q)\\
+ &\land\mathsf{sub}=s\land t_0\le t\le t_1\\
+ &\land\mathsf{tool}(r)=\mathsf{tool}\land\mathsf{args}(r)\in\mathsf{res}\\
+ &\land\mathsf{op}(r)\in\mathsf{ops}\land n\notin\mathsf{Consumed}(q).
+\end{align}
+On successful authorization, the broker atomically records $n$ as consumed before invoking the effect adapter.
+
+\begin{assumption}[Cryptographic unforgeability]
+For an adversary without active signing keys, the probability of producing a valid tag for a new unauthorized capability is at most $\varepsilon_{\mathrm{mac}}$ over the evaluation horizon.
+\end{assumption}
+
+\begin{assumption}[Atomic broker state]
+Nonce consumption, revocation/epoch lookup, decision logging, and the effect-adapter handoff are linearizable: concurrent requests cannot both pass a one-time check, and a denied decision causes no effect-adapter invocation.
+\end{assumption}
+
+\subsection{Policy and monitor veto}
+Let $P(r,C,q)$ be a deterministic allow predicate. Let $m_t\in\{0,1\}$ be the monitor decision, where $m_t=1$ means veto or approval-required. The final decision is
+\begin{equation}
+ d_t=\mathsf{allow}\iff \mathsf{Parse}(w_t)\neq\bot \land \mathsf{Valid}(C_t,r_t,s_t,q_t,t)\land P(r_t,C_t,q_t)\land(m_t=0).
+\end{equation}
+The monitor can reduce the allow set, never enlarge it.
+
+\section{Theoretical results}
+
+\subsection{Parser non-bypass}
+\begin{lemma}[Malformed input cannot create an effect]
+Under parser soundness, any input $w$ for which $\mathsf{Parse}(w)=\bot$ causes no external effect.
+\end{lemma}
+\begin{proof}
+The broker's decision predicate contains the conjunct $\mathsf{Parse}(w)\neq\bot$. If parsing fails, the predicate is false. By parser soundness, the broker returns denial and the effect adapter is not invoked. Therefore the transition relation contains no edge from a parse-failure state to an external-effect state.\qed
+\end{proof}
+
+\subsection{Capability non-escalation}
+\begin{theorem}[Capability non-escalation]
+Assume parser soundness, cryptographic unforgeability, atomic broker state, and that the effect adapter executes only the operation handed to it after an allow decision. Then, except with probability at most $\varepsilon_{\mathrm{mac}}$, every executed operation is within the subject, tool, resource, operation, time, epoch, and nonce constraints of a host-issued capability.
+\end{theorem}
+\begin{proof}
+Consider any execution at time $t$ in which the effect adapter executes. The adapter assumption implies that the broker returned $d_t=\mathsf{allow}$. Expanding the decision predicate gives parser success, $\mathsf{Valid}(C_t,r_t,s_t,q_t,t)$, policy acceptance, and no monitor veto. Parser soundness makes $r_t$ unique and canonical. Validity gives signature verification, an active epoch, no revocation, subject equality, time validity, exact tool equality, resource inclusion, operation inclusion, and an unused nonce. Atomic state ensures the same nonce cannot produce a second successful transition.
+
+The only way for an operation outside a host-issued capability to satisfy these checks is for verification to accept a forged or altered tag, or for trusted broker state to be violated. The latter is excluded by the atomic-state and adapter assumptions. The former occurs with probability at most $\varepsilon_{\mathrm{mac}}$ by cryptographic unforgeability. Thus unauthorized execution is impossible within the idealized system except for the stated cryptographic failure event.\qed
+\end{proof}
+
+\begin{corollary}[Model claims do not grant authority]
+Adding fields such as \texttt{admin}, \texttt{approved}, \texttt{capability}, or \texttt{signature} to a model request cannot grant authority when those fields are rejected by the parser or excluded from the host-issued capability verification path.
+\end{corollary}
+\begin{proof}
+Such fields either cause parser rejection or do not alter any conjunct in $\mathsf{Valid}$. Therefore they cannot change a false allow predicate to true.\qed\end{proof}
+
+\subsection{Replay resistance}
+\begin{theorem}[One-time nonce replay resistance]
+Under atomic broker state, a valid capability with nonce $n$ can cause at most one successful effect transition.
+\end{theorem}
+\begin{proof}
+The first successful authorization requires $n\notin\mathsf{Consumed}(q_t)$ and atomically updates state to include $n$. For any later linearized request carrying $n$, the validity predicate contains $n\notin\mathsf{Consumed}(q)$, which is false. Hence the later request is denied.\qed\end{proof}
+
+\subsection{Scope confinement}
+\begin{theorem}[Resource and operation confinement]
+Suppose a capability's resource predicate is $R_C$ and operation set is $O_C$. If every adapter call is constructed from the canonical request and checks $\mathsf{args}(r)\in R_C$ and $\mathsf{op}(r)\in O_C$, then every successful effect lies in $R_C\times O_C$.
+\end{theorem}
+\begin{proof}
+An effect can occur only after $\mathsf{Valid}$, which contains both membership checks. The adapter receives the same canonical request whose arguments and operation were checked. Therefore its effect is a member of the capability's allowed product set. If path normalization, aliases, symlinks, or TOCTOU can cause the adapter to affect a different resource than the checked resource, adapter correctness is false and the theorem does not apply.\qed\end{proof}
+
+\subsection{Monitor monotonicity}
+\begin{proposition}[A veto-only monitor cannot create an allow]
+Let $D_0$ be the broker's allow set without monitoring and $D_1$ the allow set with a veto-only monitor. Then $D_1\subseteq D_0$.
+\end{proposition}
+\begin{proof}
+The monitored decision adds the conjunct $(m_t=0)$ to the unmonitored decision. Adding a conjunct can only remove satisfying assignments, never add them.\qed\end{proof}
+
+This proposition is the central reason to separate learned risk estimation from authority. A false negative may fail to stop a request that was otherwise valid, but it cannot turn an invalid token into a valid token. A false positive can reduce availability, which must be measured as utility loss.
+
+\subsection{Audit-chain integrity}
+Let event $E_i$ contain the decision, canonical request digest, subject, capability identifier, and effect result. Define
+\[
+ h_i=H(h_{i-1}\Vert\mathsf{Encode}(E_i)),\qquad h_0=H(\text{run identity}).
+\]
+\begin{theorem}[Tamper detection under collision resistance]
+If $H$ is collision resistant and the initial digest is authenticated or stored out of the attacker's write path, changing, deleting, reordering, or inserting an event without detection requires either a hash collision or compromise of the authenticated anchor.
+\end{theorem}
+\begin{proof}
+Any changed chain suffix has a first index $j$ at which the recomputed digest differs from the recorded digest while the predecessor is unchanged. Equality at $j$ would give a collision between the original and changed encodings. Deletion or insertion similarly changes the predecessor relation at the first affected index. Reordering changes at least one encoded predecessor/event pair. If the attacker also changes the anchor, the authenticated-anchor assumption is violated.\qed\end{proof}
+
+\section{Monitor theory: what can and cannot be proved}
+
+\subsection{Bayes-optimal interpretation}
+The ideal score is
+\begin{equation}
+ s^*(\mathcal{F}_t)=\Prob(H_{t,k}=1\mid\mathcal{F}_t).
+\end{equation}
+For a veto threshold $\tau$, the policy $m_t=\1[s_t\ge\tau]$ has false-positive and false-negative rates
+\begin{align}
+ \mathrm{FPR}(\tau)&=\Prob(s_t\ge\tau\mid H_{t,k}=0),\\
+ \mathrm{FNR}(\tau)&=\Prob(s_t<\tau\mid H_{t,k}=1).
+\end{align}
+If the cost of an unsafe transition is $C_U$ and the cost of unnecessary intervention is $C_A$, the Bayes decision threshold for a calibrated score is
+\begin{equation}
+ \tau^*=\frac{C_A}{C_A+C_U},
+\end{equation}
+when the action set is binary and the costs are normalized as above. In practice, costs are state-dependent, so a vector-valued decision rule is preferable: allow, deny, require approval, reduce scope, or terminate the episode.
+
+\subsection{Calibration error bound}
+Let $\hat s$ be a monitor estimate and suppose calibration error is bounded pointwise by $|\hat s-s^*|\le\delta$. For a threshold rule, only samples with $s^*$ in the interval $[\tau-\delta,\tau+\delta]$ can have their decision changed by estimation error. Hence
+\begin{equation}
+ \Prob\bigl(\1[\hat s\ge\tau]\ne\1[s^*\ge\tau]\bigr)
+ \le \Prob(s^*\in[\tau-\delta,\tau+\delta]).
+\end{equation}
+If the distribution of $s^*$ has density bounded by $L$ near $\tau$, this is at most $2L\delta$. This bound concerns monitor decisions only; the capability theorem remains independent of monitor accuracy.
+
+\subsection{Adaptive episodes}
+Let an episode contain $T$ requests and define $U_t=1$ if request $t$ produces an unauthorized effect. The event of any unauthorized effect is $U=\max_t U_t$. Without independence,
+\begin{equation}
+ \Prob(U=1)\le\sum_{t=1}^{T}\Prob(U_t=1)
+\end{equation}
+by the union bound. Under the capability theorem, each term is bounded by the relevant cryptographic, implementation, or trusted-component failure probability. The bound remains valid for adaptive requests because it conditions on the entire prior history; independence is unnecessary.
+
+For $N$ independent episodes with zero observed violations, the exact one-sided upper confidence bound on the per-episode violation probability is
+\begin{equation}
+ p_{1-\alpha}=1-\alpha^{1/N}.
+\end{equation}
+For small $p$ this is approximately $-\log(\alpha)/N$. This is a statement about the sampled episode distribution, not about all possible attacks. Shared attack logic, deterministic generators, and finite mock workloads reduce the effective generalization claim.
+
+\section{Results from the NPS repository}
+
+\subsection{NFW-005: adversarial capability boundary}
+NFW-005 evaluates the external broker with strict wire parsing, HMAC-scoped expiring tokens, key epochs, explicit revocation, replay/nonces, chained audit events, deterministic randomized adversarial requests, and optional fork/GPU smoke tests. Its recorded run reports 2,010 deterministic adversarial cases, zero authorizations without a trusted capability, 13 of 13 security checks passing, a valid audit chain, zero external actions, and no model capability minting or privilege upgrade. These are results recorded in \texttt{NFW-005\_RUN\_RESULTS.md}; they are not independently reproduced by this paper.
+
+\subsection{NFW-006: adaptive sandboxed side effects}
+NFW-006 extends the test to adaptive attacks that observe denial reasons and mutate future requests. It uses deterministic in-memory mock tools, a default-deny broker, resource/action-scoped capabilities, expiry, replay, revocation, signatures, mock writes and messages, chained telemetry, Drive manifests, and resumable checkpoints. The security endpoint is unauthorized mock side effects. The guide explicitly states that no real filesystem, shell, network, API, or external service is accessed.
+
+\subsection{NFW-007: integrated boundary, utility, and telemetry}
+NFW-007 measures authority, effects, utility, adaptive episodes, and observability together. Its default configuration is 400 attack episodes (3,200 attack requests) and 100 benign episodes (300 legitimate tasks plus scripted mistakes). The documented endpoint is unauthorized local mock-tool side effects, while legitimate success and benign false alerts are reported separately. The notebook includes resume integrity, tamper detection, audit-chain validation, and deterministic seeded execution.
+
+\subsection{Local verification}
+The repository contains one focused unit-test file for each notebook. On 21 September 2026, all three files were run directly with Python 3.14. Each suite ran five tests and passed, for 15 tests total. The tests check clean notebook cells, malformed-input rejection, surrogate-safe canonicalization, scope and replay controls, side-effect confinement, resume determinism, manifest mismatch failure, batch tamper detection, benign utility, and audit controls.
+
+\begin{table}[ht]
+\centering
+\caption{Evidence and its logical scope.}
+\begin{tabular}{p{0.22\linewidth}p{0.32\linewidth}p{0.35\linewidth}}
+\toprule
+Artifact & Demonstrates & Does not demonstrate \\
+\midrule
+NFW-005 & Broker and parser invariants on deterministic adversarial cases & Universal adaptive robustness or production isolation \\
+NFW-006 & Adaptive request handling and mock side-effect gate & OS/process/filesystem/network containment \\
+NFW-007 & Integrated attack/benign utility and telemetry workload & Generalization to real agents, models, or operators \\
+Unit tests & Reproducible local regression checks & Statistical security confidence by themselves \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Engineering implications and falsification plan}
+
+The theory predicts concrete failure modes. The project should be considered falsified or weakened if any of the following occur:
+\begin{enumerate}
+  \item a model-produced authority field changes an allow decision;
+  \item a scope-confused, expired, revoked, or replayed capability produces an effect;
+  \item parser ambiguity gives two security-relevant interpretations to the same input;
+  \item a concurrent replay bypasses nonce consumption;
+  \item a monitor veto enlarges the allow set, or the adapter executes a request different from the checked canonical request;
+  \item audit tampering is not detected from an authenticated anchor;
+  \item a test result is reported as a security success while an unauthorized mock side effect occurred;
+  \item real subprocess, filesystem, network, or API effects escape the intended isolation boundary.
+\end{enumerate}
+
+The next experimental steps are therefore: (i) replace deterministic request generators with independently implemented adaptive agents; (ii) test concurrent broker requests and crash recovery; (iii) run the effect adapter in a separate least-privilege process; (iv) add path, symlink, TOCTOU, network-egress, and resource-exhaustion tests; (v) train and calibrate the trajectory monitor on held-out attack families; (vi) evaluate transfer across models and prompt distributions; and (vii) report confidence intervals and false-positive costs for every intervention policy.
+
+\section{Conclusion}
+
+NPS combines two different mechanisms with different epistemic roles. A trajectory monitor estimates whether the model is entering a risky region and can provide early intervention. A host-side capability broker enforces whether an external effect is permitted. The monitor is statistical and can be wrong; the broker is a deterministic policy mechanism whose guarantees follow from parser soundness, cryptographic verification, atomic state, and adapter isolation.
+
+The main theorem is consequently conditional but useful: an arbitrary model output cannot escalate privilege when authority is neither represented by model claims nor derived from monitor confidence, and when the final effect path requires a valid, scoped, unexpired, non-replayed host-issued capability. The repository results support this narrow architecture on deterministic mock workloads. Building a security claim for deployment requires proving or testing the assumptions at the real effect boundary.
+
+\begin{thebibliography}{99}
+\bibitem{gu2022s4}
+A. Gu, K. Goel, and C. Ré, ``Efficiently Modeling Long Sequences with Structured State Spaces,'' in \emph{International Conference on Learning Representations}, 2022. \url{https://arxiv.org/abs/2111.00396}.
+
+\bibitem{poli2023zoology}
+M. Poli et al., ``Zoology: Measuring and Improving Recall in Efficient Language Models,'' arXiv:2312.04927, 2023. \url{https://arxiv.org/abs/2312.04927}.
+
+\bibitem{turner2023activation}
+M. Turner et al., ``Steering Language Models With Activation Engineering,'' arXiv:2308.10248, 2023. \url{https://arxiv.org/abs/2308.10248}.
+
+\bibitem{elhage2022toy}
+N. Elhage et al., ``Toy Models of Superposition,'' 2022. \url{https://transformer-circuits.pub/2022/toy\_model/index.html}.
+
+\bibitem{anthropic2025cc}
+Anthropic Safeguards Research Team, ``Constitutional Classifiers: Defending against Universal Jailbreaks across Thousands of Hours of Red Teaming,'' arXiv:2501.18837, 2025. \url{https://arxiv.org/abs/2501.18837}.
+
+\bibitem{hubinger2024sleeper}
+E. Hubinger et al., ``Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training,'' arXiv:2401.05566, 2024. \url{https://arxiv.org/abs/2401.05566}.
+
+\bibitem{miller2006robust}
+M. S. Miller, K.-P. Yee, and J. Shapiro, ``Capability Myths Demolished,'' technical report, 2003. \url{https://srl.cs.jhu.edu/pubs/SRL2003-03.pdf}.
+
+\bibitem{owasp2025top10}
+OWASP GenAI Security Project, ``OWASP Top 10 for Large Language Model Applications,'' 2025. \url{https://genai.owasp.org/llm-top-10/}.
+
+\bibitem{tabassi2023airmf}
+E. Tabassi, ``Artificial Intelligence Risk Management Framework (AI RMF 1.0),'' NIST AI 100-1, National Institute of Standards and Technology, 2023. \url{https://doi.org/10.6028/NIST.AI.100-1}.
+
+\bibitem{vaswani2017attention}
+A. Vaswani et al., ``Attention Is All You Need,'' in \emph{Advances in Neural Information Processing Systems}, 2017. \url{https://arxiv.org/abs/1706.03762}.
+\end{thebibliography}
+
+\end{document}
