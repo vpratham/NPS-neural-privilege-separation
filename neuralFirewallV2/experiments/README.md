@@ -9,8 +9,10 @@ Each NFW experiment should answer one falsifiable question, use a frozen configu
 | [NFW-02](NFW-02_foundation_firewall/) | Target-model monitor-and-block baseline | Current foundational experiment |
 | [NFW-03](NFW-03_behavioral_proxy/) | Historical-response proxy evaluation, baselines and buffered-gate laboratory | Standalone Colab notebook; full GPU integration run pending |
 | [NFW-04](NFW-04_veto_capability_firewall/) | Veto-gated neural attestation with external capability broker | Colab-first PoC implemented; local security tests pass |
-| NFW-05 | Adaptive attacks | Planned |
-| NFW-06–09 | Hardening, combined defense, cross-model evaluation, final benchmark | Planned |
+| [NFW-05](NFW-05_adversarial_capability_firewall/) | Reproducible adversarial capability-boundary evaluation | Colab-first notebook implemented; local tests pass |
+| [NFW-06](NFW-06_adaptive_sandbox_evaluation/) | Adaptive red-team attacks and sandboxed side-effect evaluation | Colab-first notebook implemented; local tests pass |
+| [NFW-07](NFW-07_integrated_boundary_evaluation/) | Integrated broker effects, utility, adaptive episodes, and telemetry | Colab-first notebook implemented; local tests pass |
+| NFW-08–09 | Cross-model evaluation and final benchmark | Planned |
 
 Do not use the final evaluation partition to choose layer, threshold, persistence, intervention strength, or judge. Every expected example needs one terminal status: `ok`, `blocked`, or `error`; errors remain in the report.
 

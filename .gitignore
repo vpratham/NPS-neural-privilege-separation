@@ -5,7 +5,7 @@ venv/
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
-
+./.DS_Store
 # Local model/download caches and offload directories
 qwen_offload/
 offload/
