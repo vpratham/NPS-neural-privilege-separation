@@ -1,11 +1,11 @@
 # Local environments and editor files
 .venv/
 venv/
+# macOS Finder metadata (including nested directories)
 .DS_Store
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
-./.DS_Store
 # Local model/download caches and offload directories
 qwen_offload/
 offload/
