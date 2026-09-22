@@ -12,7 +12,8 @@ Each NFW experiment should answer one falsifiable question, use a frozen configu
 | [NFW-05](NFW-05_adversarial_capability_firewall/) | Reproducible adversarial capability-boundary evaluation | Colab-first notebook implemented; local tests pass |
 | [NFW-06](NFW-06_adaptive_sandbox_evaluation/) | Adaptive red-team attacks and sandboxed side-effect evaluation | Colab-first notebook implemented; local tests pass |
 | [NFW-07](NFW-07_integrated_boundary_evaluation/) | Integrated broker effects, utility, adaptive episodes, and telemetry | Colab-first notebook implemented; local tests pass |
-| NFW-08–09 | Cross-model evaluation and final benchmark | Planned |
+| [NFW-08](NFW-08_live_model_broker_evaluation/) | Pinned live-model proposals, paired broker-policy effects, and benign utility | Colab GPU notebook implemented; local CPU contract tests pass |
+| [NFW-09](NFW-09_tool_result_injection/) | Actual tool-result injection, paired model utility/proposals, and capability-broker effects | Colab GPU notebook implemented; local CPU contract tests pass; GPU run pending |
 
 Do not use the final evaluation partition to choose layer, threshold, persistence, intervention strength, or judge. Every expected example needs one terminal status: `ok`, `blocked`, or `error`; errors remain in the report.
 
