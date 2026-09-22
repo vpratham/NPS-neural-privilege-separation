@@ -1,0 +1,541 @@
+% NFW novice-oriented manuscript.
+% This is LaTeX source stored with the requested .text extension.
+% Compile with: pdflatex nfw_manuscript.text
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs,longtable,array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{fancyvrb}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black}
+\setlist{nosep}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{assumption}[definition]{Assumption}
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{lemma}[definition]{Lemma}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\cA}{\mathcal{A}}
+
+\title{\textbf{Neural Privilege Separation:}\\
+An Accessible Theory of Monitoring Language Models and Safely Controlling Their Tools}
+\author{Neural Privilege Separation (NPS) research project}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This manuscript explains neural privilege separation (NPS) for readers who know basic programming but may be new to machine learning security, formal proofs, and cryptography. The central idea is simple: a language model may suggest an action, but it must not own the permission to perform that action. An independent host-side broker checks every request against a narrowly scoped capability before a tool can change anything.
+
+We also describe a trajectory monitor inspired by state-space models. The monitor watches signals related to the model's evolving behavior and estimates whether the model may be moving toward a risky action. It can stop or escalate a request, but it cannot grant permission. This separation lets us make a strong guarantee about unauthorized effects without pretending that a learned detector can recognize every harmful intention.
+
+The manuscript develops the idea from first principles, gives a running file-deletion example, explains the mathematics and proofs in plain language, summarizes NFW-005 through NFW-007, and identifies exactly what the experiments do and do not establish.
+\end{abstract}
+
+\tableofcontents
+
+\section{How to read this manuscript}
+
+This document has two layers. The first is explanatory: it uses ordinary language, examples, diagrams, and a glossary. The second is formal: it defines objects mathematically and proves properties under stated assumptions. You can understand the design without reading every proof. The proofs are included so that a reader can see which security claims follow from the architecture and which still depend on engineering details.
+
+\subsection{Prerequisites}
+Only modest background is needed to follow the main idea:
+\begin{itemize}
+  \item Basic programming: functions, data structures, and input validation.
+  \item Basic probability: events, conditional probability, and error rates.
+  \item Basic security vocabulary: attacker, authentication, permission, and audit log.
+\end{itemize}
+The formal sections additionally use sets, functions, Boolean logic, hashing, message authentication codes, and simple recurrence equations. Each is introduced before it is used.
+
+\subsection{A map of the argument}
+The argument is:
+\begin{enumerate}
+  \item Model output is untrusted data.
+  \item A parser turns only well-formed data into a request.
+  \item A host-issued capability says exactly which request is allowed.
+  \item The broker verifies that capability and consumes it safely.
+  \item The tool executes only after all checks pass.
+  \item A neural monitor may veto suspicious behavior, but never creates authority.
+\end{enumerate}
+
+\section{Plain-language preamble}
+
+Imagine giving a student assistant access to a computer. You want the assistant to read a public document and summarize it. You do not want a malicious document to persuade the assistant to delete your research folder, send private files to an attacker, or run an unknown program.
+
+A common but unsafe design is:
+\begin{quote}
+Ask the language model what to do, then execute whatever tool call it returns.
+\end{quote}
+This gives the model an indirect form of authority. A prompt injection does not need to change the computer directly; it only needs to make the model produce a dangerous-looking tool call.
+
+NPS changes the rule:
+\begin{quote}
+The language model can propose an action, but a separate security component decides whether that action is permitted.
+\end{quote}
+
+This resembles a bank employee who can fill out a payment request but cannot approve their own payment. The employee's explanation may be useful, but the authorization comes from an independent control.
+
+\section{Running example: an agent asked to delete a file}
+
+Suppose a user asks an agent:
+\begin{quote}
+Please remove the temporary file \texttt{/tmp/report.txt}.
+\end{quote}
+The model proposes:
+\begin{Verbatim}
+{"tool": "delete_file", "arguments": {"path": "/tmp/report.txt"}}
+\end{Verbatim}
+
+The system may decide to issue a capability containing:
+\begin{itemize}
+  \item subject: this user session;
+  \item tool: \texttt{delete\_file};
+  \item resource: exactly \texttt{/tmp/report.txt};
+  \item operation: delete;
+  \item expiration: the next five minutes;
+  \item nonce: a unique one-time identifier.
+\end{itemize}
+
+The model receives the capability or a reference to it, but it cannot create a new one. If a malicious document tells the model to delete \texttt{/home/user/research.pdf}, the broker compares that path with the capability. The paths differ, so the broker denies the request.
+
+If the model writes:
+\begin{Verbatim}
+{"tool": "delete_file", "arguments": {"path": "/tmp/report.txt"},
+ "admin": true, "approved": true}
+\end{Verbatim}
+the extra fields do not help. They are either rejected by the parser or ignored as authority claims. A statement made by the model is not a permission.
+
+\section{The architecture in one picture}
+
+The following diagram shows the complete control path.
+
+\begin{Verbatim}[fontsize=\small]
+ User prompt, retrieved text, and tool results
+                    |
+                    v
+       +-----------------------------+
+       | Language model              |
+       | Suggests text and actions   |
+       +-----------------------------+
+                    |
+                    v   untrusted request
+       +-----------------------------+
+       | Optional trajectory monitor |
+       | Estimates risk; may veto     |
+       +-----------------------------+
+                    |
+                    v
+       +-----------------------------+
+       | Strict canonical parser     |
+       | Rejects malformed requests  |
+       +-----------------------------+
+                    |
+                    v
+       +-----------------------------+
+       | Capability broker           |
+       | Checks identity, scope,     |
+       | expiry, replay, policy      |
+       +-----------------------------+
+             |                  |
+          deny                 allow
+             |                  v
+             |       +-------------------------+
+             +-----> | Effect adapter/tool     |
+                     | Performs exact operation|
+                     +-------------------------+
+\end{Verbatim}
+
+The important direction is that information flows from the model toward the broker, but authority does not flow from the model toward the broker. The broker already knows what authority exists.
+
+\section{Glossary for novice readers}
+
+\begin{longtable}{p{0.23\linewidth}p{0.68\linewidth}}
+\toprule
+Term & Meaning \\
+\midrule
+Agent & A program that uses a model to decide or request multiple steps. \\
+Capability & A narrowly scoped, host-issued permission to perform a particular operation. \\
+Canonical request & One unique, normalized representation of a request. \\
+Confused deputy & A trusted component tricked into using its own authority for an untrusted requester. \\
+Cryptographic signature/MAC & A mathematical proof-like tag showing that a trusted key holder created data and that it was not changed. \\
+Effect & A real change outside the model, such as writing a file or sending a message. \\
+False negative & A dangerous case that a detector fails to identify. \\
+False positive & A safe case that a detector incorrectly flags. \\
+Hidden state & Internal numerical values produced while a neural model processes input. \\
+Least privilege & Giving a component only the permissions required for its current task. \\
+Nonce & A number used once, often to prevent replay. \\
+Replay & Sending an old valid request again to repeat an operation. \\
+Scope & The exact resources and operations covered by a permission. \\
+State-space model & A model that represents a sequence using an evolving internal state. \\
+Telemetry & Recorded information about decisions, requests, and effects. \\
+TOCTOU & ``Time of check to time of use'': a resource changes between security checking and use. \\
+Trusted computing base & The small set of components whose correctness the security argument assumes. \\
+\bottomrule
+\end{longtable}
+
+\section{Literature review in accessible language}
+
+\subsection{State-space sequence models}
+A state-space model summarizes a long history using a changing vector. In ordinary language, it is like a notebook that keeps a compact memory of what has happened. The update rule is
+\begin{equation}
+ z_{t+1}=A z_t+B u_t,
+\end{equation}
+where $z_t$ is the current memory, $u_t$ is the new input, and $A$ and $B$ describe how old and new information are combined. Structured State Space models make this family efficient for long sequences \cite{gu2022s4}. Other work studies when efficient sequence models can recall information and when they need input-dependent gating \cite{poli2023zoology}.
+
+NPS uses this idea for a monitor, not as a replacement for the language model. The monitor can summarize whether a sequence appears to be moving toward a risky request.
+
+\subsection{Activation monitoring and steering}
+Neural networks contain internal numerical representations. Research has shown that some properties of text can be predicted from these representations and that changing them can steer outputs \cite{turner2023activation}. However, a probe that predicts a label is not automatically a security mechanism. It may fail on new prompts, use a spurious feature, or be evaded by an adaptive model. Causal interpretation work therefore studies interventions rather than relying only on correlations \cite{elhage2022toy}.
+
+NPS uses the monitor as a risk signal. The final authority decision remains outside the neural representation.
+
+\subsection{Jailbreaks and deceptive behavior}
+Constitutional classifier research demonstrates one way to monitor model inputs and outputs for harmful content \cite{anthropic2025cc}. Sleeper-agent research shows why a model can behave safely during one evaluation and differently in another context \cite{hubinger2024sleeper}. These works motivate adaptive testing and held-out attack families. They also support a cautious conclusion: learned monitoring is useful, but it should not be the only barrier protecting external systems.
+
+\subsection{Capability security}
+Capability security replaces broad identity-based permission with a specific object that names what may be used and how. The principle of least authority is a natural match for agents, because an agent may need permission to read one document without receiving permission to browse an entire drive \cite{miller2006robust}.
+
+\subsection{Security guidance}
+OWASP identifies prompt injection and excessive agency as important risks in LLM applications \cite{owasp2025top10}. NIST's AI Risk Management Framework recommends identifying context, measuring risk, managing risk, and governing the system over its lifecycle \cite{tabassi2023airmf}. The NPS design turns those general principles into a concrete testable boundary.
+
+\section{The proposed solution step by step}
+
+\subsection{Step 1: treat model output as data}
+The model produces bytes or text. Those bytes may be useful, but they are not trusted commands. In particular, the following cannot grant authority:
+\begin{itemize}
+  \item ``I am an administrator.''
+  \item ``The user approved this.''
+  \item ``Ignore the policy.''
+  \item a model-generated signature or capability string;
+  \item a tool name hidden inside free-form text.
+\end{itemize}
+
+\subsection{Step 2: parse strictly}
+The parser accepts one small schema. It rejects duplicate keys, malformed JSON, non-finite numbers, invalid Unicode, unknown security fields, oversized values, and invalid types. This matters because ambiguous input can make the parser and the executor disagree about what was authorized.
+
+\subsection{Step 3: issue a narrow capability}
+The trusted host issues a capability only after applying its own policy. The capability says who may do what, to which resource, during what time period, and how many times.
+
+\subsection{Step 4: verify before effects}
+The broker checks the request and capability together. It checks the subject, exact tool, resource, operation, expiration, revocation status, key epoch, signature, and nonce. The check happens before the effect adapter is called.
+
+\subsection{Step 5: make the monitor veto-only}
+The monitor may say ``stop,'' ``ask for approval,'' or ``reduce scope.'' It cannot say ``this request is risky, therefore grant it anyway.'' This one-way role is mathematically useful: a monitor mistake can reduce availability, but cannot enlarge the capability set.
+
+\section{Formal notation without skipping the intuition}
+
+Let:
+\begin{itemize}
+  \item $x_t$ be everything the model sees at time $t$;
+  \item $h_t$ be selected model hidden-state features;
+  \item $r_t$ be a parsed request;
+  \item $q_t$ be broker memory, including used nonces and revocations;
+  \item $e_t$ be an external effect.
+\end{itemize}
+
+The model generates a request, but the broker decides:
+\begin{equation}
+ \textsf{allow}_t \iff
+ \textsf{Parse}(w_t)\neq\bot
+ \land \textsf{Valid}(C_t,r_t,s_t,q_t,t)
+ \land P(r_t,C_t,q_t)
+ \land (m_t=0).
+ \label{eq:decision}
+\end{equation}
+
+Read this as an ``all of the following must be true'' rule:
+\begin{enumerate}
+  \item the request parses;
+  \item the capability is valid for this exact request;
+  \item ordinary policy allows it;
+  \item the monitor has not vetoed it.
+\end{enumerate}
+If any one is false, the result is denial.
+
+\subsection{What a capability contains}
+Write a capability as
+\begin{equation}
+ C=(\text{subject},\text{tool},\text{resource},\text{operations},\text{start},\text{expiry},\text{nonce},\text{tag}).
+\end{equation}
+For example:
+\begin{Verbatim}
+subject   = session-42
+tool      = delete_file
+resource  = /tmp/report.txt
+operation = delete
+expiry    = 10:05 UTC
+nonce     = 8f31...
+tag       = MAC made with a host-only key
+\end{Verbatim}
+
+The model may request deletion of another file, but it cannot make the capability mean something else.
+
+\section{The monitor as an evolving risk estimate}
+
+Let $v_t$ contain monitor inputs, such as selected hidden-state features, the current request type, and recent request history. A simple state-space monitor is
+\begin{align}
+ z_{t+1}&=\alpha(z_t,v_t),\\
+ s_t&=\sigma(w^\top z_t+b),
+\end{align}
+where $z_t$ is monitor memory and $s_t\in[0,1]$ is a score. The intended meaning is
+\begin{equation}
+ s_t\approx\Prob(\text{unsafe transition within the next }k\text{ steps}\mid\text{observed history}).
+\end{equation}
+
+The word ``approximate'' is essential. The score is learned from data. It can be miscalibrated, can miss new attacks, and can be manipulated by a model that learns what the monitor watches. Therefore the broker must remain safe even if $s_t$ is always wrong.
+
+\subsection{Why the monitor is still useful}
+A veto-only monitor can:
+\begin{itemize}
+  \item pause a suspicious sequence before a sensitive tool call;
+  \item request human approval for high-impact operations;
+  \item reduce a broad request to a smaller resource scope;
+  \item provide telemetry for red-team investigation;
+  \item identify attack families that deserve new policy rules.
+\end{itemize}
+It is an early-warning system, not the lock on the door.
+
+\section{The formal proofs, first in ordinary language}
+
+Before reading the proofs, here is what each one says.
+\begin{longtable}{p{0.28\linewidth}p{0.62\linewidth}}
+\toprule
+Result & Plain-language meaning \\
+\midrule
+Parser safety & Broken or ambiguous requests cannot directly cause a tool call. \\
+Non-escalation & A model cannot obtain more permission by changing its output. \\
+Replay resistance & A one-time permission cannot be reused to repeat an effect. \\
+Scope confinement & A permission for one resource and operation cannot authorize another. \\
+Monitor monotonicity & Adding a veto-only monitor can deny more, but cannot authorize more. \\
+Audit integrity & Changing a chained record is detectable if the starting point is protected. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Proof 1: malformed input cannot create an effect}
+\begin{lemma}[Parser safety]
+If the parser returns failure for a message, the system performs no external effect.
+\end{lemma}
+\begin{proof}
+The allow rule in Equation~\eqref{eq:decision} contains the condition $\textsf{Parse}(w_t)\neq\bot$. The symbol $\bot$ means ``no valid result.'' If parsing fails, that condition is false. Since all conditions are joined by ``and,'' the whole allow rule is false. The broker therefore denies the message and does not call the effect adapter.\qed
+\end{proof}
+
+\paragraph{Intuition.} This is like a receptionist refusing to deliver a form with missing identity and destination fields. The form may contain persuasive writing, but it is not a valid instruction.
+
+\subsection{Proof 2: the model cannot escalate privilege}
+\begin{assumption}[Trusted broker assumptions]
+The parser is unambiguous, the capability tag cannot be forged except with probability $\varepsilon_{\mathrm{mac}}$, broker state updates are atomic, and the effect adapter executes only the exact operation the broker approved.
+\end{assumption}
+
+\begin{theorem}[Capability non-escalation]
+Under the trusted broker assumptions, every executed operation is within a host-issued capability, except with probability at most $\varepsilon_{\mathrm{mac}}$.
+\end{theorem}
+\begin{proof}
+Take any operation that was executed. By the adapter assumption, it could be executed only after the broker returned ``allow.'' The allow rule requires a successful parse and a valid capability.
+
+Capability validity checks the signature, active key epoch, revocation status, subject, time, exact tool, resource, operation, and unused nonce. Therefore the executed request satisfies all those constraints. If it did not, one of the checks would have failed and the adapter would not have been called.
+
+The remaining possibility is that a forged tag was accepted as valid. By the cryptographic assumption, that event has probability at most $\varepsilon_{\mathrm{mac}}$. Thus the model's text alone cannot escalate privilege.\qed
+\end{proof}
+
+\paragraph{Intuition.} The model is allowed to write ``delete the whole drive,'' but the broker has only been handed a key for one temporary file. The request can be rejected regardless of how confidently the model writes it.
+
+\subsection{Proof 3: replay resistance}
+\begin{theorem}[One-time capability use]
+A capability with nonce $n$ can produce at most one successful effect when nonce recording is atomic.
+\end{theorem}
+\begin{proof}
+The first successful request checks that $n$ has not been used and then records $n$ as used atomically. Any later request carrying $n$ finds $n$ in the used set. The condition ``nonce is unused'' is false, so the later request is denied.\qed
+\end{proof}
+
+\paragraph{Intuition.} A ticket with a one-time barcode can get you through the gate once. Photographing the ticket does not make it reusable.
+
+\subsection{Proof 4: resource and operation confinement}
+\begin{theorem}[Scope confinement]
+If a capability allows resource set $R$ and operation set $O$, and the adapter executes only the checked canonical request, every successful effect lies in $R\times O$.
+\end{theorem}
+\begin{proof}
+The broker checks that the request's resource belongs to $R$ and its operation belongs to $O$. The adapter receives that same canonical request. Therefore any successful effect has a resource in $R$ and an operation in $O$.\qed
+\end{proof}
+
+\paragraph{Important engineering warning.} This proof assumes the adapter's resource interpretation is correct. Path aliases, symbolic links, race conditions, or a resource changing between checking and use can break that assumption. A production implementation must test and isolate those cases.
+
+\subsection{Proof 5: a veto-only monitor cannot create authority}
+\begin{theorem}[Monitor monotonicity]
+Adding a veto-only monitor can only shrink the set of allowed requests.
+\end{theorem}
+\begin{proof}
+Without the monitor, a request is allowed when the parser, capability, and policy conditions are true. With the monitor, one additional condition, $m_t=0$, must also be true. Adding a condition to an ``and'' rule cannot make a previously false request true. Therefore the monitored allow set is a subset of the unmonitored allow set.\qed
+\end{proof}
+
+\paragraph{Why this matters.} A monitor false positive may prevent a safe action, which is an availability problem. A monitor false negative does not bypass the capability check, which preserves the authority boundary.
+
+\subsection{Proof 6: audit-chain tampering is detectable}
+Define a chained audit record by
+\begin{equation}
+ h_i=H(h_{i-1}\Vert\text{encoded event}_i),\qquad h_0=H(\text{run identity}).
+\end{equation}
+Each record depends on the previous digest.
+
+\begin{theorem}[Audit integrity]
+If the hash function is collision resistant and $h_0$ is protected, changing, removing, inserting, or reordering a record is detectable.
+\end{theorem}
+\begin{proof}
+Look at the first place where the modified log differs from the original. The new digest at that point must differ unless the attacker found two different inputs with the same hash. That would be a hash collision. Removing, inserting, or reordering records also changes the first affected predecessor/event pair. Since the protected starting digest cannot be replaced, the chain verification fails.\qed
+\end{proof}
+
+\section{Probability and monitor performance}
+
+\subsection{False positives and false negatives}
+For a threshold $\tau$, the monitor denies when $s_t\ge\tau$. Its false-positive rate is
+\begin{equation}
+ \mathrm{FPR}(\tau)=\Prob(s_t\ge\tau\mid\text{safe case}),
+\end{equation}
+and its false-negative rate is
+\begin{equation}
+ \mathrm{FNR}(\tau)=\Prob(s_t<\tau\mid\text{unsafe case}).
+\end{equation}
+Increasing the threshold usually reduces false positives but may increase false negatives. The right threshold depends on the cost of interruption and the cost of an unsafe action.
+
+\subsection{Calibration}
+If the monitor says ``0.8,'' calibration means that roughly 80 percent of comparable cases contain the defined hazard. Calibration is different from accuracy. A monitor can rank cases correctly but produce badly scaled probabilities.
+
+Suppose the monitor's score differs from the ideal probability by at most $\delta$. Only cases whose true score lies within $\delta$ of the threshold can change classification. If the score density near the threshold is at most $L$, the changed-decision probability is bounded by $2L\delta$. This is useful because it connects numerical calibration quality to policy instability.
+
+\subsection{Adaptive episodes}
+An attack episode may contain many requests. Let $U_t=1$ if request $t$ causes an unauthorized effect. Even when requests adapt to earlier denials,
+\begin{equation}
+ \Prob(\text{any violation in an episode})
+ \le \sum_{t=1}^{T}\Prob(U_t=1).
+\end{equation}
+This is the union bound. It does not require requests to be independent. It simply says that an episode can fail if at least one of its requests fails.
+
+If $N$ independent episodes have zero observed violations, an exact one-sided upper confidence bound at confidence level $1-\alpha$ is
+\begin{equation}
+ p_{1-\alpha}=1-\alpha^{1/N}.
+\end{equation}
+This does not mean the true probability is zero. It means that zero observations constrain the probability under the tested sampling assumptions.
+
+\section{Our experiments and what they mean}
+
+\subsection{NFW-005}
+NFW-005 tests the adversarial capability boundary. It includes strict request parsing, duplicate-key and malformed-input handling, expiring HMAC-scoped capabilities, key epochs, revocation, replay checks, audit-chain validation, deterministic randomized requests, and optional smoke tests.
+
+The recorded run reports:
+\begin{itemize}
+  \item 2,010 deterministic adversarial cases;
+  \item zero requests authorized without a trusted capability;
+  \item 13 of 13 broker security tests passing;
+  \item a valid audit chain;
+  \item zero external actions executed;
+  \item no model ability to mint or upgrade a capability.
+\end{itemize}
+The correct interpretation is narrow: the tested broker implementation enforced the tested authority rules. It is not evidence that every jailbreak or every production environment is safe.
+
+\subsection{NFW-006}
+NFW-006 asks a stronger question: can an adaptive attacker cause an unauthorized side effect? The attacker observes denial reasons and changes later requests. The tools are deterministic in-memory mock tools, and the security endpoint is unauthorized mock writes or messages.
+
+This experiment is valuable because ``the request was denied'' is weaker than ``the world did not change.'' It checks the latter. However, the mock tools are not a real operating-system sandbox. No real shell, network, filesystem, API, or external service is accessed.
+
+\subsection{NFW-007}
+NFW-007 integrates security and usefulness. It evaluates attack episodes, authorized reads and writes, benign mistakes, audit telemetry, incident correlation, and checkpoint resume. The default run has 400 attack episodes containing 3,200 attack requests and 100 benign episodes containing 300 legitimate tasks plus scripted mistakes.
+
+This matters because a system that denies everything may show excellent security numbers while being useless. NFW-007 reports authorized utility and benign false alerts alongside attack outcomes.
+
+\subsection{Local regression tests}
+The repository includes one focused test file for each notebook. On 21 September 2026, all three files were run directly with Python 3.14. Each suite ran five tests and passed, for 15 passing tests total. They verify parser behavior, scope checks, replay checks, side-effect boundaries, notebook cleanliness, resume determinism, tamper detection, and benign utility.
+
+\begin{table}[ht]
+\centering
+\caption{What the current evidence supports.}
+\begin{tabular}{p{0.27\linewidth}p{0.62\linewidth}}
+\toprule
+Evidence & Supported conclusion \\
+\midrule
+NFW-005 run & The tested broker rejected unauthorized capability requests in the recorded workload. \\
+NFW-006 design & Adaptive mock-tool requests were evaluated at the side-effect boundary. \\
+NFW-007 run design & Security and benign utility were measured together rather than using denial rate alone. \\
+15 local tests & The checked notebook invariants and regression cases pass locally. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{What the theory does not prove}
+
+A proof is only as good as its assumptions. The current theory does not prove:
+\begin{enumerate}
+  \item that the neural monitor recognizes every harmful intention;
+  \item that hidden-state features transfer across models;
+  \item that a deterministic simulated attacker represents all real attackers;
+  \item that in-memory mock tools isolate operating-system side effects;
+  \item that a key is stored safely in a production service;
+  \item that filesystem paths are safe under symlinks and TOCTOU races;
+  \item that an attacker cannot compromise the host, broker, adapter, or audit anchor;
+  \item that zero observed violations means zero probability of future violations.
+\end{enumerate}
+
+These limitations are not a weakness in the reasoning. They identify what must be tested or proved next.
+
+\section{Falsification checklist and next steps}
+
+The proposal should be considered incomplete or falsified if any of these occur:
+\begin{itemize}
+  \item a model-produced ``admin'' or ``approved'' field changes an authorization decision;
+  \item an expired, revoked, scope-confused, or replayed capability causes an effect;
+  \item the parser and adapter interpret one request differently;
+  \item concurrent requests reuse a one-time nonce;
+  \item the adapter executes a different resource or operation from the one checked;
+  \item audit tampering is not detected from a protected chain anchor;
+  \item the evaluation reports security success despite an unauthorized mock side effect.
+\end{itemize}
+
+The next practical steps are:
+\begin{enumerate}
+  \item Implement a separate least-privilege broker process.
+  \item Add real process, filesystem, network-egress, path, symlink, and resource-exhaustion tests.
+  \item Test crashes and concurrent requests during nonce consumption.
+  \item Build an independently implemented adaptive attacker.
+  \item Train the trajectory monitor on held-out attack families and measure calibration.
+  \item Evaluate across models, prompt distributions, and tool APIs.
+  \item Report utility loss and false-alert costs for every monitor threshold.
+\end{enumerate}
+
+\section{Final explanation in one paragraph}
+
+NPS does not try to prove that a language model will never produce a dangerous thought or sentence. It assumes the model can be manipulated or mistaken. Instead, it makes the dangerous thought insufficient to cause a real-world effect. The model proposes; the monitor warns; the parser rejects ambiguity; the broker checks a separate narrow permission; the adapter performs only the approved action; and the audit log records what happened. Under the stated assumptions, the broker proofs establish that model text cannot enlarge authority. The experiments show that this idea works on the tested deterministic mock workloads, while the limitations explain the additional work needed before making production security claims.
+
+\begin{thebibliography}{99}
+\bibitem{gu2022s4}
+A. Gu, K. Goel, and C. Ré, ``Efficiently Modeling Long Sequences with Structured State Spaces,'' in \emph{International Conference on Learning Representations}, 2022. \url{https://arxiv.org/abs/2111.00396}.
+
+\bibitem{poli2023zoology}
+M. Poli et al., ``Zoology: Measuring and Improving Recall in Efficient Language Models,'' arXiv:2312.04927, 2023. \url{https://arxiv.org/abs/2312.04927}.
+
+\bibitem{turner2023activation}
+M. Turner et al., ``Steering Language Models With Activation Engineering,'' arXiv:2308.10248, 2023. \url{https://arxiv.org/abs/2308.10248}.
+
+\bibitem{elhage2022toy}
+N. Elhage et al., ``Toy Models of Superposition,'' 2022. \url{https://transformer-circuits.pub/2022/toy_model/index.html}.
+
+\bibitem{anthropic2025cc}
+Anthropic Safeguards Research Team, ``Constitutional Classifiers: Defending against Universal Jailbreaks across Thousands of Hours of Red Teaming,'' arXiv:2501.18837, 2025. \url{https://arxiv.org/abs/2501.18837}.
+
+\bibitem{hubinger2024sleeper}
+E. Hubinger et al., ``Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training,'' arXiv:2401.05566, 2024. \url{https://arxiv.org/abs/2401.05566}.
+
+\bibitem{miller2006robust}
+M. S. Miller, K.-P. Yee, and J. Shapiro, ``Capability Myths Demolished,'' technical report, 2003. \url{https://srl.cs.jhu.edu/pubs/SRL2003-03.pdf}.
+
+\bibitem{owasp2025top10}
+OWASP GenAI Security Project, ``OWASP Top 10 for Large Language Model Applications,'' 2025. \url{https://genai.owasp.org/llm-top-10/}.
+
+\bibitem{tabassi2023airmf}
+E. Tabassi, ``Artificial Intelligence Risk Management Framework (AI RMF 1.0),'' NIST AI 100-1, National Institute of Standards and Technology, 2023. \url{https://doi.org/10.6028/NIST.AI.100-1}.
+\end{thebibliography}
+
+\end{document}
