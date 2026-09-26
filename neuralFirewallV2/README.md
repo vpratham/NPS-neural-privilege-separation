@@ -1,5 +1,12 @@
 # Neural Firewall v2
 
+**Runnable system:** the accumulated NFW-001–011 findings now inform
+[`nps_gateway`](../docs/WORKING_SYSTEM.md), a provider-independent action gateway
+with source-bound permissions, persistent notes and durable replay protection.
+Run `python3 -m nps_gateway demo` from the repository root.
+The [evidence review](../docs/WORKING_SYSTEM_EVIDENCE.md) explains its design.
+The roadmap below is retained as research history, not current application status.
+
 Neural Firewall v2 is the engineering branch of the NPS (Neural Privilege Separation) project focused on building a coherent, inference-time neural firewall for modern language models.
 
 The objective is to move beyond behavioral jailbreak detection toward an internal security boundary that monitors and constrains policy-relevant model representations during inference, while using capability hardening as a second layer of defense.

@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nps-action-gateway"
+version = "0.1.0"
+description = "A model-independent, source-bound action gateway with durable authorization"
+readme = "docs/WORKING_SYSTEM.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+nps-gateway = "nps_gateway.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["nps_gateway*"]

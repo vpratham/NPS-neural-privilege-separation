@@ -24,3 +24,9 @@ neuralFirewallV2/**/runs/
 *.pkl
 *.pt
 *.safetensors
+
+# Local action gateway authority database and packaging output
+.nps_gateway/
+*.egg-info/
+build/
+dist/

@@ -16,9 +16,32 @@ policy-relevant computation under attacker-controlled input. The long-term goal
 is a **neural firewall**: an internal monitor and controller that reduces unsafe
 or unauthorized behavior while preserving legitimate capability.
 
-This repository is a research workspace, not a deployed safety product. It
-contains theory notes, historical activation experiments, reproducible monitor
-baselines, implementation audits, and current neural-firewall experiments.
+This repository contains a research archive and a runnable action gateway built
+from its strongest supported findings. The gateway authorizes model-proposed
+writes against approved source records; it does not claim universal model safety.
+
+## Working system
+
+```bash
+python3 -m nps_gateway demo
+python3 -m nps_gateway notes
+```
+
+This runs a complete local workflow with persistent SQLite notes, exact
+source-bound permissions, durable replay prevention, and an audit trail. The
+default demo uses explicitly scripted proposals. For actual model inference:
+
+```bash
+ollama pull qwen2.5:3b
+python3 -m nps_gateway demo --provider ollama --model qwen2.5:3b
+```
+
+See the **[working system and integration guide](docs/WORKING_SYSTEM.md)** and
+the **[evidence-to-design review](docs/WORKING_SYSTEM_EVIDENCE.md)**. Native Ollama,
+Chat Completions compatible servers, and custom model adapters share the same
+authorization boundary. Python 3.10+; no Python runtime dependencies.
+
+The sections below describe the research background and earlier milestones.
 
 ## Why This Exists
 
@@ -99,6 +122,8 @@ theory/                   Mathematical framework and NPS theory notes
 
 | Goal | Entry point |
 |---|---|
+| Run and integrate the working gateway | [Working system](docs/WORKING_SYSTEM.md) |
+| See how the accumulated findings shaped it | [Evidence review](docs/WORKING_SYSTEM_EVIDENCE.md) |
 | Understand the research claim boundary | [Implementation audit](docs/NPS_IMPLEMENTATION_AUDIT.md) |
 | Read the theory foundation | [NPS mathematical framework](theory/NPS_Mathematical_Framework_v0_2.tex) |
 | Run the current monitor baseline | [NFW-002 experiment guide](neuralFirewallV2/experiments/NFW-02_foundation_firewall/README.md) |
