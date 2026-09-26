@@ -1,0 +1,19 @@
+{
+  "analysis_code_sha256": "cfd797e03fd3b22ab04915f758da239a0e454dc80c7b4efe7bdcba95a1cd04ed",
+  "broker_source_sha256": "eaeb4bbb7618931c2b79472e769db4ccc3c6622de691d3702d2ca44df07f2fad",
+  "gpu_required": false,
+  "input_fingerprint_sha256": "08fc506b9df788bf4148e6840ec057dd11de0043d622d1ec1e6dbf68c265dade",
+  "input_manifest_binding": "ddc20b14f1c18b6ba588030d83603b96799eee6488bb8d6b5fdaf162c14abfeb",
+  "input_run_id": "nfw010_protocol_corrected_003",
+  "model_generation_performed": false,
+  "policy_replays": 216,
+  "python": [
+    3,
+    13,
+    15
+  ],
+  "responses": 72,
+  "run_id": "nfw011_authorization_provenance_001",
+  "version": 1,
+  "workflow": "NFW-011"
+}
