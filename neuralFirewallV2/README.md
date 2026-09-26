@@ -1,11 +1,11 @@
 # Neural Firewall v2
 
-**Runnable system:** the accumulated NFW-001–011 findings now inform
-[`nps_gateway`](../docs/WORKING_SYSTEM.md), a provider-independent action gateway
-with source-bound permissions, persistent notes and durable replay protection.
-Run `python3 -m nps_gateway demo` from the repository root.
-The [evidence review](../docs/WORKING_SYSTEM_EVIDENCE.md) explains its design.
-The roadmap below is retained as research history, not current application status.
+**Runnable prompt-injection prototype:** [`nps_gateway firewall-serve`](../docs/PROMPT_INJECTION_FIREWALL.md)
+provides an OpenAI-compatible request/response gate with untrusted-context labels
+and a separate model-based response judge. The action broker
+([guide](../docs/WORKING_SYSTEM.md)) is a supporting tool-effect control, not the
+firewall. The [evidence review](../docs/WORKING_SYSTEM_EVIDENCE.md) explains which
+claims remain unproven. The roadmap below is retained as research history.
 
 Neural Firewall v2 is the engineering branch of the NPS (Neural Privilege Separation) project focused on building a coherent, inference-time neural firewall for modern language models.
 
@@ -295,9 +295,12 @@ Level 3 is the long-term research objective and should not be claimed until the 
 
 **Existing foundation:** NPS activation-space, probe, intervention, and causal-sweep results
 
-**Immediate next milestone:** `NFW-00 — Legacy Integration & Reproducibility`
+**Application prototype:** OpenAI-compatible request/response prompt-injection
+firewall; see the guide linked above.
 
-The first implementation task is to turn the strongest existing NPS representation and causal-intervention artifacts into a canonical, reusable interface for the neural firewall.
+**Remaining neural milestone:** `NFW-00 — Legacy Integration & Reproducibility`
+
+The original research plan below describes the neural-mechanism work. It is not a status description of the separate text-level application firewall.
 
 ## Research Principles
 

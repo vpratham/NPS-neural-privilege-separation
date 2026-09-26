@@ -3,9 +3,12 @@
 The implementation question was: **what can this repository support as an
 implementable system today, without another experiment series?**
 
-The answer is an external action gateway with exact, source-derived authorization.
-The shipped `nps_gateway` package implements that answer for one complete workflow:
-copy an approved source record into a persistent note. The review covered the
+The repo contains two distinct prototypes. The **prompt-injection firewall** is
+the request/response path in `nps_gateway.firewall` and `nps_gateway.proxy`; the
+**action broker** is a separate host-authorized tool-effect control. The broker is
+supporting infrastructure and does not inspect ordinary generated responses. The
+firewall targets the original injection-defense request by labelling retrieved
+context as untrusted and holding the model response for a policy judge. The review covered the
 historical experiment log and implementation audit, earlier prototype, NFW-001–011
 reports/results, current reference broker, and its contract tests. Archived runs
 were inspected rather than retrained or rerun on a GPU.
@@ -18,7 +21,14 @@ were inspected rather than retrained or rerun on a GPU.
 | 2 | Exact source-bound permission is useful for a literal-copy workflow. | High within that task: NFW-011 removes those seven effects while preserving clean task success. |
 | 3 | Neural activation scores should not grant authority. | High: historical transfer/recall weaknesses and the independent NFW-004/005 broker contracts. |
 | 4 | Strict provider protocol handling is part of a usable system. | High: NFW-009's confounding and NFW-010's failed 0.5B format gate. Invalid outputs are failures, not evidence of safety. |
-| 5 | Durable transactional enforcement is the engineering step beyond notebook mocks. | Engineering inference from the identified restart, provenance and effect gaps; validated by runtime tests, not inferred from archived model metrics. |
+| 5 | Durable transactional enforcement protects tool effects when the application offers tools. | Engineering inference from the identified restart, provenance and effect gaps; it does not stop prompt injection in ordinary text responses. |
+
+The new firewall live check passed one clean task and one injected-context case
+with Qwen 3B: it released the ordinary answer and withheld the injected case.
+The same model family generated and judged the answer. This is direct evidence for
+one task-level gate run, not evidence of broad resistance. The endpoint is
+text-only today and rejects model tool calls; broker integration into an agent's
+tool path remains to be built.
 
 ## Evidence and resulting implementation choices
 
@@ -43,7 +53,7 @@ the model's proposed action or from an expected-answer label. The runtime issues
 the grant before generation, keeps it outside the model context, and validates the
 proposal against it afterward.
 
-The new opaque grants use a host-owned SQLite lookup rather than exporting signed
+For tool effects, the new opaque grants use a host-owned SQLite lookup rather than exporting signed
 claims to the model. This removes a need to provision demonstration signing keys
 while preserving one-use authorization. Grant consumption, note mutation and audit
 are one transaction; source provenance and destination version are bound as well.

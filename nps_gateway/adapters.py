@@ -214,6 +214,25 @@ class OllamaAdapter(_HTTPAdapter):
             raise ProviderError()
         return _canonical_proposal(function.get("name"), function.get("arguments"))
 
+    def generate_text(self, messages: list[dict]) -> str:
+        """Return one complete, non-streamed assistant answer for chat use."""
+        reply = self._post("/api/chat", {
+            "model": self.model,
+            "messages": copy.deepcopy(messages),
+            "stream": False,
+            "options": {"num_predict": self.max_tokens, "temperature": 0},
+        })
+        _no_provider_error(reply)
+        if reply.get("done") is not True or reply.get("done_reason") != "stop":
+            raise ProviderError()
+        message = reply.get("message")
+        if not isinstance(message, dict) or message.get("role") != "assistant":
+            raise ProviderError()
+        text = message.get("content")
+        if not isinstance(text, str) or not text:
+            raise ProviderError()
+        return text
+
 
 class ChatCompletionsAdapter(_HTTPAdapter):
     """Generic OpenAI-compatible ``/v1/chat/completions`` adapter.
@@ -268,6 +287,31 @@ class ChatCompletionsAdapter(_HTTPAdapter):
             raise ProviderError() from exc
         return _canonical_proposal(function.get("name"), arguments)
 
+    def generate_text(self, messages: list[dict]) -> str:
+        """Return one complete answer; truncation and refusals fail closed."""
+        headers = {"Authorization": "Bearer " + self.api_key} if self.api_key else None
+        reply = self._post(self._chat_path, {
+            "model": self.model,
+            "messages": copy.deepcopy(messages),
+            "max_tokens": self.max_tokens,
+            "stream": False,
+            "temperature": 0,
+        }, headers)
+        _no_provider_error(reply)
+        choices = reply.get("choices")
+        if not isinstance(choices, list) or len(choices) != 1 or not isinstance(choices[0], dict):
+            raise ProviderError()
+        choice = choices[0]
+        if choice.get("finish_reason") != "stop":
+            raise ProviderError()
+        message = choice.get("message")
+        if not isinstance(message, dict) or message.get("role") != "assistant":
+            raise ProviderError()
+        text = message.get("content")
+        if not isinstance(text, str) or not text:
+            raise ProviderError()
+        return text
+
 
 class ScriptedAdapter:
     """Offline static response adapter for integration tests and local demos only."""
@@ -279,3 +323,15 @@ class ScriptedAdapter:
 
     def generate(self, messages: list[dict], tools: list[dict]) -> str:
         return self.proposal
+
+
+class ScriptedTextAdapter:
+    """Static answer sequence for offline pipeline control-flow checks only."""
+
+    def __init__(self, responses: list[str]):
+        if not responses or not all(isinstance(item, str) for item in responses):
+            raise ValueError("invalid_scripted_responses")
+        self._responses = iter(responses)
+
+    def generate_text(self, messages: list[dict]) -> str:
+        return next(self._responses)

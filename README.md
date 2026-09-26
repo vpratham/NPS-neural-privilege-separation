@@ -16,30 +16,37 @@ policy-relevant computation under attacker-controlled input. The long-term goal
 is a **neural firewall**: an internal monitor and controller that reduces unsafe
 or unauthorized behavior while preserving legitimate capability.
 
-This repository contains a research archive and a runnable action gateway built
-from its strongest supported findings. The gateway authorizes model-proposed
-writes against approved source records; it does not claim universal model safety.
+This repository contains a research archive, a prompt-injection request/response
+firewall prototype, and a separate action authorization broker. The firewall
+gates model answers against application policy and explicitly marked untrusted
+context. The broker handles source-bound tool effects.
 
-## Working system
-
-```bash
-python3 -m nps_gateway demo
-python3 -m nps_gateway notes
-```
-
-This runs a complete local workflow with persistent SQLite notes, exact
-source-bound permissions, durable replay prevention, and an audit trail. The
-default demo uses explicitly scripted proposals. For actual model inference:
+## Prompt-injection firewall
 
 ```bash
-ollama pull qwen2.5:3b
-python3 -m nps_gateway demo --provider ollama --model qwen2.5:3b
+python3 -m nps_gateway firewall-demo --provider ollama --model qwen2.5:3b
 ```
 
-See the **[working system and integration guide](docs/WORKING_SYSTEM.md)** and
-the **[evidence-to-design review](docs/WORKING_SYSTEM_EVIDENCE.md)**. Native Ollama,
-Chat Completions compatible servers, and custom model adapters share the same
-authorization boundary. Python 3.10+; no Python runtime dependencies.
+The firewall checks model responses against the task, service-owned policy, and
+untrusted retrieved context before returning a response. It provides a local
+OpenAI-compatible API endpoint:
+
+```bash
+python3 -m nps_gateway firewall-serve \
+  --policy-file examples/gateway/firewall-policy.txt \
+  --provider ollama --model qwen2.5:3b --judge-model qwen2.5:3b
+```
+
+See the [firewall guide](docs/PROMPT_INJECTION_FIREWALL.md) and
+[live validation evidence](docs/PROMPT_FIREWALL_VALIDATION.json). The local
+smoke test passed one clean task and blocked one injected response. The policy
+judge is model-based, so this is a useful prototype rather than a guarantee.
+
+The separate [action broker guide](docs/WORKING_SYSTEM.md) describes source-bound
+permissions for tool actions. It is not the text firewall. The [evidence review](docs/WORKING_SYSTEM_EVIDENCE.md)
+explains both how earlier results shaped the boundaries.
+
+Python 3.10+; no Python runtime dependencies.
 
 The sections below describe the research background and earlier milestones.
 
@@ -70,15 +77,15 @@ themselves.
 |---|---|
 | Theory | Draft mathematical framework for NPS and neural-firewall security objectives |
 | Historical experiments | Activation probes, policy-vector experiments, causal pilots, and audits |
-| Current baseline | NFW-002 monitor-and-block proof of concept |
+| Application firewall | OpenAI-compatible, buffered request/response prototype |
+| Neural firewall | NFW-002 monitor-and-block research baseline; internal policy-state protection is not established |
 | Reference model | `Qwen/Qwen2.5-3B-Instruct` |
 | Security claim | No robust NPS claim yet; current work is a scoped research baseline |
 
-The immediate objective is **not** to claim a finished neural firewall. It is to
-obtain complete, reproducible, target-model behavioral evaluations for
-activation-monitoring baselines. Those results determine whether to invest in
-continuation monitoring, selective intervention, and protected policy-state
-experiments.
+The current application prototype uses role-separated untrusted context and
+withholds complete responses pending a policy check. It is a practical text-level
+defense layer. Internal neural policy-state protection remains a distinct research
+goal and has not been demonstrated.
 
 ## Research Roadmap
 
@@ -122,7 +129,8 @@ theory/                   Mathematical framework and NPS theory notes
 
 | Goal | Entry point |
 |---|---|
-| Run and integrate the working gateway | [Working system](docs/WORKING_SYSTEM.md) |
+| Run the prompt-injection firewall | [Firewall guide](docs/PROMPT_INJECTION_FIREWALL.md) |
+| Integrate protected tool actions | [Action broker](docs/WORKING_SYSTEM.md) |
 | See how the accumulated findings shaped it | [Evidence review](docs/WORKING_SYSTEM_EVIDENCE.md) |
 | Understand the research claim boundary | [Implementation audit](docs/NPS_IMPLEMENTATION_AUDIT.md) |
 | Read the theory foundation | [NPS mathematical framework](theory/NPS_Mathematical_Framework_v0_2.tex) |

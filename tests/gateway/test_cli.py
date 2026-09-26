@@ -6,6 +6,7 @@ import io
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from nps_gateway.cli import main
@@ -58,6 +59,12 @@ class CLITests(unittest.TestCase):
         self.assertEqual((code, result["status"]), (1, "error"))
         self.db.write_bytes(b"invalid sqlite database")
         self.assertEqual(self.invoke("notes")[0], 1)
+
+    def test_firewall_demo_does_not_initialize_action_broker(self):
+        with patch("nps_gateway.cli.Gateway", side_effect=AssertionError("broker must not initialize")):
+            code, output = self.invoke("firewall-demo", "--provider", "offline")
+        self.assertEqual(0, code)
+        self.assertTrue(output["demo_passed"])
 
 
 if __name__ == "__main__":

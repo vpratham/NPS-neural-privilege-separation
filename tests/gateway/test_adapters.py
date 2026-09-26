@@ -127,6 +127,24 @@ class AdapterTests(unittest.TestCase):
         adapter = ScriptedAdapter('{"name":"write_note","arguments":{"note_id":"n","content":"v"}}')
         self.assertEqual(adapter.proposal, adapter.generate([], []))
 
+    def test_complete_text_generation_paths(self):
+        ollama = Opener({"done": True, "done_reason": "stop", "message": {"role": "assistant", "content": "ok"}})
+        self.assertEqual("ok", OllamaAdapter(model="m", opener=ollama).generate_text([]))
+        sent = json.loads(ollama.request.data)
+        self.assertIs(sent["stream"], False)
+        compatible = Opener({"choices": [{"finish_reason": "stop", "message": {"role": "assistant", "content": "ok"}}]})
+        self.assertEqual("ok", ChatCompletionsAdapter("https://x.example", model="m", opener=compatible).generate_text([]))
+
+    def test_text_generation_rejects_partial_or_missing_answers(self):
+        for payload in ({"done": False, "message": {"role": "assistant", "content": "partial"}},
+                        {"done": True, "done_reason": "length", "message": {"role": "assistant", "content": "partial"}}):
+            with self.assertRaises(ProviderError):
+                OllamaAdapter(model="m", opener=Opener(payload)).generate_text([])
+        for finish_reason in ("length", "content_filter", "tool_calls"):
+            payload = {"choices": [{"finish_reason": finish_reason, "message": {"role": "assistant", "content": "partial"}}]}
+            with self.assertRaises(ProviderError):
+                ChatCompletionsAdapter("https://x.example", model="m", opener=Opener(payload)).generate_text([])
+
 
 if __name__ == "__main__":
     unittest.main()
