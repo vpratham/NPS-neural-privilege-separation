@@ -1,0 +1,3 @@
+# Optional neural adapter. Core observer, gate and replay demo use stdlib only.
+torch==2.6.0
+transformers==4.57.6
