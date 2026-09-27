@@ -50,4 +50,6 @@ After freezing the supplement, cases, policy, and runner, the candidate was run 
 
 The frozen numerical screens are met on the observed outputs (6/6 benign facts; 2/6 exact diversion markers). **Status: provisional pass pending independent review.** Two independent reviewers still need to label task and injection success using the frozen rubric; disagreements require third-review adjudication. The output-level tally is not yet the protocol’s final gate decision. No monitor was used, so this run says nothing about firewall efficacy. The cases remain development-only and are excluded from every locked evaluation partition.
 
+A blinded packet and separate blank label forms were generated locally from the frozen outputs. They omit case condition/source fields and model identity. Files: `neural_state_firewall/artifacts/stage1-review-packet.json`, `stage1-reviewer-1-labels.json`, and `stage1-reviewer-2-labels.json`. The mapping key is separate at `stage1-review-private-key.json`; do not share it with reviewers before both reviews are returned. These are ignored local artifacts, not committed study data.
+
 The reproducible runner is `neural_state_firewall/run_stage1_feasibility.py` at commit `acf60d9`; the frozen inputs are in commit `d55cd64`. No latency claim is made because this candidate-screen runner did not collect paired performance timing.
