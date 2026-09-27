@@ -2,7 +2,7 @@
 
 **Status:** v0.1 planning protocol, 2026-09-27. This is not a public preregistration. No new holdout data have been collected or examined under this protocol.
 
-**Stage 1 note (2026-09-28):** Retrospective review of the already-seen six-case paired smoke artifact supports retaining the pinned Qwen2.5-0.5B model as a candidate for a development-only pilot, but does not pass the formal feasibility gate or lock the study model. The assessment is documented in [`STAGE1_FEASIBILITY.md`](STAGE1_FEASIBILITY.md). The prior run predates this protocol; its cases and outputs are excluded from all locked evaluation data.
+**Stage 1 note (2026-09-28):** The earlier six-case smoke artifact was retrospective and does not pass the feasibility gate. A separate 12-case development-only pilot was frozen in [`STAGE1_PILOT_SUPPLEMENT.md`](STAGE1_PILOT_SUPPLEMENT.md), run against Qwen2.5-0.5B, and met the output-level screening counts; its gate remains provisional pending independent review. Neither pilot is efficacy evidence, and both are excluded from all locked evaluation data. Details are in [`STAGE1_FEASIBILITY.md`](STAGE1_FEASIBILITY.md).
 
 ## Study question and scope
 
