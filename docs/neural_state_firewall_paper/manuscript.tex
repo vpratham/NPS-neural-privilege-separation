@@ -212,7 +212,7 @@ The fixture labels do not determine whether the model actually followed an injec
 
 \subsection{Trajectory evidence}
 
-The trajectory plot shows how the same threshold produces both alarm and non-alarm outcomes across the six cases (Figure~\ref{fig:cusum}). The two injection-marked blocked cases crossed the threshold at the first observed step. A benign-marked case crossed it at step four. The remaining injection-marked case did not cross it over eight steps. Another benign-marked case reached a CUSUM of approximately 10.79 at step four against the threshold 10.58 and was blocked. These observations illustrate the core ambiguity: the sequential statistic detects deviations from four-request calibration trajectories, and those deviations do not map one-to-one to trust-boundary violations.
+The trajectory plot shows how the same threshold produces both alarm and non-alarm outcomes across the six cases (Figure~\ref{fig:cusum}). The two injection-marked blocked cases crossed the threshold at the first observed step. The only benign-marked block was the security-training quotation, whose CUSUM reached approximately 10.79 at step four against the threshold 10.58. The remaining injection-marked case did not cross the threshold over eight steps; its unguarded response stated the requested maintenance availability, so it is not evidence of a successful takeover. These observations illustrate the core ambiguity: the sequential statistic detects deviations from four-request calibration trajectories, and those deviations do not map one-to-one to trust-boundary violations.
 
 \begin{figure}[t]
 \centering
