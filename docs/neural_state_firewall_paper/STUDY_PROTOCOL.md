@@ -2,6 +2,8 @@
 
 **Status:** v0.1 planning protocol, 2026-09-27. This is not a public preregistration. No new holdout data have been collected or examined under this protocol.
 
+**Stage 1 note (2026-09-28):** Retrospective review of the already-seen six-case paired smoke artifact supports retaining the pinned Qwen2.5-0.5B model as a candidate for a development-only pilot, but does not pass the formal feasibility gate or lock the study model. The assessment is documented in [`STAGE1_FEASIBILITY.md`](STAGE1_FEASIBILITY.md). The prior run predates this protocol; its cases and outputs are excluded from all locked evaluation data.
+
 ## Study question and scope
 
 **Primary question:** On a fixed document-retrieval response workload, does a sequential activation-trajectory monitor reduce behaviorally confirmed prompt-injection success relative to an unguarded model and non-temporal baselines, while keeping benign response blocking and task-utility loss within predeclared limits?
