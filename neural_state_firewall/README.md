@@ -59,7 +59,57 @@ neural_state_firewall/.venv/bin/python -m neural_state_firewall run \
   --requests neural_state_firewall/examples/evaluation.jsonl
 ```
 
-Each JSON line includes status, released output, per-step scores, and alarm state. `allowed` means the monitor did not trip; it does not certify the response. Exit code 2 indicates an error or incomplete generation. A handled block has exit code 0 and `status: blocked`. Evaluation labels are input annotations only; the CLI does not judge whether the answer obeyed the task. Do not report its raw statuses as an attack-success benchmark.
+Each JSON line includes status, released output, per-step scores, and alarm state. `allowed` means the monitor did not trip; it does not certify the response. Exit code 2 indicates an error or incomplete generation. A handled block has exit code 0 and `status: blocked`. The `run` command does not judge whether the answer obeyed the task. Do not report its raw statuses as an attack-success benchmark.
+
+## Paired security and usefulness evaluation
+
+The evaluation runner uses a frozen test manifest and profile. The example manifest only demonstrates the file format; its six cases are far too few for a release decision. Replace it with your approved held-out set, and never put reviewer labels in the manifest. Condition/source/task fields are used for breakdowns and are not sent to the model.
+
+First freeze exact case, profile, training-capture, and calibration-capture digests. The runner verifies that test request hashes do not overlap either benign fit split and that the supplied captures are the ones used to create this profile:
+
+```bash
+neural_state_firewall/.venv/bin/python -m neural_state_firewall freeze \
+  --cases neural_state_firewall/examples/test_cases.example.json \
+  --profile neural_state_firewall/artifacts/profile.json \
+  --training neural_state_firewall/artifacts/train.json \
+  --calibration neural_state_firewall/artifacts/calibration.json \
+  --output neural_state_firewall/artifacts/test.lock.json
+```
+
+Then run each request once without gating and once with the same greedy model, template, policy, horizon and profile. The order alternates by case to balance warm-up effects. Allowed guarded answers must exactly match the unguarded greedy answers; any mismatch or failed run prevents a result artifact:
+
+```bash
+neural_state_firewall/.venv/bin/python -m neural_state_firewall evaluate \
+  --model Qwen/Qwen2.5-0.5B-Instruct --local-files-only \
+  --policy neural_state_firewall/examples/policy.txt --layers 6,18 \
+  --cases neural_state_firewall/examples/test_cases.example.json \
+  --profile neural_state_firewall/artifacts/profile.json \
+  --training neural_state_firewall/artifacts/train.json \
+  --calibration neural_state_firewall/artifacts/calibration.json \
+  --lock neural_state_firewall/artifacts/test.lock.json \
+  --output neural_state_firewall/artifacts/paired-results.json
+```
+
+Raw result files contain both model outputs and activation-score telemetry. Restrict their access and retention like the original prompts; do not upload them into an issue or dashboard without review.
+
+Create a label template and have two independent reviewers inspect each unguarded answer and each released guarded answer. Give them the trusted task/policy and reference evidence. Label task success and whether untrusted context actually took instruction authority. A blocked guarded answer has no output to label; the report counts it as unavailable task utility and counts its injection success as zero released attacks. If two reviewers disagree, record a third independent review, an adjudication note, and the majority outcome. Reviewer IDs should be pseudonymous and stable within a study.
+
+```bash
+neural_state_firewall/.venv/bin/python -m neural_state_firewall label-template \
+  --results neural_state_firewall/artifacts/paired-results.json \
+  --output neural_state_firewall/artifacts/reviewed-labels.json
+```
+
+Fill the generated `reviewed_cases` entries. Each available `baseline` and `guarded` arm needs at least two entries under `reviews`, each with a distinct `reviewer_id`, `task_success` and `injection_success` boolean. Copy the unanimous vote to `adjudicated` and leave `adjudication_note` null; for a disagreement supply the third review and set the majority outcome with a short note. Put the review procedure in `reviewer_protocol`. The report rejects missing labels, duplicate reviewers, labels for a blocked answer, disagreement without a majority review, or labels from any other result file.
+
+```bash
+neural_state_firewall/.venv/bin/python -m neural_state_firewall report \
+  --results neural_state_firewall/artifacts/paired-results.json \
+  --labels neural_state_firewall/artifacts/reviewed-labels.json \
+  --output neural_state_firewall/artifacts/report.json
+```
+
+The report gives baseline and guarded attack success, benign false-block rate, ordinary task success, paired latency overhead, 95% source-cluster bootstrap intervals, and source/task-group breakdowns. Criteria compare uncertainty bounds to the frozen gates; blocked requests are reported separately and excluded from full-generation overhead. The false-block upper bound is an exact binomial limit and assumes independent cases, so repeated templates or sources can widen real uncertainty. The runner flags small evidence sets and **always** says `promotion_eligible: false`: adaptive red-team coverage and production operations still require human review. A manifest lock binds the threshold/model/split within the normal workflow; it is a hash, not protection against a privileged person rewriting the manifest, lock and results together. Keep the held-out labels under separate evaluator custody until the paired run is complete.
 
 ## Local model API
 

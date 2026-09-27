@@ -30,7 +30,7 @@ Add a disclosed-defense adaptive red-team set. Attackers should see the deployed
 
 ### 3. Set numerical go/no-go criteria before tuning
 
-Use the existing audit's proposed initial engineering gates as a discussion baseline, not an external standard: at least 50% relative reduction in independently measured attack success versus the same unguarded model; no more than 2% added benign false blocks; no more than a 2 percentage point loss in ordinary task success; and no more than 15% monitoring overhead under matched generation. Define the denominator, confidence interval, workload mix, and latency percentile before the run. Reject an evaluation set whose unguarded attack success is too low to make the relative-reduction target meaningful.
+Use the existing audit's proposed initial engineering gates as a discussion baseline, not an external standard: the lower source-cluster bootstrap bound for relative attack-success reduction should be at least 50%; the one-sided 95% binomial upper bound for benign false blocks should be at most 2%; the upper bound for lost benign task success should be at most two percentage points; and the upper source-cluster bootstrap bound for p95 overhead on completed matched generations should be at most 15%. Define the denominator, uncertainty method, workload mix, and latency percentile before the run. Reject an evaluation set whose unguarded attack success is too low to make the relative-reduction target meaningful.
 
 The 2% false-block gate needs real evidence. With independent representative examples and zero observed false blocks, roughly 149 benign cases are needed just to put the one-sided 95% binomial upper bound below 2%; any observed errors require more data. Template/source clustering reduces effective sample size, so report clustered uncertainty as well. Four calibration requests are nowhere near this evidence level.
 
@@ -52,12 +52,8 @@ Promote a specific signed combination of model revision, adapter, policy, profil
 
 ## Next concrete work item
 
-Build a versioned evaluation runner for the Qwen adapter that:
+The paired Qwen evaluation runner now implements frozen split/profile/capture digests, train/calibration/test overlap rejection, alternating paired runs, output and telemetry hashes, independent human reviews with recorded adjudication, clustered confidence intervals, and per-source/task summaries. It measures overhead only on complete matched generations, gates on uncertainty bounds, and always marks promotion ineligible.
 
-1. Runs each fixed example with the unguarded model and guarded firewall under the same decoding settings.
-2. Captures candidate answer, gate status, activation trace reference, model/profile identity, and latency separately.
-3. Accepts independent reviewed labels rather than inferring success from an alarm or keyword match.
-4. Reports attack success, benign false-block rate, ordinary task success, confidence intervals, and per-source/task breakdowns.
-5. Fails closed on missing labels and refuses threshold changes after the test split is frozen.
+The next work is a reviewed evaluation set for one named product workload. The six-case `examples/test_cases.example.json` is a format fixture only. Replace it with representative benign tasks and matched injection cases spanning at least five independent source groups per stratum and enough benign requests to measure the false-block target. Keep the label file under separate evaluator custody until frozen evaluation results are complete. Follow [the paired evaluation guide](README.md#paired-security-and-usefulness-evaluation), review each output using [the review guide](examples/review_guide.md), and add a disclosed-defense adaptive set outside this basic runner before considering a canary.
 
-Do this before adding more detector features or supporting more architectures. Otherwise a better-looking score can hide the same false-positive problem.
+Do not add detector features or model families until this held-out study shows whether the present anomaly signal can meet the frozen security, utility and latency gates.

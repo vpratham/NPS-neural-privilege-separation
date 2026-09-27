@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from . import artifacts
+from . import evaluation
 from .runtime import Firewall
 
 
@@ -17,6 +18,18 @@ def build_adapter(args):
                      revision=args.revision, local_files_only=args.local_files_only)
 
 
+def add_adapter_options(sub):
+    sub.add_argument("--model", required=True)
+    sub.add_argument("--policy", required=True, help="Host-controlled policy file")
+    sub.add_argument("--layers", default="0", help="Zero-based decoder block OUTPUT indices")
+    sub.add_argument("--projection-dim", type=int, default=8)
+    sub.add_argument("--seed", type=int, default=17)
+    sub.add_argument("--device", default="cpu")
+    sub.add_argument("--max-context", type=int, default=2048)
+    sub.add_argument("--revision")
+    sub.add_argument("--local-files-only", action="store_true")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Activation state-space monitor with buffered response release")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -26,17 +39,30 @@ def main(argv=None):
     fit.add_argument("--calibration", required=True)
     fit.add_argument("--output", required=True)
     fit.add_argument("--quantile", type=float, default=1.0)
+    freeze = commands.add_parser("freeze", help="Freeze a test case manifest and fitted profile hash")
+    freeze.add_argument("--cases", required=True)
+    freeze.add_argument("--profile", required=True)
+    freeze.add_argument("--training", required=True, help="training capture artifact used to fit profile")
+    freeze.add_argument("--calibration", required=True, help="calibration capture artifact used to fit profile")
+    freeze.add_argument("--output", required=True)
+    evaluate = commands.add_parser("evaluate", help="Paired unguarded/guarded run under a frozen lock")
+    add_adapter_options(evaluate)
+    evaluate.add_argument("--cases", required=True)
+    evaluate.add_argument("--profile", required=True)
+    evaluate.add_argument("--training", required=True)
+    evaluate.add_argument("--calibration", required=True)
+    evaluate.add_argument("--lock", required=True)
+    evaluate.add_argument("--output", required=True, help="Private raw result file; contains model outputs")
+    label_template = commands.add_parser("label-template", help="Create a blank independent review-label file")
+    label_template.add_argument("--results", required=True)
+    label_template.add_argument("--output", required=True)
+    report = commands.add_parser("report", help="Report metrics from paired results and completed human labels")
+    report.add_argument("--results", required=True)
+    report.add_argument("--labels", required=True)
+    report.add_argument("--output", required=True)
     for name in ("capture", "run", "serve"):
         sub = commands.add_parser(name)
-        sub.add_argument("--model", required=True)
-        sub.add_argument("--policy", required=True, help="Host-controlled policy file")
-        sub.add_argument("--layers", default="0", help="Zero-based decoder block OUTPUT indices")
-        sub.add_argument("--projection-dim", type=int, default=8)
-        sub.add_argument("--seed", type=int, default=17)
-        sub.add_argument("--device", default="cpu")
-        sub.add_argument("--max-context", type=int, default=2048)
-        sub.add_argument("--revision")
-        sub.add_argument("--local-files-only", action="store_true")
+        add_adapter_options(sub)
         if name == "capture":
             sub.add_argument("--requests", required=True)
             sub.add_argument("--output", required=True)
@@ -58,6 +84,48 @@ def main(argv=None):
             result = artifacts.fit(artifacts.read(args.training), artifacts.read(args.calibration), quantile=args.quantile)
             artifacts.write(args.output, result)
             print(json.dumps({"written": args.output, "calibration": result["profile"]["calibration"]}))
+            return 0
+        if args.command == "freeze":
+            cases = evaluation.load_cases(args.cases)
+            profile = artifacts.validate_profile(artifacts.read(args.profile))
+            training = artifacts.read(args.training)
+            calibration = artifacts.read(args.calibration)
+            lock = evaluation.freeze(cases, profile, training, calibration)
+            artifacts.write(args.output, lock)
+            print(json.dumps({"written": args.output, "cases": len(cases["cases"]),
+                              "cases_sha256": lock["cases_sha256"],
+                              "profile_sha256": lock["profile_sha256"]}))
+            return 0
+        if args.command == "evaluate":
+            cases = evaluation.load_cases(args.cases)
+            profile = artifacts.validate_profile(artifacts.read(args.profile))
+            training = artifacts.read(args.training)
+            calibration = artifacts.read(args.calibration)
+            lock = artifacts.read(args.lock)
+            evaluation.validate_lock(lock, cases, profile, training, calibration)
+            adapter = build_adapter(args)
+            result = evaluation.run_paired(adapter, profile, cases, lock,
+                                           training=training, calibration=calibration)
+            artifacts.write(args.output, result)
+            print(json.dumps({"written": args.output, "cases": len(result["rows"]),
+                              "raw_outputs_private": True,
+                              "results_sha256": result["results_sha256"]}))
+            return 0
+        if args.command == "label-template":
+            result = artifacts.read(args.results)
+            template = evaluation.make_labels_template(result)
+            artifacts.write(args.output, template)
+            print(json.dumps({"written": args.output, "cases": len(template["reviewed_cases"]),
+                              "requires_independent_human_review": True}))
+            return 0
+        if args.command == "report":
+            result, labels = artifacts.read(args.results), artifacts.read(args.labels)
+            evaluation.validate_labels(labels, result)
+            report_result = evaluation.build_report(result, labels)
+            artifacts.write(args.output, report_result)
+            print(json.dumps({"written": args.output,
+                              "evidence_status": report_result["evidence_status"],
+                              "promotion_eligible": report_result["promotion_eligible"]}))
             return 0
         adapter = build_adapter(args)
         if args.command == "capture":
