@@ -214,15 +214,3 @@ neural_state_firewall/.venv/bin/python -m unittest discover -s neural_state_fire
 Tests cover numerical failure, split leakage, identity drift, cached/full-prefix agreement on a genuine tiny random Qwen model, response withholding after partial generation, cleanup failures, and actual loopback HTTP responses. The tiny model is not a meaningful attack target. The separate pretrained smoke run is recorded in `VALIDATION.md`.
 
 Before treating this as prompt-injection protection, measure task success, unauthorized instruction following, benign false blocks, adaptive attacks, and latency on representative held-out workloads. Fit only on trusted benign data, keep calibration and evaluation separate, and include benign quotations of attack language. Short, low-drift attacks may pass; novel legitimate tasks may block. These are the remaining detection-quality questions, not reasons to equate the working gate with a proven firewall.
-
-## Auxiliary text-classifier baseline
-
-This is a separate development baseline, not part of the activation firewall. It uses the pinned `core` train and validation splits from `neuralchemy/Prompt-injection-dataset`; it never fetches the public test split. Install its optional dependencies and run from the repository root:
-
-```bash
-python3 -m pip install -r neural_state_firewall/baseline-requirements.txt
-python3 -m neural_state_firewall.text_baseline --self-test
-python3 -m neural_state_firewall.text_baseline
-```
-
-It writes a scikit-learn model and JSON report under the ignored `neural_state_firewall/artifacts/text-baseline-v1/` directory and refuses to overwrite an existing run. The report records the pinned revision, exact split hashes, metrics, and the explicit claim boundary. This classifier learns lexical patterns in labeled text; its scores on the six Stage 1 contexts are exploratory only. The public validation metrics do not measure whether a model follows injected instructions, whether a response firewall blocks them, or how the activation monitor performs. The corpus also has mixed upstream provenance, so its card-level license is not sufficient evidence for redistribution or product use.

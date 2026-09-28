@@ -1,4 +1,0 @@
-# Optional dependencies for text_baseline.py; separate from the activation runtime.
-huggingface_hub
-pyarrow>=15
-scikit-learn>=1.4
