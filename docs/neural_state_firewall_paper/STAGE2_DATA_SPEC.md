@@ -19,6 +19,14 @@ For every source document and derived case, record:
 
 Do not use a source unless its license, terms, privacy status, and redistribution plan are reviewed. Keep a private custody copy of locked-test documents and labels under evaluator control. Developers receive only the development partitions until the code, model revision, profile, thresholds, exclusions, and analysis are frozen and hashed.
 
+### Candidate auxiliary corpus: NeurAlchemy Prompt Injection Dataset
+
+The [Hugging Face dataset card](https://huggingface.co/datasets/neuralchemy/Prompt-injection-dataset) describes a binary prompt-text classification corpus with `text`, malicious/benign `label`, `category`, `source`, `severity`, `group_id`, augmentation flag, and tags. It reports `core` train/validation/test counts of 4,391/941/942 and a group-aware split; the current card revision shown on the Hub is `7d70432`. The viewer examples include both isolated direct jailbreak prompts and some embedded-document examples.
+
+**Recommendation:** use only as an optional, pinned development/training resource for attack-family coverage or a separate text-only detector baseline. Do not use it as the primary response-firewall efficacy set: it contains neither trusted task + retrieved-context pairs nor generated model outputs and behavioral success labels. Its malicious label is a text-class label, not proof that an instruction took authority in a model response. Converting examples into retrieval requests would create a derived dataset requiring fresh task/context construction and outcome labeling.
+
+Do not use the dataset’s public test split as our locked test. If any rows are imported into training or development, exclude the full public repository snapshot, its `group_id` families, derived templates, and near-duplicates from locked and adaptive evaluation. The card labels the dataset Apache-2.0, while its source table lists components with differing terms, including a “Research” entry; review component-level provenance and permissions before importing or redistributing data. The card’s leakage claim is author-reported and should be verified against the pinned files before any experimental use.
+
 ## Split rules
 
 Assign whole source-document groups and attack-template families to exactly one partition. Related passages, paraphrases, tasks, benign controls, or translations stay together. Do not split matched items across partitions.

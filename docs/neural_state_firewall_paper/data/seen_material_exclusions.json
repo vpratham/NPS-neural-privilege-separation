@@ -5,6 +5,11 @@
   "policy": "Listed material, its source groups, and near-duplicates are ineligible for locked-test or adaptive-test use.",
   "entries": [
     {
+      "path": "https://huggingface.co/datasets/neuralchemy/Prompt-injection-dataset@7d70432",
+      "scope": "public-dataset-snapshot",
+      "reason": "Candidate auxiliary text-classification corpus; its public splits and all derived/group-related/near-duplicate cases are ineligible for locked test or adaptive test, especially if any part is imported into training/development."
+    },
+    {
       "path": "neural_state_firewall/examples/train.jsonl",
       "scope": "file",
       "reason": "Existing benign monitor-training requests; already used to fit the current profile."
