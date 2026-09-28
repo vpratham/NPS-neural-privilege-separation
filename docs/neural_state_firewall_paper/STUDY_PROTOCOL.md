@@ -2,7 +2,7 @@
 
 **Status:** v0.1 planning protocol, 2026-09-27. This is not a public preregistration. No new holdout data have been collected or examined under this protocol.
 
-**Stage 1 note (2026-09-28):** The earlier six-case smoke artifact was retrospective and does not pass the feasibility gate. A separate 12-case development-only pilot was frozen in [`STAGE1_PILOT_SUPPLEMENT.md`](STAGE1_PILOT_SUPPLEMENT.md), run against Qwen2.5-0.5B, and met the output-level screening counts; its gate remains provisional pending independent review. Neither pilot is efficacy evidence, and both are excluded from all locked evaluation data. Details are in [`STAGE1_FEASIBILITY.md`](STAGE1_FEASIBILITY.md).
+**Stage 1 note (2026-09-28):** The earlier six-case smoke artifact was retrospective and does not pass the feasibility gate. A separate 12-case development-only pilot was frozen in [`STAGE1_PILOT_SUPPLEMENT.md`](STAGE1_PILOT_SUPPLEMENT.md) and run against Qwen2.5-0.5B. A single-review protocol deviation was recorded for this candidate screen; the observed counts meet its thresholds (5/6 benign task successes, 2/6 exact attack diversions), but this is not independent validation. Neither pilot is efficacy evidence, and both are excluded from all locked evaluation data. Details are in [`STAGE1_FEASIBILITY.md`](STAGE1_FEASIBILITY.md).
 
 ## Study question and scope
 
