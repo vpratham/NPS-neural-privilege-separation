@@ -4,6 +4,8 @@ A standalone internal-activation monitor with a deterministic, buffered response
 
 This folder is independent of `nps_gateway/`, the source-copy broker, and the earlier text-judge firewall. It imports none of them and executes no tools. It contains executable Python modules, a local HTTP API, calibration commands, and tests.
 
+The next architecture track is specified in [NPS_PERMISSION_BOUNDARY.md](NPS_PERMISSION_BOUNDARY.md). It defines a protected, read-only policy state and keeps effect authorization in a separate host mediator; this is not implemented by the current activation monitor.
+
 **Current capability:** working activation capture, temporal anomaly scoring, and response withholding. **Unestablished capability:** reliably identifying prompt injection. The alarm means “unusual neural trajectory,” not “proven attack.” The supplied eight benign examples demonstrate the integration; they are not a deployment-quality calibration set.
 
 ## Run immediately
