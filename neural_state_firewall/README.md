@@ -4,7 +4,7 @@ A standalone internal-activation monitor with a deterministic, buffered response
 
 This folder is independent of `nps_gateway/`, the source-copy broker, and the earlier text-judge firewall. It imports none of them and executes no tools. It contains executable Python modules, a local HTTP API, calibration commands, and tests.
 
-The next architecture track is specified in [NPS_PERMISSION_BOUNDARY.md](NPS_PERMISSION_BOUNDARY.md). It defines a protected, read-only policy state and keeps effect authorization in a separate host mediator; this is not implemented by the current activation monitor.
+The architecture track is specified in [NPS_PERMISSION_BOUNDARY.md](NPS_PERMISSION_BOUNDARY.md), with stages and acceptance criteria in [NPS_IMPLEMENTATION_PLAN.md](NPS_IMPLEMENTATION_PLAN.md). An opt-in adapter now isolates policy KV memory. Attention read permissions are the next stage; policy-memory isolation alone does not enforce instruction authority.
 
 **Current capability:** working activation capture, temporal anomaly scoring, and response withholding. **Unestablished capability:** reliably identifying prompt injection. The alarm means “unusual neural trajectory,” not “proven attack.” The supplied eight benign examples demonstrate the integration; they are not a deployment-quality calibration set.
 
@@ -208,6 +208,22 @@ The [NFW-011 report](../neuralFirewallV2/experiments/NFW-11_authorization_proven
 State-space terminology does not provide a proof of semantic safety. [Dialogue dynamics research](https://arxiv.org/html/2503.00187v3) motivates temporal monitoring but uses a different state abstraction; [obfuscated activation attacks](https://arxiv.org/html/2412.09565v2) demonstrate important evasion risks for latent-space defenses. This implementation neither identifies a privileged policy subspace nor proves a control-barrier invariant. See the [pinned Qwen source](https://github.com/huggingface/transformers/blob/753d61104116eefc8ffc977327b441ee0c8d599f/src/transformers/models/qwen2/modeling_qwen2.py) and [cache documentation](https://huggingface.co/docs/transformers/v4.57.1/cache_explanation) for the inference mechanics used here.
 
 ## Verification and remaining work
+
+To verify the policy-memory path against ordinary decoding using already-cached weights:
+
+```bash
+HF_HOME=neural_state_firewall/.cache/huggingface HF_HUB_OFFLINE=1 \
+neural_state_firewall/.venv/bin/python -m neural_state_firewall check-policy-memory \
+  --model Qwen/Qwen2.5-0.5B-Instruct \
+  --revision 7ae557604adf67be50417f59c2c2f167def9a775 --local-files-only \
+  --policy neural_state_firewall/examples/policy.txt --layers 6,18 \
+  --requests neural_state_firewall/examples/evaluation.jsonl --max-new-tokens 32 \
+  --output neural_state_firewall/artifacts/policy-memory-check.json
+```
+
+The command runs without an anomaly profile and returns a structural equivalence report, not attack labels. The recorded [pretrained comparison](validation/policy_memory_smoke.json) has identical tokens on three seen development requests; all completed at EOS. Ordinary causal attention already protects earlier prefix representations from later tokens. The isolated path adds explicit storage ownership, append-position checks and digest checks before releasing each generation step. It rejects unsupported cache mutations and tokenizers whose system-only encoding is not an exact request prefix. PyTorch tensors remain mutable to trusted host code; this is not process isolation.
+
+`--isolate-policy-memory` also selects this adapter for capture/run/evaluate/serve. Its distinct decoder identity requires new capture/calibration artifacts for the optional anomaly monitor; the old profiles are rejected. Batch-one full-attention Qwen2, float32 and Transformers 4.57.6 are the currently supported combination.
 
 ```bash
 neural_state_firewall/.venv/bin/python -m unittest discover -s neural_state_firewall/tests -v

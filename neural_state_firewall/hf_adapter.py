@@ -439,6 +439,13 @@ class HFAdapter:
             raise RuntimeError("Projection produced invalid monitor features.")
         return [float(x) for x in vector]
 
+    def _prepare_generation(self, input_ids):
+        """Return current tokens and an optional prefilled cache."""
+        return input_ids, None
+
+    def _validate_generation_cache(self, cache):
+        """Optional cache-integrity check before a step reaches the release gate."""
+
     def iter_steps(self, task: str, context: str, max_new_tokens: int) -> Iterator[Step]:
         """Yield monitored greedy decoder steps; callers own output release policy."""
         if not isinstance(max_new_tokens, int) or max_new_tokens < 1:
@@ -460,6 +467,7 @@ class HFAdapter:
                 raise ValueError(
                     f"Prompt plus generation ({input_ids.shape[1]} + {max_new_tokens}) exceeds context limit {limit}."
                 )
+            current, past = self._prepare_generation(input_ids)
             observations: dict[int, Any] = {}
             calls: dict[int, int] = {layer: 0 for layer in self.layers}
 
@@ -476,8 +484,6 @@ class HFAdapter:
                 handles.append(self._blocks[layer].register_forward_hook(make_hook(layer)))
 
             attention_mask = torch.ones_like(input_ids, device=input_ids.device)
-            past = None
-            current = input_ids
             eos_set = set(self._identity["eos_token_ids"])
             for _ in range(max_new_tokens):
                 observations.clear()
@@ -493,6 +499,7 @@ class HFAdapter:
                     )
                 if output.past_key_values is None:
                     raise RuntimeError("Model did not return a cache while use_cache=True.")
+                self._validate_generation_cache(output.past_key_values)
                 if not torch.isfinite(output.logits).all():
                     raise RuntimeError("Model produced non-finite logits; refusing to continue.")
                 if any(calls[layer] != 1 or layer not in observations for layer in self.layers):

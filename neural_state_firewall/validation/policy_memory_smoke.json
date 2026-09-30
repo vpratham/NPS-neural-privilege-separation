@@ -1,0 +1,110 @@
+{
+  "kind": "policy-memory-equivalence-v1",
+  "claim_scope": "memory isolation and decoder comparison only; no injection-resistance claim",
+  "identity": {
+    "adapter": "HFAdapter",
+    "model_type": "qwen2",
+    "model_identifier": "hf_commit:7ae557604adf67be50417f59c2c2f167def9a775",
+    "model_config_sha256": "47c6a7d43dc27785530b4d16f08b7c96399d88066947d4419a2ae82739e5a62d",
+    "tokenizer_class": "Qwen2TokenizerFast",
+    "tokenizer_fingerprint_sha256": "9e132e4c7484ef1e91ec7d1d17e056311d85e881bd8a91c83d32ed8a78a56b9a",
+    "chat_template_sha256": "cd8e9439f0570856fd70470bf8889ebd8b5d1107207f67a5efb46e342330527f",
+    "transformers_version": "4.57.6",
+    "torch_version": "2.6.0",
+    "dtype": "float32",
+    "device": "cpu",
+    "eos_token_ids": [
+      151645
+    ],
+    "layers": [
+      6,
+      18
+    ],
+    "sensor_site": "qwen2.decoder_block_output.last_token.v1",
+    "projection_dim": 8,
+    "projection_seed": 17,
+    "hidden_size": 896,
+    "feature_dim": 16,
+    "max_context": 2048,
+    "decoder_version": "greedy_cached_isolated_policy_v1"
+  },
+  "ordinary_identity": {
+    "adapter": "HFAdapter",
+    "model_type": "qwen2",
+    "model_identifier": "in_memory:d4c17f49cbd08dc38b0b5a3cb0ce5abfcdb78c80bddda4800507b3cb1e0b0693",
+    "model_config_sha256": "47c6a7d43dc27785530b4d16f08b7c96399d88066947d4419a2ae82739e5a62d",
+    "tokenizer_class": "Qwen2TokenizerFast",
+    "tokenizer_fingerprint_sha256": "9e132e4c7484ef1e91ec7d1d17e056311d85e881bd8a91c83d32ed8a78a56b9a",
+    "chat_template_sha256": "cd8e9439f0570856fd70470bf8889ebd8b5d1107207f67a5efb46e342330527f",
+    "transformers_version": "4.57.6",
+    "torch_version": "2.6.0",
+    "dtype": "float32",
+    "device": "cpu",
+    "eos_token_ids": [
+      151645
+    ],
+    "layers": [
+      6,
+      18
+    ],
+    "sensor_site": "qwen2.decoder_block_output.last_token.v1",
+    "projection_dim": 8,
+    "projection_seed": 17,
+    "hidden_size": 896,
+    "feature_dim": 16,
+    "max_context": 2048,
+    "decoder_version": "greedy_cached_v1"
+  },
+  "same_model_object": true,
+  "policy_sha256": "85b0d2499e24065e1f36692399c21cf83db897ace615e076a63f4da5688ba333",
+  "max_new_tokens": 32,
+  "feature_atol": 1e-05,
+  "feature_rtol": 1e-05,
+  "rows": [
+    {
+      "request_sha256": "138d4a2b1c1cfb2f8ad25c594326cbda19db84bb09a979e7acffca82569cd31d",
+      "ordinary_tokens": 9,
+      "isolated_tokens": 9,
+      "ordinary_ended_with_eos": true,
+      "isolated_ended_with_eos": true,
+      "identical_tokens": true,
+      "features_close": true,
+      "max_feature_difference": 7.62939453125e-06
+    },
+    {
+      "request_sha256": "7880111f66f63bd751a629920743774a717f4d7579e8f837eaf762ee52603f5c",
+      "ordinary_tokens": 4,
+      "isolated_tokens": 4,
+      "ordinary_ended_with_eos": true,
+      "isolated_ended_with_eos": true,
+      "identical_tokens": true,
+      "features_close": true,
+      "max_feature_difference": 6.4373016357421875e-06
+    },
+    {
+      "request_sha256": "8afe705a8ec9b4cbd6776647a9632a03d93f5b02cbc3afb9104e64673dd82b91",
+      "ordinary_tokens": 23,
+      "isolated_tokens": 23,
+      "ordinary_ended_with_eos": true,
+      "isolated_ended_with_eos": true,
+      "identical_tokens": true,
+      "features_close": true,
+      "max_feature_difference": 6.139278411865234e-06
+    }
+  ],
+  "all_match": true,
+  "source_sha256": {
+    "neural_state_firewall/hf_adapter.py": "4574cdc7d2ff1a165864f99ccc5a72e2c33f6f9d1dc8f8b2b75b864512e2fa17",
+    "neural_state_firewall/policy_memory.py": "7df3f339705b982c753c4fc102e045fd37f7477685c1b62f8ff0616efccb3ec3",
+    "neural_state_firewall/cli.py": "4a37d8371651c189f9f06b0b03c03ee133f06f3d0293c169d43c651af6899352",
+    "neural_state_firewall/tests/test_policy_memory.py": "48cc6b80de5d3aae59dcf91b70a5b2b4cffaf21a84f5d63120b549fbfbb4ca4b",
+    "neural_state_firewall/examples/policy.txt": "85b0d2499e24065e1f36692399c21cf83db897ace615e076a63f4da5688ba333",
+    "neural_state_firewall/examples/evaluation.jsonl": "8435918b8c7259103800fadfa741dd75b7e111f3be705ef8cb4e718bb0359d13"
+  },
+  "verification": {
+    "suite_command": "neural_state_firewall/.venv/bin/python -m unittest discover -s neural_state_firewall/tests -v",
+    "tests_passed": 53,
+    "new_policy_memory_tests": 9,
+    "ordinary_causal_prefix_control_passed": true
+  }
+}

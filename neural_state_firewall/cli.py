@@ -11,7 +11,11 @@ from .runtime import Firewall
 
 def build_adapter(args):
     from .hf_adapter import HFAdapter
-    return HFAdapter(args.model, policy=Path(args.policy).read_text(),
+    adapter_type = HFAdapter
+    if getattr(args, "isolate_policy_memory", False):
+        from .policy_memory import PolicyMemoryAdapter
+        adapter_type = PolicyMemoryAdapter
+    return adapter_type(args.model, policy=Path(args.policy).read_text(),
                      layers=[int(value) for value in args.layers.split(",")],
                      projection_dim=args.projection_dim, seed=args.seed,
                      device=args.device, max_context=args.max_context,
@@ -28,12 +32,20 @@ def add_adapter_options(sub):
     sub.add_argument("--max-context", type=int, default=2048)
     sub.add_argument("--revision")
     sub.add_argument("--local-files-only", action="store_true")
+    sub.add_argument("--isolate-policy-memory", action="store_true",
+                     help="Separate read-only policy KV memory; structural isolation only, requires a fresh profile")
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Activation state-space monitor with buffered response release")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("demo", help="Offline synthetic trajectories; verifies gate mechanics only")
+    check = commands.add_parser("check-policy-memory", help="Compare ordinary/isolated policy KV on development requests")
+    add_adapter_options(check)
+    check.set_defaults(isolate_policy_memory=True)
+    check.add_argument("--requests", required=True)
+    check.add_argument("--max-new-tokens", type=int, default=32)
+    check.add_argument("--output", required=True)
     fit = commands.add_parser("fit", help="Fit benign training dynamics and held-out benign threshold")
     fit.add_argument("--training", required=True)
     fit.add_argument("--calibration", required=True)
@@ -80,6 +92,14 @@ def main(argv=None):
             from .demo import demo
             print(json.dumps(demo(), indent=2, allow_nan=False))
             return 0
+        if args.command == "check-policy-memory":
+            from .policy_memory import compare_policy_memory
+            requests = artifacts.requests(args.requests)
+            result = compare_policy_memory(build_adapter(args), requests, args.max_new_tokens)
+            artifacts.write(args.output, result)
+            print(json.dumps({"written": args.output, "requests": len(result["rows"]),
+                              "all_match": result["all_match"], "claim_scope": result["claim_scope"]}))
+            return 0 if result["all_match"] else 2
         if args.command == "fit":
             result = artifacts.fit(artifacts.read(args.training), artifacts.read(args.calibration), quantile=args.quantile)
             artifacts.write(args.output, result)

@@ -1,12 +1,12 @@
 # Neural privilege separation: permission-boundary design
 
-**Status:** implementation contract for the next architecture prototype; not a security claim.
+**Status:** protected policy KV memory implemented and tested; attention read permissions and general instruction-authority enforcement remain pending. See [the implementation plan](NPS_IMPLEMENTATION_PLAN.md).
 
 ## Goal
 
 Keep trusted policy and permission state outside the writable token stream while allowing the model to use lower-trust text as evidence. A prompt label such as “untrusted data” is not an enforcement boundary. A trajectory alarm is not a permission decision.
 
-The first supported guarantee is deliberately narrow: **lower-trust input cannot change the host-issued permission set, and no privileged effect occurs unless a deterministic host check authorizes that exact effect.** Whether the generated natural-language answer obeys the policy remains an empirical model behavior, not a guarantee of this boundary.
+The target permission guarantee is deliberately narrow: **lower-trust input cannot change the host-issued permission set, and no privileged effect occurs unless a deterministic host check authorizes that exact effect.** The implemented increment protects policy-memory ownership only; it does not introduce or enforce a permission set. Whether the generated natural-language answer obeys the policy remains an empirical model behavior.
 
 ## Trust and authority
 
@@ -50,7 +50,11 @@ The threat model trusts the host process, policy source, model-loading/runtime c
 
 ## Prototype scope
 
-Start with one local Qwen2-family adapter and a synthetic policy with two permissions. Implement a policy encoder whose output is held outside the writable decoder cache and read by the model at each step. Keep the existing state-space monitor optional and observational. Route any action proposal through an explicit mediator; do not add prompt-text classification or treat an activation threshold as authority.
+The first increment uses the existing Qwen weights to prefill the trusted system prefix alone, then seals its per-layer K/V tensors separately from the writable request cache. `PolicyMemoryAdapter` in `policy_memory.py` uses those tensors at every attention step through newly allocated attention views. It rejects attempted cache overwrites, checks policy digests before releasing each generation step, and uses a distinct decoder identity. It supports batch-one full-attention Qwen2 with Transformers 4.57.6; it does not add a learned encoder, change attention permissions, or train weights. The existing anomaly monitor remains a separate optional control; the equivalence check runs without it.
+
+**Causal baseline correction:** ordinary causal attention already prevents later tokens from changing earlier prefix representations ([Transformers documentation](https://huggingface.co/docs/transformers/v4.57.1/cache_explanation)). The first increment adds explicit memory ownership and integrity checks, not a new semantic defense. The tests include ordinary-prefix invariance and ordinary-versus-isolated decoder equivalence to prevent a false security claim. A constant or unread policy state would also be immutable; immutability alone is not sufficient evidence of policy enforcement.
+
+The next increment must define and enforce host-assigned read permissions for evidence compartments at every attention layer and cached step, including indirect paths. Start with permitted versus denied evidence and test output independence from denied values under fixed public metadata. This is a specific information-flow guarantee; injections in permitted evidence may still influence natural-language answers. Tool effects remain on the separate mediator path.
 
 The first checks are structural, not efficacy benchmarks:
 
@@ -65,6 +69,6 @@ These checks demonstrate the implementation invariant, not that responses resist
 
 ## Existing code and gap
 
-`neural_state_firewall/hf_adapter.py` currently sends policy as a system message and task/context in one user message; its own docstring states the context label is not a security boundary. `neural_state_firewall/runtime.py` buffers and conditionally releases text based on an anomaly monitor; it does not authorize actions. `nps_gateway/` already has a separate host-owned, source-bound action mediator, but it is not an internal policy-state architecture and remains on the tool/action path only.
+The default `neural_state_firewall/hf_adapter.py` sends policy as a system message and task/context in one user message; its own docstring states the context label is not a security boundary. The opt-in `policy_memory.py` path verifies that the system-only encoding is an exact token prefix before storing it separately; it rejects incompatible tokenizers. `neural_state_firewall/runtime.py` buffers and conditionally releases text based on an anomaly monitor; it does not authorize actions. `nps_gateway/` already has a separate host-owned, source-bound action mediator, but it is not an internal policy-state architecture and remains on the tool/action path only.
 
 This design follows the long-term Neural Privilege Separation objective in `docs/NPS_Charter.md` and the protected policy-state formulation in `docs/NPS_IMPLEMENTATION_AUDIT.md` (Milestone D). The audit's runtime and evaluation milestones remain prerequisites for making behavioral security claims.
