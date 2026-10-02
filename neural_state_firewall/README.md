@@ -1,12 +1,12 @@
 # Neural State Firewall
 
-A standalone internal-activation monitor with a deterministic, buffered response gate. It observes a local language model during inference, estimates how its neural trajectory differs from benign calibration data, and halts generation when an anomaly threshold is crossed.
+A local model runtime with deterministic attention read permissions, optional neural-trajectory monitoring, and buffered response release. The read-permission path restricts document information flow independently of anomaly thresholds. The separate monitor estimates deviations from benign calibration data.
 
 This folder is independent of `nps_gateway/`, the source-copy broker, and the earlier text-judge firewall. It imports none of them and executes no tools. It contains executable Python modules, a local HTTP API, calibration commands, and tests.
 
-The architecture track is specified in [NPS_PERMISSION_BOUNDARY.md](NPS_PERMISSION_BOUNDARY.md), with stages and acceptance criteria in [NPS_IMPLEMENTATION_PLAN.md](NPS_IMPLEMENTATION_PLAN.md). An opt-in adapter now isolates policy KV memory. Attention read permissions are the next stage; policy-memory isolation alone does not enforce instruction authority.
+For the runnable permission boundary, start with [READ_PERMISSIONS.md](READ_PERMISSIONS.md). It includes command-line and local API instructions, the information-flow contract, and evaluation steps. The architecture and release gates are in [NPS_PERMISSION_BOUNDARY.md](NPS_PERMISSION_BOUNDARY.md) and [NPS_IMPLEMENTATION_PLAN.md](NPS_IMPLEMENTATION_PLAN.md).
 
-**Current capability:** working activation capture, temporal anomaly scoring, and response withholding. **Unestablished capability:** reliably identifying prompt injection. The alarm means “unusual neural trajectory,” not “proven attack.” The supplied eight benign examples demonstrate the integration; they are not a deployment-quality calibration set.
+**Current capability:** host-assigned document read permissions at every attention layer/cached step, protected policy memory, a local model API, activation capture, and response withholding. **Unestablished capability:** preventing arbitrary instruction takeover from readable evidence. An anomaly alarm means “unusual neural trajectory,” not “proven attack.” The examples below demonstrate the optional anomaly monitor; they are not a deployment-quality calibration set.
 
 ## Run immediately
 

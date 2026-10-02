@@ -22,6 +22,18 @@ def build_adapter(args):
                      revision=args.revision, local_files_only=args.local_files_only)
 
 
+def build_permission_adapter(args):
+    from .read_permissions import ReadPermissionAdapter
+    grants = artifacts.read(args.read_permissions)
+    if not isinstance(grants, dict) or set(grants) != {"readable_sources"}:
+        raise ValueError("Permission file must contain only readable_sources")
+    return ReadPermissionAdapter(
+        args.model, documents=artifacts.read(args.documents), readable_sources=grants["readable_sources"],
+        policy=Path(args.policy).read_text(), layers=[int(x) for x in args.layers.split(",")],
+        projection_dim=args.projection_dim, seed=args.seed, device=args.device,
+        max_context=args.max_context, revision=args.revision, local_files_only=args.local_files_only)
+
+
 def add_adapter_options(sub):
     sub.add_argument("--model", required=True)
     sub.add_argument("--policy", required=True, help="Host-controlled policy file")
@@ -37,9 +49,23 @@ def add_adapter_options(sub):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Activation state-space monitor with buffered response release")
+    parser = argparse.ArgumentParser(description="Attention read permissions and activation monitoring with buffered response release")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("demo", help="Offline synthetic trajectories; verifies gate mechanics only")
+    for name in ("run-permissions", "serve-permissions", "evaluate-permissions"):
+        sub = commands.add_parser(name, help="Host-defined attention read permissions; no anomaly profile")
+        add_adapter_options(sub)
+        sub.add_argument("--documents", required=True, help="Host-loaded source ID to document text mapping")
+        sub.add_argument("--read-permissions", required=True, help="Trusted readable_sources JSON file")
+        sub.add_argument("--max-new-tokens", type=int, default=64)
+        sub.add_argument("--timeout-seconds", type=float, default=60)
+        if name == "serve-permissions":
+            sub.add_argument("--port", type=int, default=8765)
+        elif name == "run-permissions":
+            sub.add_argument("--requests", required=True)
+        else:
+            sub.add_argument("--cases", required=True, help="Development-only behavioral fixtures")
+            sub.add_argument("--output", required=True)
     check = commands.add_parser("check-policy-memory", help="Compare ordinary/isolated policy KV on development requests")
     add_adapter_options(check)
     check.set_defaults(isolate_policy_memory=True)
@@ -88,6 +114,25 @@ def main(argv=None):
                 sub.add_argument("--port", type=int, default=8765)
     args = parser.parse_args(argv)
     try:
+        if args.command in ("run-permissions", "serve-permissions", "evaluate-permissions"):
+            adapter = build_permission_adapter(args)
+            firewall = Firewall(adapter, mode="permissions", timeout_seconds=args.timeout_seconds)
+            if args.command == "serve-permissions":
+                from .server import serve
+                serve(firewall, args.max_new_tokens, port=args.port)
+                return 0
+            if args.command == "evaluate-permissions":
+                from .permission_evaluation import evaluate
+                result = evaluate(adapter, artifacts.read(args.cases), args.max_new_tokens, args.timeout_seconds)
+                artifacts.write(args.output, result)
+                print(json.dumps({"written": args.output, "summary": result["summary"],
+                                  "production_eligible": False}))
+                return 0 if result["structural_checks_passed"] else 2
+            results = [firewall.run(r["task"], r.get("context", ""), max_new_tokens=args.max_new_tokens)
+                       for r in artifacts.requests(args.requests)]
+            for result in results:
+                print(json.dumps(result, allow_nan=False))
+            return 2 if any(r["status"] in ("error", "incomplete") for r in results) else 0
         if args.command == "demo":
             from .demo import demo
             print(json.dumps(demo(), indent=2, allow_nan=False))

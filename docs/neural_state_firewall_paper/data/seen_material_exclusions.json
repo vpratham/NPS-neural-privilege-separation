@@ -68,6 +68,41 @@
       "path": "neuralFirewallV2/experiments/NFW-11_authorization_provenance/",
       "scope": "directory",
       "reason": "Replay of frozen NFW-010 outputs for the separate authorization broker; not a neural response-firewall test."
+    },
+    {
+      "path": "neural_state_firewall/examples/permission_cases.json",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/examples/permission_documents.json",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/examples/permission_requests.jsonl",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/examples/permission_policy.txt",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/examples/read_permissions.json",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/tests/test_read_permissions.py",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/validation/",
+      "scope": "directory",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
     }
   ]
 }

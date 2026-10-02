@@ -28,6 +28,7 @@ def make_server(firewall, max_new_tokens, *, port=8765):
                 self.send_json(404, {"error": "not_found"})
                 return
             self.send_json(200, {"status": "ready", "mode": firewall.mode,
+                                 "read_permissions_enforced": firewall.mode == "permissions",
                                  "kind": "neural_state_firewall", "semantic_detection_validated": False})
 
         def do_POST(self):
@@ -54,6 +55,8 @@ def make_server(firewall, max_new_tokens, *, port=8765):
                     raise ValueError("Only task/context are accepted")
                 if not isinstance(item.get("task"), str) or not item["task"].strip() or not isinstance(item.get("context", ""), str):
                     raise ValueError("Invalid task/context")
+                if firewall.mode == "permissions" and item.get("context", "") != "":
+                    raise ValueError("Permission mode uses host-loaded source documents")
             except (ValueError, UnicodeError, OSError):
                 self.send_json(400, {"error": "invalid_request", "output": None})
                 return

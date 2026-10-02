@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import time
 from dataclasses import dataclass
 from typing import Iterator, Protocol
 
@@ -36,13 +37,25 @@ class Firewall:
     supply task/context only. This class does not execute tools.
     """
 
-    def __init__(self, adapter: Adapter, profile: dict, *, mode: str = "enforce"):
-        if mode not in ("enforce", "monitor"):
-            raise ValueError("mode must be enforce or monitor")
-        Observer(profile)  # Reject malformed profiles before touching the model.
+    def __init__(self, adapter: Adapter, profile: dict | None = None, *, mode: str = "enforce",
+                 timeout_seconds: float | None = None):
+        if mode not in ("enforce", "monitor", "permissions"):
+            raise ValueError("Invalid enforcement mode")
+        if mode == "permissions":
+            from .read_permissions import ReadPermissionAdapter
+            if profile is not None or type(adapter) is not ReadPermissionAdapter:
+                raise ValueError("Permission mode requires a read-permission adapter and no anomaly profile")
+        else:
+            Observer(profile)  # Reject malformed profiles before touching the model.
+        if timeout_seconds is not None and (isinstance(timeout_seconds, bool)
+                or not isinstance(timeout_seconds, (int, float))
+                or not math.isfinite(timeout_seconds) or timeout_seconds <= 0):
+            raise ValueError("Invalid generation timeout")
+        self.timeout_seconds = timeout_seconds
         self.profile = json.loads(json.dumps(profile, allow_nan=False))
         self.adapter = adapter
         self.mode = mode
+        self._permission_binding = (json.loads(json.dumps(adapter.identity)), policy_digest(adapter.policy))
         self._calibrated_horizon = None
         self._check_binding()
 
@@ -56,6 +69,10 @@ class Firewall:
         return instance
 
     def _check_binding(self):
+        if self.profile is None:
+            if self._permission_binding != (self.adapter.identity, policy_digest(self.adapter.policy)):
+                raise ValueError("Permission adapter identity changed")
+            return
         if self.profile["identity"] != self.adapter.identity:
             raise ValueError("Profile does not match the model/sensor identity; recapture and recalibrate")
         if self.profile["policy_sha256"] != policy_digest(self.adapter.policy):
@@ -68,8 +85,9 @@ class Firewall:
         tokens: list[int] = []
         stream = None
         result = {"status": "error", "output": None, "mode": self.mode,
-                  "enforced": self.mode == "enforce", "reason": "runtime_error", "events": events}
+                  "enforced": self.mode != "monitor", "reason": "runtime_error", "events": events}
         try:
+            deadline = time.monotonic() + self.timeout_seconds if self.timeout_seconds is not None else None
             self._check_binding()
             if max_new_tokens is None:
                 max_new_tokens = self._calibrated_horizon or 128
@@ -79,13 +97,30 @@ class Firewall:
                 raise ValueError("max_new_tokens must be between 1 and 32768")
             if self._calibrated_horizon is not None and max_new_tokens != self._calibrated_horizon:
                 raise ValueError("Generation horizon differs from the calibrated profile")
-            observer = Observer(self.profile)
+            observer = Observer(self.profile) if self.profile is not None else None
             stream = iter(self.adapter.iter_steps(task, context, max_new_tokens))
             for index, frame in enumerate(stream):
                 if index >= max_new_tokens:
                     raise ValueError("adapter exceeded generation budget")
                 if not isinstance(frame, Step) or type(frame.token_id) is not int or frame.token_id < 0 or type(frame.is_eos) is not bool:
                     raise ValueError("invalid adapter frame")
+                if deadline is not None and time.monotonic() >= deadline:
+                    result.update(reason="generation_timeout")
+                    break
+                if observer is None:
+                    if (not isinstance(frame.features, list)
+                            or len(frame.features) != self.adapter.identity["feature_dim"]
+                            or any(not isinstance(x, (int, float)) or not math.isfinite(x) for x in frame.features)):
+                        raise ValueError("Invalid permission-path telemetry")
+                    events.append({"alarm": False})
+                    if frame.is_eos:
+                        output = self.adapter.decode(tokens)
+                        if not isinstance(output, str):
+                            raise ValueError("adapter decode did not return text")
+                        result.update(status="allowed", reason="read_permissions_enforced", output=output)
+                        break
+                    tokens.append(frame.token_id)
+                    continue
                 event = observer.step(frame.features)
                 events.append(event)
                 valid = not event.get("sensor_error", False) and all(

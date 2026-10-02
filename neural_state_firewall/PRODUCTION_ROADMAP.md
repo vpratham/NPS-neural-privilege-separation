@@ -1,5 +1,7 @@
 # Road from prototype to product
 
+The attention read-permission implementation now has a separate [running guide and release boundary](READ_PERMISSIONS.md). It is a local deterministic information-flow control and needs no anomaly profile. The detector-specific roadmap below remains relevant only to the optional trajectory monitor. Neither path currently has a production or general prompt-injection-resistance release claim.
+
 ## Current release decision: no production enforcement
 
 The software path works; the detector is not ready to make security decisions for users. In the pretrained smoke run, the monitor blocked an injected instruction and also blocked a benign security-training quotation. It was calibrated on four requests. Its threshold is the maximum of four calibration trajectories, so zero calibration alarms are expected by construction; that does not show a low false-block rate on ordinary traffic.

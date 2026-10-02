@@ -1,12 +1,12 @@
 # Neural privilege separation: permission-boundary design
 
-**Status:** protected policy KV memory implemented and tested; attention read permissions and general instruction-authority enforcement remain pending. See [the implementation plan](NPS_IMPLEMENTATION_PLAN.md).
+**Status:** protected policy KV memory and all-layer document read permissions implemented, with local API/CLI and development evaluation. General instruction-authority enforcement for readable evidence remains unestablished. See [the running guide and exact contract](READ_PERMISSIONS.md) and [the implementation plan](NPS_IMPLEMENTATION_PLAN.md).
 
 ## Goal
 
 Keep trusted policy and permission state outside the writable token stream while allowing the model to use lower-trust text as evidence. A prompt label such as “untrusted data” is not an enforcement boundary. A trajectory alarm is not a permission decision.
 
-The target permission guarantee is deliberately narrow: **lower-trust input cannot change the host-issued permission set, and no privileged effect occurs unless a deterministic host check authorizes that exact effect.** The implemented increment protects policy-memory ownership only; it does not introduce or enforce a permission set. Whether the generated natural-language answer obeys the policy remains an empirical model behavior.
+The implemented read guarantee is deliberately narrow: **document text cannot change the host-issued read set, and denied document values have no attention path into the public response under the declared model/runtime assumptions.** A separate action mediator remains responsible for privileged tool effects. Whether generated natural-language answers obey semantic instructions remains an empirical model behavior.
 
 ## Trust and authority
 
@@ -54,7 +54,7 @@ The first increment uses the existing Qwen weights to prefill the trusted system
 
 **Causal baseline correction:** ordinary causal attention already prevents later tokens from changing earlier prefix representations ([Transformers documentation](https://huggingface.co/docs/transformers/v4.57.1/cache_explanation)). The first increment adds explicit memory ownership and integrity checks, not a new semantic defense. The tests include ordinary-prefix invariance and ordinary-versus-isolated decoder equivalence to prevent a false security claim. A constant or unread policy state would also be immutable; immutability alone is not sufficient evidence of policy enforcement.
 
-The next increment must define and enforce host-assigned read permissions for evidence compartments at every attention layer and cached step, including indirect paths. Start with permitted versus denied evidence and test output independence from denied values under fixed public metadata. This is a specific information-flow guarantee; injections in permitted evidence may still influence natural-language answers. Tool effects remain on the separate mediator path.
+The read-permission increment is implemented in `read_permissions.py`: host-assigned evidence visibility, fixed-capacity denied slots, logical public positions, reserved-token-safe data encoding, and verified masks at every layer/cached step. Tests cover Qwen2 and Llama under eager and SDPA attention. This is a specific information-flow guarantee; injections in permitted evidence may still influence natural-language answers. Tool effects remain on the separate mediator path.
 
 The first checks are structural, not efficacy benchmarks:
 

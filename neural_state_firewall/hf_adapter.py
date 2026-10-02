@@ -28,6 +28,7 @@ class HFAdapter:
 
     SENSOR_SITE = "qwen2.decoder_block_output.last_token.v1"
     DECODER_VERSION = "greedy_cached_v1"
+    SUPPORTED_MODEL_TYPES = ("qwen2",)
 
     def __init__(
         self,
@@ -175,8 +176,8 @@ class HFAdapter:
         device: str,
         transformers_version: str,
     ) -> None:
-        if getattr(model.config, "model_type", None) != "qwen2":
-            raise ValueError("HFAdapter currently supports only model_type='qwen2'.")
+        if getattr(model.config, "model_type", None) not in self.SUPPORTED_MODEL_TYPES:
+            raise ValueError(f"Supported model types: {self.SUPPORTED_MODEL_TYPES}")
         blocks = getattr(getattr(model, "model", None), "layers", None)
         if blocks is None:
             raise ValueError("Qwen2 model has no model.layers decoder blocks.")
@@ -220,7 +221,7 @@ class HFAdapter:
         template_hash = self._sha256_text(str(template))
         self._identity = {
             "adapter": "HFAdapter",
-            "model_type": "qwen2",
+            "model_type": model.config.model_type,
             "model_identifier": model_identifier,
             "model_config_sha256": self._config_fingerprint(model.config),
             "tokenizer_class": type(tokenizer).__name__,
@@ -446,6 +447,13 @@ class HFAdapter:
     def _validate_generation_cache(self, cache):
         """Optional cache-integrity check before a step reaches the release gate."""
 
+    def _forward_generation(self, current, attention_mask, past):
+        return self.model(input_ids=current, attention_mask=attention_mask,
+                          past_key_values=past, use_cache=True, return_dict=True)
+
+    def _cleanup_generation(self):
+        """Release optional request-local adapter state."""
+
     def iter_steps(self, task: str, context: str, max_new_tokens: int) -> Iterator[Step]:
         """Yield monitored greedy decoder steps; callers own output release policy."""
         if not isinstance(max_new_tokens, int) or max_new_tokens < 1:
@@ -490,13 +498,7 @@ class HFAdapter:
                 for layer in calls:
                     calls[layer] = 0
                 with torch.no_grad():
-                    output = self.model(
-                        input_ids=current,
-                        attention_mask=attention_mask,
-                        past_key_values=past,
-                        use_cache=True,
-                        return_dict=True,
-                    )
+                    output = self._forward_generation(current, attention_mask, past)
                 if output.past_key_values is None:
                     raise RuntimeError("Model did not return a cache while use_cache=True.")
                 self._validate_generation_cache(output.past_key_values)
@@ -519,8 +521,11 @@ class HFAdapter:
         finally:
             for handle in handles:
                 handle.remove()
-            self._active = False
-            self._lock.release()
+            try:
+                self._cleanup_generation()
+            finally:
+                self._active = False
+                self._lock.release()
 
     def decode(self, token_ids: Sequence[int]) -> str:
         return self.tokenizer.decode(list(token_ids), skip_special_tokens=True)
