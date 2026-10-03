@@ -1,11 +1,15 @@
 """Single-process local API; configuration is host-owned and never in requests."""
 import json
+import hmac
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from .artifacts import loads
 
 
-def make_server(firewall, max_new_tokens, *, port=8765):
+def make_server(firewall, max_new_tokens, *, port=8765, auth_token=None):
+    if auth_token is not None and (not isinstance(auth_token, str)
+            or not auth_token.isascii() or len(auth_token) < 32 or any(c.isspace() for c in auth_token)):
+        raise ValueError("Authentication token must be at least 32 non-whitespace ASCII characters")
     class Handler(BaseHTTPRequestHandler):
         def setup(self):
             super().setup()
@@ -23,15 +27,29 @@ def make_server(firewall, max_new_tokens, *, port=8765):
             self.end_headers()
             self.wfile.write(body)
 
+        def authenticated(self):
+            values = self.headers.get_all("Authorization", [])
+            if auth_token is not None and (len(values) != 1 or not hmac.compare_digest(
+                    values[0].encode("utf-8"), ("Bearer " + auth_token).encode("ascii"))):
+                self.close_connection = True
+                self.send_json(401, {"error": "unauthorized", "output": None})
+                return False
+            return True
+
         def do_GET(self):
+            if not self.authenticated():
+                return
             if self.path != "/health":
                 self.send_json(404, {"error": "not_found"})
                 return
-            self.send_json(200, {"status": "ready", "mode": firewall.mode,
+            ready = getattr(firewall, "ready", True)
+            self.send_json(200 if ready else 503, {"status": "ready" if ready else "unavailable", "mode": firewall.mode,
                                  "read_permissions_enforced": firewall.mode == "permissions",
                                  "kind": "neural_state_firewall", "semantic_detection_validated": False})
 
         def do_POST(self):
+            if not self.authenticated():
+                return
             if self.path != "/v1/respond":
                 self.send_json(404, {"error": "not_found"})
                 return

@@ -77,7 +77,8 @@ class ReadPermissionAdapter(PolicyMemoryAdapter):
                             projection_dim=kwargs.pop("projection_dim", 8),
                             seed=kwargs.pop("seed", 17), max_context=kwargs.pop("max_context", 2048),
                             device=kwargs.pop("device", str(next(model.parameters()).device)),
-                            model_identifier="in_memory:" + cls._hash_model(model),
+                            model_identifier=kwargs.pop("model_identifier", None)
+                            or "in_memory:" + cls._hash_model(model),
                             transformers_version=transformers.__version__, **kwargs)
         return instance
 

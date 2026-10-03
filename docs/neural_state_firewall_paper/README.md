@@ -1,37 +1,36 @@
-# Neural State Firewall paper draft
+# Host-enforced document read-permission paper
 
-This folder contains an evidence-bounded manuscript draft, bibliography, figure generator, and sanitized summaries of the six-case paired smoke run. It contains no raw prompts or model completions.
+This package is a submission-preparation draft for a narrow systems/measurement paper. Its supported claim is conditional denied-document noninterference in the pinned Qwen and SmolLM2 development configurations described in the manuscript. It does not claim that the system prevents prompt injection in readable evidence.
 
-## Compile
-
-With a TeX installation that includes `natbib`, `graphicx`, `booktabs`, and `amsmath`:
+## Build
 
 ```sh
 cd docs/neural_state_firewall_paper
-pdflatex manuscript.tex
-bibtex manuscript
-pdflatex manuscript.tex
-pdflatex manuscript.tex
+tectonic manuscript.tex
 ```
 
-The current environment does not include a LaTeX compiler, so only source-level checks can be run here.
+The package was compiled locally with Tectonic 0.17.0. `REPRODUCIBILITY.md` lists source-level checks and the pinned evaluation inputs.
 
-## Rebuild figures
+## Evidence
 
-The case and trajectory CSV files are sanitized derivatives of the private result artifact `neural_state_firewall/artifacts/paired-results-v4.json` (SHA-256 `7faa8363d320af768a94caa8dfe47cbdbea789bfec415f583910e63a045b455b`). They expose case class, observed guard status, and token-step CUSUM telemetry only; prompt and response text are excluded. Exact code, model, and split digests are recorded in `data/paired_run_manifest.txt`. `historical_predecessor_results.csv` contains aggregate historical figures transcribed from the repository audit and NFW-003 report. To regenerate both figures from the tracked CSV files:
+The raw 175-case result is local and ignored because it contains generated model outputs:
 
-```sh
-python3 make_figures.py
+```text
+neural_state_firewall/artifacts/bipia_read_permission_20261002.json
 ```
 
-To regenerate the sanitized CSVs from an available local raw artifact:
+It records BIPIA revision `a004b69ec0dd446e0afd461d98cb5e96e120a5d0`, model revision `7ae557604adf67be50417f59c2c2f167def9a775`, case hashes, outputs, and all-step comparisons. The paper reports 175/175 denied-payload invariance checks, 175/175 output-equivalent clean host-filtering comparisons, and 42/175 ordinary readable-attack output changes. The latter is descriptive only, never attack success.
 
-```sh
-python3 make_figures.py --results /path/to/paired-results-v4.json --export-data
-```
+The BIPIA source revision is consumed development material in `data/seen_material_exclusions.json`. Do not relabel it as a locked test.
 
-Matplotlib is required for figure generation. Generated PNGs are tracked so the manuscript compiles without Python.
+## Package map
 
-## Evidence boundary
+- `manuscript.tex` — article source with author/contact placeholders.
+- `references.bib` — cited primary literature.
+- `STUDY_PROTOCOL.md` — retrospective protocol v2 and deviations.
+- `REPRODUCIBILITY.md` — exact rerun and verification guide.
+- `SUBMISSION_CHECKLIST.md` — tasks that must be complete before submission.
+- `cover_letter.txt` — editable draft with required placeholders.
+- `SOFTWAREX_METADATA.md` — working metadata template for the primary venue target.
 
-This is a research draft, not a submission-ready efficacy paper. The paired run has six author-constructed cases (three per manifest condition), only three source groups, no independent output labels, and one model/profile. Its observed block proportions are not attack-success rate or false-block rate. The software tests establish engineering behavior, not security efficacy. The manuscript states these limitations and does not claim a release-worthy firewall.
+The author is Pratham Vasa. Affiliation, email, ORCID, funding, conflict, ethics/data-availability, and AI-use disclosures remain explicit placeholders. Do not submit until completed.

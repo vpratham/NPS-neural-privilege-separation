@@ -1,0 +1,79 @@
+{
+  "kind": "neural-firewall-release-decision-v1",
+  "recorded_on": "2026-10-03",
+  "release": "2026-10-03.local-pilot.1",
+  "decision": "local_engineering_pilot_only",
+  "production_approved": false,
+  "general_prompt_injection_resistance_demonstrated": false,
+  "journal_submitted": false,
+  "author": "Pratham Vasa",
+  "author_metadata_status": "Remaining metadata are explicit stubs per author request",
+  "configuration_sha256": "6276f3037de4cab9c3f02799ba75344a42affa324d85dadffb87281b6d811280",
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+  "mode": "permissions",
+  "monitor_enabled": false,
+  "scope": "Single-principal, single host-controlled permission realm; loopback API; CPU float32, greedy generation; no tools executed",
+  "supported_property": "Denied-document value changes do not influence public model states under documented model/mask/cache/position/runtime assumptions",
+  "outside_scope": [
+    "Semantic instruction takeover from readable evidence",
+    "Host/OS/runtime compromise and resource/timing side channels",
+    "Shared multi-tenant deployment, remote ingress and arbitrary closed model APIs"
+  ],
+  "gates": {
+    "denied_source_engineering": {
+      "status": "passed",
+      "evidence": "175 BIPIA-derived swaps; 100 randomized tiny-model swaps;7 pretrained SmolLM2 swaps"
+    },
+    "request_authority_and_buffered_release": {
+      "status": "passed_for_tested_paths",
+      "evidence": "76 regression tests and6 authenticated real-model HTTP checks"
+    },
+    "readable_injection_resistance": {
+      "status": "failed_as_a_general_claim",
+      "evidence": "Four individually inspected readable BIPIA counterexamples; no aggregate ASR"
+    },
+    "fresh_synthetic_challenge": {
+      "status": "insufficient_evidence",
+      "evidence": "56 retained attempts; neither arm emitted an exact attack marker;51 EOS,5 TimeoutErrors. Earlier accidentally concurrent launches have no retained attempt records; total attempts unknown and timing/timeout attribution confounded. No efficacy or fixed-total-budget claim."
+    },
+    "representative_utility": {
+      "status": "insufficient_evidence",
+      "evidence": "No completed semantic BIPIA review; SmolLM2 strict task scores0/7 per arm"
+    },
+    "held_out_adaptive_efficacy": {
+      "status": "not_run",
+      "evidence": "Consumed BIPIA and synthetic sources are development material"
+    },
+    "deployment_operations": {
+      "status": "partial",
+      "evidence": "Local auth, immutable realm, bounded body/context/output and killable worker; production load, memory pressure, logging failure and remote ingress not validated"
+    },
+    "research_reproducibility": {
+      "status": "passed_locally",
+      "evidence": "Recorded raw-artifact checks, byte-identical regenerated figures/tables, passing tests and compiled/visually reviewed paper"
+    },
+    "submission_readiness": {
+      "status": "incomplete",
+      "evidence": "Author declarations, software license/archive and final venue template requirements remain open"
+    }
+  },
+  "evidence_sha256": {
+    "neural_state_firewall/validation/boundary_stress_20261003.json": "1372651d44fc538133c2e9a24b0116fe6851f89ebf7865764cab169c0f4c6b14",
+    "neural_state_firewall/validation/pilot_smoke_20261003.json": "622d9353c40398a04ba1c3ddf178f3bc641e5a568262b083041973bd06cd6a53",
+    "neural_state_firewall/validation/smollm2_permission_development_20261003.json": "da5e9b3d2d024de92d30301149e81665e4238f1ac1c7b0576f86c1a1f60275c8",
+    "neural_state_firewall/validation/readable_challenge_20261003.json": "2fb999e40a4f250630a11b27574fa7a703d037afaf6d437f117be5740d76998d",
+    "neural_state_firewall/validation/verification_20261003.json": "7e50f73e8308b4a7731c8c590a7cb4f8de8cf878d99344b946ae3f006b5e901e",
+    "docs/neural_state_firewall_paper/data/bipia_analysis_20261003.json": "8c68abbc668b4dee99aed72980bde9e6048406baf8b4e6be5831214e91b4530a",
+    "docs/neural_state_firewall_paper/data/drop_denied_baseline_20261003.json": "2f4c34ac5af70e86005aa3e75cf0ebce97fd5f9b377b869071ab2d874d7d6091",
+    "docs/neural_state_firewall_paper/data/readable_attack_counterexamples_20261003.json": "336368c11fb7e28ffd9d02bb488960739a14ea71281b8cd49d9483bf2a4b343d"
+  },
+  "next_required_work": [
+    "Constrain and evaluate readable-evidence behavior on a named real workload; keep tool capabilities outside model control",
+    "Acquire source-separated unseen evaluation material and record a fixed adaptive attack budget before testing",
+    "Complete actual single-review labels or disclose a separate automated judge study",
+    "Validate deployment resource/isolation gates and operational ownership",
+    "Fill author stubs, select software license/archive and apply verified journal requirements before submission"
+  ],
+  "integrity_note": "Hashes bind this local evidence package; they are not signatures or proof against a privileged host modifying files."
+}

@@ -10,6 +10,10 @@ The implemented read guarantee is deliberately narrow: **document text cannot ch
 
 ## Trust and authority
 
+The October pilot workload is document-grounded question answering for one host-configured permission realm. The authenticated token identifies that realm; it confers no ability to alter grants, source IDs, policy, model configuration or response budget. A model answer is untrusted text. Authentication and a process watchdog are implemented in `pilot.py`; the deployment instructions and limits are in `PILOT.md`.
+
+Protected assets are denied document values and the integrity of host-issued grants/policy. Free-form answer correctness and resistance to instructions in readable documents are measured separately and remain unvalidated. A timeout, worker crash or integrity failure releases no response. The broker is the sole authorized tool-effect path; the response server exposes no tool endpoint. Host OS compromise, document-file access outside this service and downstream applications that execute prose are outside this contract.
+
 | Component | Trust | May provide | May change permissions? |
 |---|---|---|---|
 | Host policy/configuration | Trusted | Policy and allowed capabilities | Yes, before a request starts |

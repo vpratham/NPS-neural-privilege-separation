@@ -66,6 +66,11 @@ def main(argv=None):
         else:
             sub.add_argument("--cases", required=True, help="Development-only behavioral fixtures")
             sub.add_argument("--output", required=True)
+    bipia = commands.add_parser("evaluate-bipia", help="Sampled BIPIA clean/readable/denied evidence evaluation")
+    add_adapter_options(bipia)
+    bipia.add_argument("--bipia-root", required=True, help="Local clone of microsoft/BIPIA")
+    bipia.add_argument("--timeout-seconds", type=float, default=60)
+    bipia.add_argument("--output", required=True, help="Raw result artifact; refuses overwrite")
     check = commands.add_parser("check-policy-memory", help="Compare ordinary/isolated policy KV on development requests")
     add_adapter_options(check)
     check.set_defaults(isolate_policy_memory=True)
@@ -133,6 +138,20 @@ def main(argv=None):
             for result in results:
                 print(json.dumps(result, allow_nan=False))
             return 2 if any(r["status"] in ("error", "incomplete") for r in results) else 0
+        if args.command == "evaluate-bipia":
+            from .read_permissions import ReadPermissionAdapter
+            from .bipia_evaluation import evaluate_bipia
+            base = ReadPermissionAdapter(
+                args.model, documents={}, readable_sources=[], policy=Path(args.policy).read_text(),
+                layers=[int(x) for x in args.layers.split(",")], projection_dim=args.projection_dim,
+                seed=args.seed, device=args.device, max_context=args.max_context,
+                revision=args.revision, local_files_only=args.local_files_only)
+            report = evaluate_bipia(base, args.bipia_root, args.output,
+                                    timeout_seconds=args.timeout_seconds, seed=args.seed)
+            print(json.dumps({"written": args.output, "sampled_cases": report["sampled_cases"],
+                              "summary": report["summary"],
+                              "semantic_attack_success_scored": False}))
+            return 0
         if args.command == "demo":
             from .demo import demo
             print(json.dumps(demo(), indent=2, allow_nan=False))

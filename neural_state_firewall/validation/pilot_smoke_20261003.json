@@ -1,0 +1,84 @@
+{
+  "kind": "authenticated-pilot-pretrained-smoke-v1",
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+  "scope": "single-realm loopback smoke; no general semantic/production or latency claim",
+  "checks": [
+    {
+      "check": "unauthenticated_health",
+      "status": 401,
+      "passed": true,
+      "response": {
+        "error": "unauthorized",
+        "output": null
+      },
+      "roundtrip_seconds": 0.10179804096696898
+    },
+    {
+      "check": "authenticated_health",
+      "status": 200,
+      "passed": true,
+      "response": {
+        "status": "ready",
+        "mode": "permissions",
+        "read_permissions_enforced": true,
+        "kind": "neural_state_firewall",
+        "semantic_detection_validated": false
+      },
+      "roundtrip_seconds": 0.010366667003836483
+    },
+    {
+      "check": "public_answer",
+      "status": 200,
+      "passed": true,
+      "response": {
+        "status": "allowed",
+        "output": "Friday",
+        "mode": "permissions",
+        "enforced": true,
+        "reason": "read_permissions_enforced",
+        "request_id": "64072abdc5517ef8f175096d",
+        "configuration_sha256": "6276f3037de4cab9c3f02799ba75344a42affa324d85dadffb87281b6d811280",
+        "observed_steps": 2
+      },
+      "roundtrip_seconds": 15.6031930000172
+    },
+    {
+      "check": "denied_answer",
+      "status": 200,
+      "passed": true,
+      "response": {
+        "status": "allowed",
+        "output": "UNKNOWN",
+        "mode": "permissions",
+        "enforced": true,
+        "reason": "read_permissions_enforced",
+        "request_id": "1e1e933a852bae801a330ba3",
+        "configuration_sha256": "6276f3037de4cab9c3f02799ba75344a42affa324d85dadffb87281b6d811280",
+        "observed_steps": 2
+      },
+      "roundtrip_seconds": 0.7318634580005892
+    },
+    {
+      "check": "forged_grants",
+      "status": 400,
+      "passed": true,
+      "response": {
+        "error": "invalid_request",
+        "output": null
+      },
+      "roundtrip_seconds": 0.0008517919923178852
+    },
+    {
+      "check": "client_context",
+      "status": 400,
+      "passed": true,
+      "response": {
+        "error": "invalid_request",
+        "output": null
+      },
+      "roundtrip_seconds": 0.0010548750287853181
+    }
+  ],
+  "passed": true
+}
