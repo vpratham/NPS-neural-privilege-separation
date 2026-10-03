@@ -1,0 +1,1 @@
+{"source_id":"service-guide","record_id":"restart-v1","value":"After an inference worker timeout or crash, explicitly restart the service. It does not automatically reload the model or retry failed requests."}

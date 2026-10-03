@@ -4,7 +4,7 @@ A local model runtime with deterministic attention read permissions, optional ne
 
 This folder is independent of `nps_gateway/`, the source-copy broker, and the earlier text-judge firewall. It imports none of them and executes no tools. It contains executable Python modules, a local HTTP API, calibration commands, and tests.
 
-For the authenticated working API, start with [PILOT.md](PILOT.md). [READ_PERMISSIONS.md](READ_PERMISSIONS.md) explains the information-flow contract and evaluation. The [October delivery record](../docs/OCTOBER_DELIVERY.md) collects current results and remaining gates. The architecture is in [NPS_PERMISSION_BOUNDARY.md](NPS_PERMISSION_BOUNDARY.md).
+For the working document-retrieval application, start with [DOCUMENT_QA.md](DOCUMENT_QA.md). The original static-document API is in [PILOT.md](PILOT.md). [READ_PERMISSIONS.md](READ_PERMISSIONS.md) explains the information-flow contract and evaluation. The [October delivery record](../docs/OCTOBER_DELIVERY.md) collects current results and remaining gates. The architecture is in [NPS_PERMISSION_BOUNDARY.md](NPS_PERMISSION_BOUNDARY.md).
 
 **Current capability:** host-assigned document read permissions at every attention layer/cached step, protected policy memory, a local model API, activation capture, and response withholding. **Unestablished capability:** preventing arbitrary instruction takeover from readable evidence. An anomaly alarm means “unusual neural trajectory,” not “proven attack.” The examples below demonstrate the optional anomaly monitor; they are not a deployment-quality calibration set.
 

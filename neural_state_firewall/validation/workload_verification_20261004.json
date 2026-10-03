@@ -1,0 +1,49 @@
+{
+  "kind": "document-qa-integration-verification-v1",
+  "date": "2026-10-04",
+  "base_commit": "cad4fc150916fd9ee26cc9bc4311660c55f03748",
+  "scope": "Single-realm local document-Q&A integration; no production or semantic efficacy approval",
+  "firewall_tests": {
+    "command": "neural_state_firewall/.venv/bin/python -m unittest discover -s neural_state_firewall/tests -q",
+    "passed": 83,
+    "failed": 0,
+    "skipped": 0,
+    "new_workload_tests": 7
+  },
+  "http_smoke": {
+    "command": "HF_HOME=neural_state_firewall/.cache/huggingface HF_HUB_OFFLINE=1 neural_state_firewall/.venv/bin/python -m neural_state_firewall.workload_smoke --output neural_state_firewall/validation/workload_smoke_20261004.json",
+    "artifact": "neural_state_firewall/validation/workload_smoke_20261004.json",
+    "sha256": "01fbe4716404365df56e7d4f81d0befbef1a65957905d7b4f84eb2ed50792f25",
+    "checks_passed": 13,
+    "worker_count": 1,
+    "model_generations": 3,
+    "configuration_sha256": "54a3b000ec253743f43c9b5a5e6d9c304e89c496cce27fae5f380f5e022e03c6",
+    "recorded_source_hashes_match": true
+  },
+  "client_http_check": {
+    "scope": "Temporary loopback server with fixed synthetic response; no model",
+    "checks_passed": [
+      "success exits 0 and reports HTTP 200",
+      "wrong credential exits 2 and reports HTTP 401",
+      "credential not printed"
+    ]
+  },
+  "static_checks": {
+    "compileall": "passed",
+    "git_diff_check": "passed",
+    "lint_typecheck": "No configured or installed Ruff/Mypy for this module; not run"
+  },
+  "execution_notes": [
+    "Initial sandboxed suite had five HTTP bind PermissionErrors; all 83 passed with loopback permission.",
+    "No new dependencies, benchmark tuning, human labels or external model API calls.",
+    "No inference workers were present before the smoke run; runner closes and joins its one worker."
+  ],
+  "production_eligible": false,
+  "remaining_limits": [
+    "Readable evidence can redirect model output.",
+    "One host-configured principal per service token; no per-user identity integration.",
+    "Keyword retrieval over repository seed examples, not a representative business corpus.",
+    "No remote ingress/TLS or load qualification."
+  ],
+  "prior_results_unchanged": true
+}

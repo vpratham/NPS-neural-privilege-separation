@@ -38,11 +38,13 @@ def load_token(path):
 def load_config(path):
     path = Path(path)
     raw = read(path)
-    required = {"model", "revision", "policy_file", "documents_file", "read_permissions_file",
+    common = {"model", "revision", "policy_file",
                 "layers", "max_context", "max_new_tokens", "timeout_seconds", "startup_timeout_seconds"}
-    if not isinstance(raw, dict) or set(raw) != required:
+    if not isinstance(raw, dict) or set(raw) not in (
+            common | {"documents_file", "read_permissions_file"}, common | {"workload_file"}):
         raise ValueError("Pilot configuration has missing or unknown fields")
-    for name in ("model", "revision", "policy_file", "documents_file", "read_permissions_file"):
+    file_keys = {key for key in raw if key.endswith("_file")}
+    for name in {"model", "revision"} | file_keys:
         if not isinstance(raw[name], str) or not raw[name]:
             raise ValueError("Missing model identity or host configuration path")
     if len(raw["revision"]) != 40 or any(c not in "0123456789abcdef" for c in raw["revision"]):
@@ -55,16 +57,20 @@ def load_config(path):
             or not isinstance(raw["layers"], list) or not raw["layers"]
             or any(type(x) is not int or x < 0 for x in raw["layers"])):
         raise ValueError("Invalid context, generation budget or sensor layers")
-    files = {key: path.parent / raw[key] for key in ("policy_file", "documents_file", "read_permissions_file")}
+    files = {key: path.parent / raw[key] for key in file_keys}
+    config = {**{k: v for k, v in raw.items() if k not in files},
+              "policy": files["policy_file"].read_text()}
+    if "workload_file" in files:
+        from .document_workload import load_workload
+        return {**config, "documents": {}, "readable_sources": [],
+                "workload": load_workload(files["workload_file"])}
     grants = read(files["read_permissions_file"])
     if not isinstance(grants, dict) or set(grants) != {"readable_sources"}:
         raise ValueError("Expected host readable_sources configuration")
     from .read_permissions import validate_sources
     documents = read(files["documents_file"])
     validate_sources(documents, grants["readable_sources"])
-    return {**{k: v for k, v in raw.items() if k not in files},
-            "policy": files["policy_file"].read_text(), "documents": documents,
-            "readable_sources": grants["readable_sources"]}
+    return {**config, "documents": documents, "readable_sources": grants["readable_sources"]}
 
 
 def _build_firewall(config):
@@ -74,6 +80,9 @@ def _build_firewall(config):
         config["model"], revision=config["revision"], local_files_only=True,
         documents=config["documents"], readable_sources=config["readable_sources"],
         policy=config["policy"], layers=config["layers"], max_context=config["max_context"], device="cpu")
+    if "workload" in config:
+        from .document_workload import DocumentQAFirewall
+        return DocumentQAFirewall(adapter, config["workload"], timeout_seconds=config["timeout_seconds"])
     return Firewall(adapter, mode="permissions", timeout_seconds=config["timeout_seconds"])
 
 
@@ -182,6 +191,12 @@ class IsolatedFirewall:
                     or (response["status"] == "allowed" and not isinstance(response.get("output"), str))
                     or (response["status"] != "allowed" and response.get("output") is not None)):
                 raise ValueError("Invalid worker response")
+            if "workload" in self.config:
+                from .document_workload import select_records, source_references
+                expected = source_references(select_records(self.config["workload"], task))
+                if response.get("sources") != expected:
+                    raise ValueError("Worker source provenance mismatch")
+                result["sources"] = expected
             result.update({key: response[key] for key in ("status", "output", "reason", "observed_steps") if key in response})
             return result
         except (OSError, EOFError, ValueError):

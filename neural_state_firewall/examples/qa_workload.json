@@ -1,0 +1,53 @@
+{
+  "principal_id": "support-reader",
+  "max_results": 2,
+  "records": [
+    {
+      "source_id": "handbook",
+      "record_id": "support-v1",
+      "path": "../../examples/gateway/support-record.json",
+      "sha256": "4d3ec7abd43b54d2ced9b7fb66addff35eef2ca13d87383670431858444811a0",
+      "terms": [
+        "support",
+        "hours",
+        "weekday",
+        "weekdays"
+      ],
+      "readers": [
+        "support-reader",
+        "administrator"
+      ]
+    },
+    {
+      "source_id": "service-guide",
+      "record_id": "restart-v1",
+      "path": "qa_service_record.json",
+      "sha256": "40fdb71d81ab1c4afc2cfbd91bcc54df4d38d5189e09c00b7087c39b650e5d55",
+      "terms": [
+        "worker",
+        "timeout",
+        "crash",
+        "restart"
+      ],
+      "readers": [
+        "support-reader",
+        "administrator"
+      ]
+    },
+    {
+      "source_id": "restricted-demo",
+      "record_id": "synthetic-v1",
+      "path": "qa_restricted_record.json",
+      "sha256": "3bb0d5bb7f379bbc8243b40e286a1b1749aa5026761cf43de817263b5051e047",
+      "terms": [
+        "restricted",
+        "recovery",
+        "code",
+        "secret"
+      ],
+      "readers": [
+        "administrator"
+      ]
+    }
+  ]
+}

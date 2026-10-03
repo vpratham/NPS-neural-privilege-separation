@@ -2,6 +2,8 @@
 
 This is a single-principal, single-permission-realm model API backed by a separate inference process. The host owns the policy, documents and grants. The API accepts a task only (or empty context), authenticates every request, buffers output, and terminates its worker if the wall-clock generation deadline expires. No tool executes here. Tool proposals must go through the existing NPS action broker at the point of effect.
 
+For document retrieval and Q&A with pinned source files, host access lists, a CLI client and a reproducible real-model check, use [DOCUMENT_QA.md](DOCUMENT_QA.md). This page describes the original static-document configuration. A pilot config selects either `documents_file` plus `read_permissions_file`, or `workload_file`; it cannot combine the two.
+
 The supported security property is denied-document isolation. Readable prompt injections can still alter answers; the BIPIA review includes concrete counterexamples. This pilot is not approved for general production use or arbitrary natural-language policy enforcement.
 
 ## Start

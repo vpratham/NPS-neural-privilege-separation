@@ -5,8 +5,8 @@
 **A research program for internal policy-state protection in language models.**
 
 [![Status](https://img.shields.io/badge/status-active%20research-0f766e)](#current-status)
-[![Stage](https://img.shields.io/badge/stage-monitor--and--block%20baseline-2563eb)](#current-status)
-[![Reference Model](https://img.shields.io/badge/reference-Qwen2.5--3B--Instruct-7c3aed)](neuralFirewallV2/)
+[![Stage](https://img.shields.io/badge/stage-document%20permission%20pilot-2563eb)](#current-status)
+[![Reference Model](https://img.shields.io/badge/pilot-Qwen2.5--0.5B--Instruct-7c3aed)](neural_state_firewall/)
 [![Claims](https://img.shields.io/badge/security%20claims-explicitly%20scoped-b45309)](#scope-and-limitations)
 
 </div>
@@ -16,12 +16,27 @@ policy-relevant computation under attacker-controlled input. The long-term goal
 is a **neural firewall**: an internal monitor and controller that reduces unsafe
 or unauthorized behavior while preserving legitimate capability.
 
-This repository contains a research archive, a prompt-injection request/response
-firewall prototype, and a separate action authorization broker. The firewall
-gates model answers against application policy and explicitly marked untrusted
-context. The broker handles source-bound tool effects.
+The current implementation is an authenticated local model API with deterministic
+document read permissions, host-owned retrieval and buffered responses. Earlier
+monitoring and text-judge prototypes remain in the research archive. The separate
+action broker handles source-bound tool effects.
 
-## Prompt-injection firewall
+## Working document Q&A pilot
+
+Start with [the runnable Q&A guide](neural_state_firewall/DOCUMENT_QA.md).
+It includes pinned source files, an explicit access list, a CLI client and a
+single-model HTTP verification command. The host selects authorized evidence;
+the caller cannot grant itself access. The model loads once and uses fresh
+permission/cache state for each request.
+
+The recorded integration passed [13 real-model HTTP checks](neural_state_firewall/validation/workload_smoke_20261004.json).
+This is a single-principal loopback pilot. Readable evidence can still redirect
+answers; it is not general prompt-injection protection. See the
+[October delivery record](docs/OCTOBER_DELIVERY.md) for cumulative results and
+the [research paper](docs/neural_state_firewall_paper/manuscript.pdf) for scoped claims.
+This path uses Python 3.11 with pinned Torch/Transformers dependencies.
+
+## Earlier text-judge firewall prototype
 
 ```bash
 python3 -m nps_gateway firewall-demo --provider ollama --model qwen2.5:3b
@@ -77,15 +92,15 @@ themselves.
 |---|---|
 | Theory | Draft mathematical framework for NPS and neural-firewall security objectives |
 | Historical experiments | Activation probes, policy-vector experiments, causal pilots, and audits |
-| Application firewall | OpenAI-compatible, buffered request/response prototype |
-| Neural firewall | NFW-002 monitor-and-block research baseline; internal policy-state protection is not established |
-| Reference model | `Qwen/Qwen2.5-3B-Instruct` |
-| Security claim | No robust NPS claim yet; current work is a scoped research baseline |
+| Application firewall | Authenticated loopback Q&A pilot; earlier OpenAI-compatible text-judge prototype retained |
+| Neural firewall | All-layer document read permissions and sealed policy cache; readable-evidence instruction takeover remains unresolved |
+| Reference model | Current pilot: `Qwen/Qwen2.5-0.5B-Instruct`; historical monitor: Qwen2.5-3B |
+| Security claim | Scoped denied-document isolation under supported runtime assumptions; no general semantic or production approval |
 
-The current application prototype uses role-separated untrusted context and
-withholds complete responses pending a policy check. It is a practical text-level
-defense layer. Internal neural policy-state protection remains a distinct research
-goal and has not been demonstrated.
+The Q&A workload excludes inaccessible records before retrieval and retains the
+model's permission path for generation. Its retrieved source references identify
+inputs, not verified factual citations. The optional anomaly monitor is disabled
+in the pilot; arbitrary natural-language policy enforcement remains a research goal.
 
 ## Research Roadmap
 
