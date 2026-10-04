@@ -36,6 +36,11 @@ answers; it is not general prompt-injection protection. See the
 the [research paper](docs/neural_state_firewall_paper/manuscript.pdf) for scoped claims.
 This path uses Python 3.11 with pinned Torch/Transformers dependencies.
 
+The [security hardening record](docs/security_hardening/README.md) covers the broader
+threat model and a rejected internal-boundary candidate. Its known-failure gate
+detects a remaining injected code payload; general prompt-injection resistance
+has not been established.
+
 ## Earlier text-judge firewall prototype
 
 ```bash

@@ -47,6 +47,8 @@ The JSON/CSV analysis and both figures were regenerated from the private raw art
 
 The broad firewall objective is not complete. Readable evidence is the remaining security problem, and structural noninterference cannot substitute for solving it. The optional neural anomaly monitor has no validated permission-path release gate and is disabled in the pilot.
 
+An October 4 [shared-runtime hardening candidate](security_hardening/README.md) independently sealed the task prefix before evidence. Its 88 structural/regression tests passed, but replaying four known readable attacks produced five completions and three capped answers, including one clean completion regression and one completed injected log-upload payload. The candidate was rejected and archived as a reproducible patch; the default runtime was restored. The new known-failure gate rejects that result. These eight attempts are seen development evidence and are not added to the historical BIPIA denominator or presented as a new semantic success rate.
+
 ## Paper plan status
 
 | Planned stage | Status | Remaining work |

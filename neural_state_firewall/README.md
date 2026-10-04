@@ -8,6 +8,8 @@ For the working document-retrieval application, start with [DOCUMENT_QA.md](DOCU
 
 **Current capability:** host-assigned document read permissions at every attention layer/cached step, protected policy memory, a local model API, activation capture, and response withholding. **Unestablished capability:** preventing arbitrary instruction takeover from readable evidence. An anomaly alarm means “unusual neural trajectory,” not “proven attack.” The examples below demonstrate the optional anomaly monitor; they are not a deployment-quality calibration set.
 
+The [security hardening record](../docs/security_hardening/README.md) documents a rejected request-prefix candidate and provides a runnable gate for four known injection failures. The default permission runtime is unchanged by that candidate.
+
 ## Run immediately
 
 From the repository root, the dependency-free replay exercises allow, mid-generation block, and broken-sensor paths:
