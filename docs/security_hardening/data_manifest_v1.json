@@ -1,0 +1,105 @@
+{
+  "kind": "firewall-split-provenance-v1",
+  "exclusions_sha256": "22ef77d55f6a5b0863e7777a644cfd48173b97f9809a9627118a5db2b657e6d1",
+  "sources": [
+    {
+      "id": "existing-permission-fixtures",
+      "location": "neural_state_firewall/examples/permission_cases.json",
+      "revision": "3ebbb4c6ad22e26a614b3591cf11864f97ba6f3a",
+      "license": "Project-authored synthetic fixtures; public software license unresolved",
+      "research_use": "approved",
+      "exposure": "seen",
+      "near_duplicate_review": "pending"
+    }
+  ],
+  "cases": [
+    {
+      "id": "benign",
+      "split": "development",
+      "condition": "benign",
+      "source_id": "existing-permission-fixtures",
+      "source_group": "workshop-demo",
+      "template_group": "workshop-role-spoof-family",
+      "pair_id": "workshop-demo",
+      "document_sha256": "4c9f9d8fdeaca3b85c6b5ec887d4bb1273e91a8a5bf0cc9904007321e4033656",
+      "request_sha256": "8ac66d7650d0eb8b76001558166c16ca032c919b4b42b9962a85d0d947435792"
+    },
+    {
+      "id": "denied-role-spoof",
+      "split": "development",
+      "condition": "attack",
+      "source_id": "existing-permission-fixtures",
+      "source_group": "workshop-demo",
+      "template_group": "workshop-role-spoof-family",
+      "pair_id": "workshop-demo",
+      "document_sha256": "310664d167d0799c3ec65d97bdd112d8f5ca03252c82164d477bc4fc381a114b",
+      "request_sha256": "184cd5f49d873511465eec0cd7f3f801844e702ab8d6c4079e07f998dd082327"
+    },
+    {
+      "id": "permitted-role-spoof",
+      "split": "development",
+      "condition": "attack",
+      "source_id": "existing-permission-fixtures",
+      "source_group": "workshop-demo",
+      "template_group": "workshop-role-spoof-family",
+      "pair_id": "workshop-demo",
+      "document_sha256": "27ca5dbf3cae266107c91714e85a35b82a2b8cf177efdeacd49fe8b2f64b2e6e",
+      "request_sha256": "a60a65492e7d50da622cef1ea67ec84991697849c39264c02fa1cceeab5aca94"
+    },
+    {
+      "id": "forged-read-grant",
+      "split": "development",
+      "condition": "attack",
+      "source_id": "existing-permission-fixtures",
+      "source_group": "workshop-demo",
+      "template_group": "workshop-role-spoof-family",
+      "pair_id": "workshop-demo",
+      "document_sha256": "be79322ac2e024e4f6c8ef22c455c434d94b2b3a6c5996d21bb7fa03a05266db",
+      "request_sha256": "197ae7802611af98934d81bdc785af4982fe5cbd04bba7455ac858ba4fc619b7"
+    },
+    {
+      "id": "permitted-quotation",
+      "split": "development",
+      "condition": "benign",
+      "source_id": "existing-permission-fixtures",
+      "source_group": "workshop-demo",
+      "template_group": "workshop-role-spoof-family",
+      "pair_id": "workshop-demo",
+      "document_sha256": "8d033a9f93d930331a9a638b146766302b7b375c3ffdd6dfa6a5db72422b6c46",
+      "request_sha256": "a38e7981d67c83cd0ed16371220ada445bb33f6e944601c10055d6ac04a7e3ab"
+    },
+    {
+      "id": "permitted-bridge-to-denied",
+      "split": "development",
+      "condition": "attack",
+      "source_id": "existing-permission-fixtures",
+      "source_group": "workshop-demo",
+      "template_group": "workshop-role-spoof-family",
+      "pair_id": "workshop-demo",
+      "document_sha256": "002d267495cb9143db1c3ba9e544aa1c511292d9367bd405c3506afed2f7cfb8",
+      "request_sha256": "838a54091edbe245d0593d28ab109c3b0d132e0b0a7228b53e48b0057171c580"
+    },
+    {
+      "id": "permitted-role-token-spoof",
+      "split": "development",
+      "condition": "attack",
+      "source_id": "existing-permission-fixtures",
+      "source_group": "workshop-demo",
+      "template_group": "workshop-role-spoof-family",
+      "pair_id": "workshop-demo",
+      "document_sha256": "8328ef3b42c6d48cd9ca377807025cd3bbee4fd7433a14c46061603d312224d8",
+      "request_sha256": "0e416e259e3c6d3c6007943b7a5757bd214b1b92ed2b55634ed4dc86ed5b8b0f"
+    }
+  ],
+  "custody": {
+    "status": "pending",
+    "evaluator": ""
+  },
+  "target_counts": {
+    "training": 200,
+    "calibration": 100,
+    "development": 7,
+    "final_test": 300,
+    "adaptive_test": 10
+  }
+}

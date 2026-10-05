@@ -8,10 +8,11 @@ The manuscript is original, is not under review elsewhere, and has been approved
 
 Author: Pratham Vasa
 Affiliation: [to be supplied]
-Email / corresponding author: [to be supplied]
+Email: prathamv1102@gmail.com
+Corresponding author designation: [to be confirmed]
 ORCID: [to be supplied]
-Funding/support: [to be supplied]
-Conflicts of interest: [to be supplied]
+Funding/support: No funding received.
+Conflicts of interest: The author declares no competing interests.
 Ethics/data-use approval or determination: [to be supplied]
 AI-use disclosure: Codex assisted implementation, analysis scripts, literature search, and manuscript drafting; four qualitative cases were selected with Codex assistance; human-author verification remains pending. [Adapt to the journal's required wording.]
 

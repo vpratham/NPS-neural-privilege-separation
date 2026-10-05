@@ -17,9 +17,11 @@ Target: **SoftwareX**, pending verification of its current author guide, public-
 ## Required author decisions
 
 - [x] Author named: Pratham Vasa.
-- [ ] Confirm affiliation, email, ORCID, and corresponding-author details for Pratham Vasa.
-- [ ] Confirm funding/support statement.
-- [ ] Confirm conflicts of interest.
+- [x] Contact email supplied: prathamv1102@gmail.com (October 4, 2026).
+- [ ] Confirm affiliation, ORCID, and corresponding-author designation for Pratham Vasa.
+- [x] Funding/support statement: no funding received (author confirmation, October 4, 2026).
+- [x] Conflicts of interest: none (author confirmation, October 4, 2026).
+- [ ] Confirm publication-fee coverage or waiver; no funding does not specify a fee budget.
 - [ ] Confirm ethics/privacy/data-use review and data/software availability statement.
 - [ ] Confirm author contribution statement and the venue-required AI-use disclosure.
 - [ ] Check the chosen venue's current scope, template, limits, references, supplementary-material, and anonymization rules on the day of submission.

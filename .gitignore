@@ -30,3 +30,6 @@ neuralFirewallV2/**/runs/
 *.egg-info/
 build/
 dist/
+
+# Standalone repositories have their own Git histories.
+separate-repositories/

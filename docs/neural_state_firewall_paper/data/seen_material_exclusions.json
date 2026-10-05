@@ -123,6 +123,11 @@
       "path": "neural_state_firewall/examples/readable_challenge_cases.json",
       "scope": "author-created-synthetic-development",
       "reason": "Four clean sources and six readable-injection templates were consumed in a fixed56-generation development challenge; exclude related groups and near-duplicates from final held-out/adaptive evaluation."
+    },
+    {
+      "path": "neural_firewall/",
+      "scope": "historical-development-directory",
+      "reason": "Historical XSTest extraction, held-out scoring and causal/probe sweeps were already consumed. Metadata inspected on October 4 also embedded records; this directory and related sources/near-duplicates are development-only."
     }
   ]
 }
