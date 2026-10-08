@@ -141,6 +141,8 @@ docs/                     Charter, implementation audit, and forensic notes
 experiments/              Historical notebooks and exploratory runs
 neural_firewall/          Earlier modular firewall prototype and experiments
 neuralFirewallV2/         Current NFW experiment series and engineering branch
+permission-boundary/      Host-enforced document visibility and Q&A pilot
+neural-runtime-monitor/   Experimental activation-trajectory monitor
 results/                  Historical result summaries and archived artifacts
 theory/                   Mathematical framework and NPS theory notes
 ```
@@ -150,6 +152,8 @@ theory/                   Mathematical framework and NPS theory notes
 | Goal | Entry point |
 |---|---|
 | Run the prompt-injection firewall | [Firewall guide](docs/PROMPT_INJECTION_FIREWALL.md) |
+| Use the permission-boundary workstream | [Permission boundary](permission-boundary/README.md) |
+| Inspect the experimental runtime monitor | [Runtime monitor](neural-runtime-monitor/README.md) |
 | Integrate protected tool actions | [Action broker](docs/WORKING_SYSTEM.md) |
 | See how the accumulated findings shaped it | [Evidence review](docs/WORKING_SYSTEM_EVIDENCE.md) |
 | Understand the research claim boundary | [Implementation audit](docs/NPS_IMPLEMENTATION_AUDIT.md) |

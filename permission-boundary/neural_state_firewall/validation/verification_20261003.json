@@ -1,0 +1,99 @@
+{
+  "kind": "october-local-verification-v1",
+  "recorded_on": "2026-10-03",
+  "scope": "Local engineering verification; not a clean checkout, load test, security certification or efficacy evaluation",
+  "environment": {
+    "python": "3.11.12",
+    "os": "Darwin",
+    "os_version": "26.6.2",
+    "machine": "arm64",
+    "cpu": "Apple M2",
+    "memory_bytes": 8589934592,
+    "torch": "2.6.0",
+    "transformers": "4.57.6"
+  },
+  "checks": [
+    {
+      "command": "neural_state_firewall/.venv/bin/python -m unittest discover -s neural_state_firewall/tests -q",
+      "exit_code": 0,
+      "tests": 76,
+      "seconds": 1.55
+    },
+    {
+      "command": "neural_state_firewall/.venv/bin/python -m compileall -q -x '/[.]venv/|/[.]cache/' neural_state_firewall",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "check": "BIPIA JSON/CSV and both PNG figures regenerated from raw artifact",
+      "byte_identical_files": 4,
+      "passed": true
+    },
+    {
+      "command": "neural_state_firewall/.venv/bin/python -m unittest neural_state_firewall.tests.test_bipia_analysis -q",
+      "exit_code": 0,
+      "tests": 2,
+      "scope": "After CSV line-ending normalization"
+    }
+  ],
+  "static_analysis_limit": "No configured/installed ruff or mypy; syntax compilation and behavioral tests ran.",
+  "source_sha256": {
+    "neural_state_firewall/__init__.py": "0cc24bb071bf0471332e314ccb941db252070751468036d83e21a80bc7ab6479",
+    "neural_state_firewall/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "neural_state_firewall/artifacts.py": "1fdbb1767ed11f776b9f60845f7fb9c779b7594eb6d7e9706b86d2e0ff485efb",
+    "neural_state_firewall/bipia_analysis.py": "1f032d43b1412af1aa04abdeb25f746ac11bf669f294362e0ee6585fbb41024d",
+    "neural_state_firewall/bipia_evaluation.py": "4335dece4356d8f23e393ebbb28810fdc5a37758b1f5ac1f9ac0342ef6f881d6",
+    "neural_state_firewall/boundary_validation.py": "fe197a206083a42515d2147075a2d453ec93028a75c2761729e0084e18aefb7e",
+    "neural_state_firewall/cli.py": "85f17cbaf0210386c31327b9314b5dfd43249822d1895fcacf1bf63e03bcfd2d",
+    "neural_state_firewall/create_stage1_review_packet.py": "65631a107769bb63e126f1d0ed883e6705d8db920342f53dd542aab8250503f6",
+    "neural_state_firewall/demo.py": "23528d3768096add826a7f2c466e5da31a0ff5b2f649f849e71b28bad41e0472",
+    "neural_state_firewall/development_challenge.py": "2bb90213496b9fa73bf375fc40df718d67b5c0edb340cbc30135efe0a8a3d16c",
+    "neural_state_firewall/evaluation.py": "18021897699e8404626d0a77b1fea2ae883ba57696b1902dc867b78bad00b6aa",
+    "neural_state_firewall/examples/permission_documents.json": "c843f3a5a679e894a5afa4498ec5a982d2631191e1907c564c38026280de2a63",
+    "neural_state_firewall/examples/permission_policy.txt": "f876e517d354d711459c1261adeb1722fa084e1aac01f5c74526ddb6216a57a3",
+    "neural_state_firewall/examples/pilot_config.json": "119afa7351eedf9cd176197ebf9f71bceeb52c7abb5911aa1d9f6d6a2892eed9",
+    "neural_state_firewall/examples/read_permissions.json": "e9c6798d98377d9e66298be11b5e9638edf444cbe7c0f7cfb7b7d330a793d155",
+    "neural_state_firewall/hf_adapter.py": "f4a09640a2098419c0ef124b629b5bf0bda4f59ffff9788f2182c0202c551e83",
+    "neural_state_firewall/observer.py": "f3fddd39904bc00fdc1a9a8eda468695b9e1dbad4c0eab8d9d5da1dd90bf6c6d",
+    "neural_state_firewall/permission_evaluation.py": "aa26f3ae7441a709b71a9f88febaca53c871313f3f6ca2253c473864f00154f1",
+    "neural_state_firewall/pilot.py": "46b1e45b45d9e62920bbd140070da724e58f53c98d7784b3e76c5ff815d7421f",
+    "neural_state_firewall/policy_memory.py": "7df3f339705b982c753c4fc102e045fd37f7477685c1b62f8ff0616efccb3ec3",
+    "neural_state_firewall/read_permissions.py": "5bec31da9ef20fec462adc9c177592ccec554d67b89ab7f06183ce1e54e72ca5",
+    "neural_state_firewall/requirements.txt": "34724aa457d6be0a670a506871d1be79af83a89ef132c20b6b9cea40a7346e69",
+    "neural_state_firewall/run_stage1_feasibility.py": "2df43cd3ca62d40928c0b053cfff88e59d90b568409c6960aad5866a3b69733e",
+    "neural_state_firewall/runtime.py": "c4389579be614e887e53ec3861eb247f2f057bd3b2f0e5c681b5f7ab5133237f",
+    "neural_state_firewall/server.py": "d07adaed8ba4c89d7835c6c16cb203d751cd350863e761fa0156641945aa0490",
+    "neural_state_firewall/tests/test_artifacts.py": "44148582974cb10b02d0c5d0b1b5cc442e712f98577eb0b29ca9494c236ce114",
+    "neural_state_firewall/tests/test_bipia_analysis.py": "c3ae63063943130f079bf75618c20f3f62f90e248f82480ecdef2490899c43e6",
+    "neural_state_firewall/tests/test_development_challenge.py": "9797c62771e4921dc9fd21672137e7e3aed3070c9e049a9c0ad77e79d5a13c4d",
+    "neural_state_firewall/tests/test_evaluation.py": "8aa28ad84e437dc717fc403fdcb3740ef8f88dbbf4025faba2e674217cd98fea",
+    "neural_state_firewall/tests/test_hf_adapter.py": "51876cf6f11ac362c1a528f4b9f72c042eca3f2ca261d6dc52c1f6ff6579ddc9",
+    "neural_state_firewall/tests/test_observer.py": "7ce792e19236acecf258d21aab09b8f40e28cc0b9863d8e8dc0db13d1eb5b95e",
+    "neural_state_firewall/tests/test_pilot.py": "346fa490636ffbe53e93f0ce10a76b6a0fcc34a5c6a2f559b2968df2a3a65709",
+    "neural_state_firewall/tests/test_policy_memory.py": "48cc6b80de5d3aae59dcf91b70a5b2b4cffaf21a84f5d63120b549fbfbb4ca4b",
+    "neural_state_firewall/tests/test_read_permissions.py": "ce8d34ea1f22998b578591bc36f68e5038e0a3b031501c9b30e3b3781fff16d9",
+    "neural_state_firewall/tests/test_runtime.py": "5f91e13b39e360a890b71754fa43871d0808dcf52798d0ffc5825f29b3ddb1a6",
+    "neural_state_firewall/tests/test_server.py": "0944ae962f8e214baec1f9fb55ada80e6b1cba91bf770cae785192b4c0752015",
+    "neural_state_firewall/examples/readable_challenge_cases.json": "401881e1ee84378591b1db7e6b4f386f8faacd479835f5721f46252862e52850",
+    "neural_state_firewall/examples/bipia_evaluation_policy.txt": "203efa30aff9119b9555f440149a9399cf06aa319cf59612394c26b18ab5a089"
+  },
+  "development_challenge_provenance": {
+    "recorded": "after run; inputs were loaded by the runner before generation",
+    "result": "neural_state_firewall/validation/readable_challenge_20261003.json",
+    "policy": "neural_state_firewall/examples/bipia_evaluation_policy.txt",
+    "policy_sha256": "203efa30aff9119b9555f440149a9399cf06aa319cf59612394c26b18ab5a089",
+    "template_change_or_retry_after_result": false,
+    "operational_deviation": "Three earlier inadvertently concurrent launches were found and terminated. No per-attempt records from those launches were retained; total attempts across launches are unknown. The retained artifact has56 recorded attempts. Timing and timeout attribution are confounded; this is an exploratory diagnostic, not a clean fixed-total-budget or efficacy study.",
+    "cleanup": "Executor reported no remaining development_challenge/project Python processes after terminating its three proven duplicates."
+  },
+  "paper_validation": {
+    "pdf": "docs/neural_state_firewall_paper/manuscript.pdf",
+    "pages": 9,
+    "build": "Tectonic 0.17.0, no unresolved citations or overfull warnings",
+    "visual_review": "All 9 rendered pages inspected; no clipping or overlapping text/figures",
+    "pdf_sha256": "ebb9c5049951b1089191edd3c286ab1530214f6c2963a8f9b657b597fd25ab61"
+  }
+}

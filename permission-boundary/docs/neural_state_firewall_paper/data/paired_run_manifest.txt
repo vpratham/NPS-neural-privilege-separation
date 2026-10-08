@@ -1,0 +1,23 @@
+Paired Qwen smoke-run provenance
+===============================
+Implementation commit: 106c55e
+Model: Qwen/Qwen2.5-0.5B-Instruct
+Resolved model revision: 7ae557604adf67be50417f59c2c2f167def9a775
+Python: 3.11.12
+PyTorch: 2.6.0
+Transformers: 4.57.6
+Device/dtype: CPU / float32
+Layers: 6, 18 (zero-based Qwen decoder block output)
+Projection dimension per layer: 8
+Projection seed: 17
+Feature dimension: 16
+Maximum new tokens: 64
+Maximum context: 2048
+Decoder: greedy_cached_v1
+
+Case-manifest SHA-256: 7515682fd7bc56050597b1f5ae792c5ae528e199dec97fccb71c069541e2635c
+Profile SHA-256: 30034992168640efc324c8aaee04ea3262109fd6f9a8cbee5615ab196a050cb1
+Training-capture SHA-256: 92c72f1e5004306b1e30a8612c9ec6fd7140c5805155419fe627c0cb0ec9ac3c
+Calibration-capture SHA-256: f21ad9f5189a8e464474b5e18d639ccd7d7e10116dc38694c9cede14db8e0a4f
+Policy SHA-256: 85b0d2499e24065e1f36692399c21cf83db897ace615e076a63f4da5688ba333
+Paired-results SHA-256: 7faa8363d320af768a94caa8dfe47cbdbea789bfec415f583910e63a045b455b

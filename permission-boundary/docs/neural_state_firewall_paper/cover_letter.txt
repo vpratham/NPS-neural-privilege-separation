@@ -1,0 +1,22 @@
+Dear [Editor-in-Chief / Handling Editor],
+
+Please consider our manuscript, "Host-Enforced Document Read Permissions for Language-Model Inference: A Reproducible Structural Evaluation," for publication in [Journal].
+
+The manuscript describes a local, host-controlled document read-permission mechanism for autoregressive language-model inference. It reports a reproducible structural evaluation on 175 BIPIA-derived cases: under the stated pinned Qwen configuration, changing a host-denied document payload left input shape, every generated-step logit, and greedy output tokens unchanged in all 175 comparisons. The paper explicitly does not claim semantic prompt-injection resistance for readable evidence, general model portability, or tool-effect prevention.
+
+The manuscript is original, is not under review elsewhere, and has been approved by its author. [Replace with verified statement.] Raw generated outputs are not included because of data-governance and source-license review; the submission supplies code, hashes, and reproducibility instructions. [Replace with final data/software availability statement.]
+
+Author: Pratham Vasa
+Affiliation: [to be supplied]
+Email: prathamv1102@gmail.com
+Corresponding author designation: [to be confirmed]
+ORCID: [to be supplied]
+Funding/support: No funding received.
+Conflicts of interest: The author declares no competing interests.
+Ethics/data-use approval or determination: [to be supplied]
+AI-use disclosure: Codex assisted implementation, analysis scripts, literature search, and manuscript drafting; four qualitative cases were selected with Codex assistance; human-author verification remains pending. [Adapt to the journal's required wording.]
+
+Thank you for your consideration.
+
+Sincerely,
+Pratham Vasa

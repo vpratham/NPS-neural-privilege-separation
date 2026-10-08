@@ -1,0 +1,25 @@
+{
+  "kind": "firewall-split-check-v1",
+  "manifest_sha256": "16b972e21453046bab24dd74c59db082baaf03d3e748663e6d670ba743f6e8da",
+  "metadata_checks_passed": true,
+  "counts": {
+    "training": 0,
+    "calibration": 0,
+    "development": 7,
+    "final_test": 0,
+    "adaptive_test": 0
+  },
+  "missing_target_cases": {
+    "training": 200,
+    "calibration": 100,
+    "development": 0,
+    "final_test": 300,
+    "adaptive_test": 10
+  },
+  "declared_assembly_complete": false,
+  "payload_hashes_verified": false,
+  "independent_custody_verified": false,
+  "final_evaluation_authorized": false,
+  "scope": "Metadata only; verify payload hashes, actual custody and the frozen runtime before final evaluation",
+  "manifest_file_sha256": "dfdce8a2817dd7620379fe1aa571d86f77db4a67f2d39c3a36c8722a3412d076"
+}

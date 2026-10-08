@@ -1,0 +1,133 @@
+{
+  "kind": "neural-firewall-seen-material-exclusions-v1",
+  "status": "seen-development-only",
+  "created_on": "2026-09-28",
+  "policy": "Listed material, its source groups, and near-duplicates are ineligible for locked-test or adaptive-test use.",
+  "entries": [
+    {
+      "path": "https://huggingface.co/datasets/neuralchemy/Prompt-injection-dataset@7d70432",
+      "scope": "public-dataset-snapshot",
+      "reason": "Candidate auxiliary text-classification corpus; its public splits and all derived/group-related/near-duplicate cases are ineligible for locked test or adaptive test, especially if any part is imported into training/development."
+    },
+    {
+      "path": "neural_state_firewall/examples/train.jsonl",
+      "scope": "file",
+      "reason": "Existing benign monitor-training requests; already used to fit the current profile."
+    },
+    {
+      "path": "neural_state_firewall/examples/calibration.jsonl",
+      "scope": "file",
+      "reason": "Existing benign calibration requests; already used to set the current threshold."
+    },
+    {
+      "path": "neural_state_firewall/examples/evaluation.jsonl",
+      "scope": "file",
+      "reason": "Pretrained smoke inputs and outputs are already seen."
+    },
+    {
+      "path": "neural_state_firewall/examples/test_cases.example.json",
+      "scope": "file",
+      "reason": "Six-case paired smoke fixture; its format field says test, but the study classifies it as seen development material."
+    },
+    {
+      "path": "neural_state_firewall/examples/stage1_feasibility_cases.json",
+      "scope": "file",
+      "reason": "Twelve-case Stage 1 candidate screen; already generated and reviewed."
+    },
+    {
+      "path": "neural_state_firewall/artifacts/",
+      "scope": "directory",
+      "reason": "Ignored local profiles, captures, thresholds, paired runs, raw outputs, and review artifacts are all previously exposed to development."
+    },
+    {
+      "path": "neural_state_firewall/validation/pretrained_smoke.json",
+      "scope": "file",
+      "reason": "Tracked summary of the earlier pretrained smoke run."
+    },
+    {
+      "path": "docs/neural_state_firewall_paper/data/",
+      "scope": "directory",
+      "reason": "Sanitized figures/tables and manifests derive from earlier smoke runs."
+    },
+    {
+      "path": "neuralFirewallV2/experiments/NFW-03_behavioral_proxy/nfw003_necent_002/",
+      "scope": "directory",
+      "reason": "Historical-response proxy study with a different model/monitor and outcome definition; development context only."
+    },
+    {
+      "path": "neuralFirewallV2/experiments/NFW-09_tool_result_injection/",
+      "scope": "directory",
+      "reason": "Already-run tool-result/action-proposal study; not a fresh response-only RAG evaluation."
+    },
+    {
+      "path": "neuralFirewallV2/experiments/NFW-10_protocol_corrected_injection/",
+      "scope": "directory",
+      "reason": "Already-run protocol-corrected tool-result study; different security boundary and exposed development material."
+    },
+    {
+      "path": "neuralFirewallV2/experiments/NFW-11_authorization_provenance/",
+      "scope": "directory",
+      "reason": "Replay of frozen NFW-010 outputs for the separate authorization broker; not a neural response-firewall test."
+    },
+    {
+      "path": "neural_state_firewall/examples/permission_cases.json",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/examples/permission_documents.json",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/examples/permission_requests.jsonl",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/examples/permission_policy.txt",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/examples/read_permissions.json",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/tests/test_read_permissions.py",
+      "scope": "file",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "neural_state_firewall/validation/",
+      "scope": "directory",
+      "reason": "Read-permission development fixtures, configuration or observed results; exclude these and related/near-duplicate material from held-out and adaptive evaluation."
+    },
+    {
+      "path": "https://github.com/microsoft/BIPIA/tree/a004b69ec0dd446e0afd461d98cb5e96e120a5d0/benchmark",
+      "scope": "consumed-sampled-evaluation-source",
+      "reason": "A 175-case sample of EmailQA, TableQA and CodeQA plus text/code attack payloads was run on the local read-permission firewall. This source revision, related groups and near-duplicates are now seen development material; do not reuse as a fresh locked or adaptive test."
+    },
+    {
+      "path": "neural_state_firewall/boundary_validation.py",
+      "scope": "development-verification",
+      "reason": "Randomized structural development checks and consumed BIPIA drop-denied baseline; not a fresh held-out or adaptive attack set."
+    },
+    {
+      "path": "neural_state_firewall/examples/pilot_config.json",
+      "scope": "development-verification",
+      "reason": "Seen synthetic pilot workload; not security efficacy evidence."
+    },
+    {
+      "path": "neural_state_firewall/examples/readable_challenge_cases.json",
+      "scope": "author-created-synthetic-development",
+      "reason": "Four clean sources and six readable-injection templates were consumed in a fixed56-generation development challenge; exclude related groups and near-duplicates from final held-out/adaptive evaluation."
+    },
+    {
+      "path": "neural_firewall/",
+      "scope": "historical-development-directory",
+      "reason": "Historical XSTest extraction, held-out scoring and causal/probe sweeps were already consumed. Metadata inspected on October 4 also embedded records; this directory and related sources/near-duplicates are development-only."
+    }
+  ]
+}

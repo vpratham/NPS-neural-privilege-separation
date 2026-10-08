@@ -1,0 +1,12 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+  "policy_file": "permission_policy.txt",
+  "documents_file": "permission_documents.json",
+  "read_permissions_file": "read_permissions.json",
+  "layers": [6, 18],
+  "max_context": 2048,
+  "max_new_tokens": 64,
+  "timeout_seconds": 60,
+  "startup_timeout_seconds": 120
+}

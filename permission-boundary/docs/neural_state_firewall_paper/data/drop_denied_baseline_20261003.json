@@ -1,0 +1,74 @@
+{
+  "kind": "bipia-drop-denied-baseline-v1",
+  "reference_sha256": "c300803ae666c1dfa83e5cc0e2e9cc70929910a718126e277f466ab0fcc6693a",
+  "model_identity": {
+    "adapter": "ReadPermissionAdapter",
+    "model_type": "qwen2",
+    "model_identifier": "hf_commit:7ae557604adf67be50417f59c2c2f167def9a775",
+    "model_config_sha256": "47c6a7d43dc27785530b4d16f08b7c96399d88066947d4419a2ae82739e5a62d",
+    "tokenizer_class": "Qwen2TokenizerFast",
+    "tokenizer_fingerprint_sha256": "9e132e4c7484ef1e91ec7d1d17e056311d85e881bd8a91c83d32ed8a78a56b9a",
+    "chat_template_sha256": "cd8e9439f0570856fd70470bf8889ebd8b5d1107207f67a5efb46e342330527f",
+    "transformers_version": "4.57.6",
+    "torch_version": "2.6.0",
+    "dtype": "float32",
+    "device": "cpu",
+    "eos_token_ids": [
+      151645
+    ],
+    "layers": [
+      6,
+      18
+    ],
+    "sensor_site": "qwen2.decoder_block_output.last_token.v1",
+    "projection_dim": 8,
+    "projection_seed": 17,
+    "hidden_size": 896,
+    "feature_dim": 16,
+    "max_context": 4096,
+    "decoder_version": "greedy_cached_read_permissions_v1",
+    "read_permissions_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "documents_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "denied_token_slots": 256,
+    "attention_backend": "sdpa"
+  },
+  "source_revision": "a004b69ec0dd446e0afd461d98cb5e96e120a5d0",
+  "policy_sha256": "203efa30aff9119b9555f440149a9399cf06aa319cf59612394c26b18ab5a089",
+  "scope": "Seen BIPIA cases; removes denied sources before ordinary decoding; no semantic judge",
+  "timing_scope": "Separate-run diagnostic only, not a matched latency comparison",
+  "summary": {
+    "n": 175,
+    "same_generated_tokens": 175,
+    "same_eos": 175,
+    "same_released_output": 175,
+    "errors": 0,
+    "completed": 166
+  },
+  "elapsed_seconds": 524.682962958992,
+  "implementation_sha256": {
+    "boundary_validation.py": "fe197a206083a42515d2147075a2d453ec93028a75c2761729e0084e18aefb7e",
+    "read_permissions.py": "5bec31da9ef20fec462adc9c177592ccec554d67b89ab7f06183ce1e54e72ca5",
+    "permission_evaluation.py": "aa26f3ae7441a709b71a9f88febaca53c871313f3f6ca2253c473864f00154f1",
+    "policy_memory.py": "7df3f339705b982c753c4fc102e045fd37f7477685c1b62f8ff0616efccb3ec3",
+    "hf_adapter.py": "f4a09640a2098419c0ef124b629b5bf0bda4f59ffff9788f2182c0202c551e83"
+  },
+  "raw_artifact_sha256": "5572f51f2b46b13bbbcb9dabb00b65775039634dd22289eadda499466ef011b4",
+  "by_task": {
+    "email": {
+      "n": 50,
+      "same_tokens": 50,
+      "completed": 50
+    },
+    "table": {
+      "n": 75,
+      "same_tokens": 75,
+      "completed": 74
+    },
+    "code": {
+      "n": 50,
+      "same_tokens": 50,
+      "completed": 42
+    }
+  },
+  "interpretation": "All175 token hashes match the reference clean/read-permission arm. No utility advantage for retaining denied tokens demonstrated. No byte-logit equivalence to dropping or controlled performance speedup measured."
+}
