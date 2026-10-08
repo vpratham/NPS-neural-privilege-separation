@@ -142,7 +142,7 @@ experiments/              Historical notebooks and exploratory runs
 neural_firewall/          Earlier modular firewall prototype and experiments
 neuralFirewallV2/         Current NFW experiment series and engineering branch
 permission-boundary/      Host-enforced document visibility and Q&A pilot
-neural-runtime-monitor/   Experimental activation-trajectory monitor
+neural-runtime-monitor/   Deterministic capability gate; optional anomaly telemetry
 results/                  Historical result summaries and archived artifacts
 theory/                   Mathematical framework and NPS theory notes
 ```

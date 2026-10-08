@@ -27,7 +27,7 @@ def demo():
         [[[0., 0.], [0.2, 0.1], [0.1, 0.2]], [[0.2, 0.2], [0., 0.3], [0.3, 0.]]],
         [[[0.1, 0.2], [0.2, 0.1], [0.1, 0.2]], [[0.15, 0.15], [0.1, 0.15], [0.2, 0.1]]],
         identity=adapter.identity, policy_sha256=policy_digest(adapter.policy))
-    firewall = Firewall(adapter, profile)
+    firewall = Firewall(adapter, profile, mode="enforce")
     cases = {task: firewall.run(task, max_new_tokens=3) for task in ("benign", "anomaly", "sensor_failure")}
     assert cases["benign"]["status"] == "allowed"
     assert cases["anomaly"]["status"] == "blocked" and cases["anomaly"]["output"] is None

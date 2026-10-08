@@ -16,7 +16,7 @@ class ServerTests(unittest.TestCase):
             [[[0., 0.], [0.2, 0.1], [0.1, 0.2]], [[0.2, 0.2], [0., 0.3], [0.3, 0.]]],
             [[[0.1, 0.2], [0.2, 0.1], [0.1, 0.2]], [[0.15, 0.15], [0.1, 0.15], [0.2, 0.1]]],
             identity=adapter.identity, policy_sha256=policy_digest(adapter.policy))
-        self.server = make_server(Firewall(adapter, profile), 3, port=0)
+        self.server = make_server(Firewall(adapter, profile, mode="enforce"), 3, port=0)
         self.thread = threading.Thread(target=self.server.serve_forever, kwargs={"poll_interval": 0.01}, daemon=True)
         self.thread.start()
 

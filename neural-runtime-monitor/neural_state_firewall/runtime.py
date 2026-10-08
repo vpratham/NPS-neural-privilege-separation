@@ -37,7 +37,7 @@ class Firewall:
     supply task/context only. This class does not execute tools.
     """
 
-    def __init__(self, adapter: Adapter, profile: dict | None = None, *, mode: str = "enforce",
+    def __init__(self, adapter: Adapter, profile: dict | None = None, *, mode: str = "monitor",
                  timeout_seconds: float | None = None):
         if mode not in ("enforce", "monitor"):
             raise ValueError("Invalid enforcement mode")
@@ -54,7 +54,7 @@ class Firewall:
         self._check_binding()
 
     @classmethod
-    def from_artifact(cls, adapter: Adapter, artifact: dict, *, mode: str = "enforce"):
+    def from_artifact(cls, adapter: Adapter, artifact: dict, *, mode: str = "monitor"):
         """Deployment constructor: validate provenance and bind fitted horizon."""
         from .artifacts import validate_profile
         checked = validate_profile(artifact)

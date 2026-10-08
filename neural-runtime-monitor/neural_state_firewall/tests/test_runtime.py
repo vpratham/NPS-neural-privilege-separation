@@ -77,7 +77,8 @@ class RuntimeTests(unittest.TestCase):
                     "max_new_tokens": 3, "training_sha256": "a" * 64,
                     "calibration_sha256": "b" * 64}
         firewall = Firewall.from_artifact(adapter, artifact)
-        self.assertEqual(firewall.run("task")["status"], "allowed")
+        self.assertEqual(firewall.mode, "monitor")
+        self.assertEqual(firewall.run("task")["status"], "monitored")
         result = firewall.run("task", max_new_tokens=4)
         self.assertEqual(result["status"], "error")
         self.assertIsNone(result["output"])
@@ -89,7 +90,14 @@ class RuntimeTests(unittest.TestCase):
                            drift=1.0, variance_floor=0.01)
 
     def firewall(self, frames=(), **adapter_kwargs):
-        return Firewall(StubAdapter(frames, **adapter_kwargs), self.profile())
+        return Firewall(StubAdapter(frames, **adapter_kwargs), self.profile(), mode="enforce")
+
+    def test_default_trajectory_monitor_does_not_enforce_anomaly_alarms(self):
+        adapter = StubAdapter([Step([50.0, -50.0], 9, False), Step([0.25, 1.2], 2, True)])
+        result = Firewall(adapter, self.profile()).run("safe task")
+        self.assertEqual(result["status"], "monitored")
+        self.assertTrue(result["alarm_observed"])
+        self.assertEqual(result["output"], "9")
 
     def test_midstream_alarm_releases_no_partial_output(self):
         firewall = self.firewall([
@@ -176,10 +184,10 @@ class RuntimeTests(unittest.TestCase):
             Firewall(StubAdapter(policy="other host policy"), profile)
 
         original = self.profile()
-        firewall = Firewall(StubAdapter([Step([0.05, 1.0], 2, True)]), original)
+        firewall = Firewall(StubAdapter([Step([0.05, 1.0], 2, True)]), original, mode="monitor")
         original["identity"]["model"] = "mutated-by-caller"
         result = firewall.run("safe task")
-        self.assertEqual(result["status"], "allowed")
+        self.assertEqual(result["status"], "monitored")
         self.assertEqual(result["output"], "")
         self.assertTrue(firewall.adapter.closed)
 

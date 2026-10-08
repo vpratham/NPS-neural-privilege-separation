@@ -1,5 +1,7 @@
 # Implementation verification
 
+**Pivot note (2026-10-08):** the activation-trajectory implementation below is historical research evidence, not the product authorization boundary. The new [`CapabilityFirewall`](capability.py) enforces exact-evidence quote output and host-allowlisted action proposals; [`PRODUCTION_ROADMAP.md`](PRODUCTION_ROADMAP.md) records its scope and remaining integration work. Trajectory enforcement is now opt-in; its default mode is observation-only.
+
 Recorded 2026-09-26. These checks validate the component and its failure paths. They do not establish general prompt-injection protection.
 
 ## Automated checks

@@ -34,6 +34,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Experimental neural trajectory monitor with buffered response release")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("demo", help="Offline synthetic trajectories; verifies gate mechanics only")
+    commands.add_parser("capability-demo", help="Offline deterministic capability-gate demo; no model or tools")
     fit = commands.add_parser("fit", help="Fit benign training dynamics and held-out benign threshold")
     fit.add_argument("--training", required=True)
     fit.add_argument("--calibration", required=True)
@@ -69,7 +70,8 @@ def main(argv=None):
             sub.add_argument("--max-new-tokens", type=int, default=128)
         else:
             sub.add_argument("--profile", required=True)
-            sub.add_argument("--mode", choices=("enforce", "monitor"), default="enforce")
+            sub.add_argument("--mode", choices=("enforce", "monitor"), default="monitor",
+                             help="Trajectory alarms are observation-only by default; enforce is experimental")
             if name == "run":
                 sub.add_argument("--requests", required=True)
             else:
@@ -78,6 +80,10 @@ def main(argv=None):
     try:
         if args.command == "demo":
             from .demo import demo
+            print(json.dumps(demo(), indent=2, allow_nan=False))
+            return 0
+        if args.command == "capability-demo":
+            from .capability_demo import demo
             print(json.dumps(demo(), indent=2, allow_nan=False))
             return 0
         if args.command == "fit":
