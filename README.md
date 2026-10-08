@@ -16,10 +16,10 @@ policy-relevant computation under attacker-controlled input. The long-term goal
 is a **neural firewall**: an internal monitor and controller that reduces unsafe
 or unauthorized behavior while preserving legitimate capability.
 
-The current implementation is an authenticated local model API with deterministic
-document read permissions, host-owned retrieval and buffered responses. Earlier
-monitoring and text-judge prototypes remain in the research archive. The separate
-action broker handles source-bound tool effects.
+The permission-boundary workstream provides deterministic document read
+permissions and a provider-independent, per-instance capability gate for
+evidence disclosure and action proposals. Its existing local Q&A API remains a
+separate free-form path. The trusted action broker handles source-bound effects.
 
 ## Working document Q&A pilot
 
@@ -98,7 +98,7 @@ themselves.
 | Theory | Draft mathematical framework for NPS and neural-firewall security objectives |
 | Historical experiments | Activation probes, policy-vector experiments, causal pilots, and audits |
 | Application firewall | Authenticated loopback Q&A pilot; earlier OpenAI-compatible text-judge prototype retained |
-| Neural firewall | All-layer document read permissions and sealed policy cache; readable-evidence instruction takeover remains unresolved |
+| Neural firewall | All-layer document read permissions, sealed policy cache, and a provider-independent capability gate; readable-evidence instruction takeover remains unresolved |
 | Reference model | Current pilot: `Qwen/Qwen2.5-0.5B-Instruct`; historical monitor: Qwen2.5-3B |
 | Security claim | Scoped denied-document isolation under supported runtime assumptions; no general semantic or production approval |
 
@@ -141,8 +141,8 @@ docs/                     Charter, implementation audit, and forensic notes
 experiments/              Historical notebooks and exploratory runs
 neural_firewall/          Earlier modular firewall prototype and experiments
 neuralFirewallV2/         Current NFW experiment series and engineering branch
-permission-boundary/      Host-enforced document visibility and Q&A pilot
-neural-runtime-monitor/   Deterministic capability gate; optional anomaly telemetry
+permission-boundary/      Host-enforced read/disclosure/action capabilities and Q&A pilot
+neural-runtime-monitor/   Experimental activation telemetry and anomaly observer
 results/                  Historical result summaries and archived artifacts
 theory/                   Mathematical framework and NPS theory notes
 ```

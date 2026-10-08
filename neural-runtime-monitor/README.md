@@ -1,8 +1,8 @@
 # Neural runtime policy firewall
 
-This workstream is pivoting from activation-anomaly blocking toward a deterministic capability boundary. The model proposes a constrained output; trusted host code decides whether it can be released or sent to an action broker.
+The primary deterministic capability boundary now lives in [`../permission-boundary/`](../permission-boundary/), where read grants, disclosure grants and action proposals are attached to a host-owned per-instance profile. The implementation here is the earlier prototype; use it for its historical tests, not as the canonical application integration.
 
-The first implementation is in [`neural_state_firewall/capability.py`](neural_state_firewall/capability.py). It accepts exact quotes from host-supplied evidence, fixed host-generated refusals, or allowlisted typed action proposals. Arbitrary prose is rejected. Action proposals are never executed here; the calling application must authorize them through its trusted broker. The existing NPS broker is documented in [`../docs/WORKING_SYSTEM.md`](../docs/WORKING_SYSTEM.md).
+The prototype is in [`neural_state_firewall/capability.py`](neural_state_firewall/capability.py). It accepts exact quotes from host-supplied evidence, fixed host-generated refusals, or allowlisted typed action proposals. Arbitrary prose is rejected. Action proposals are never executed here; the calling application must authorize them through its trusted broker. See the permission-boundary [capability contract](../permission-boundary/neural_state_firewall/CAPABILITY_BOUNDARY.md) for the current design.
 
 Run the offline check:
 

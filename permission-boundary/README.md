@@ -1,6 +1,6 @@
 # NPS Permission Boundary
 
-Standalone repository for host-controlled model read permissions. It enforces which document sources the model may read and buffers responses until complete generation. It does not contain the anomaly detector and does not claim to stop instructions in readable evidence.
+Workstream for host-controlled model permissions. It enforces document read permissions and includes a provider-independent capability gate for per-instance read, disclosure and action-proposal grants. Action proposals still require a trusted broker; the current local Q&A API remains free-form and is not protected by the quote-only gate. It does not contain the anomaly detector or claim to stop instructions in readable evidence.
 
 ## Run
 
