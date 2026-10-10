@@ -1,0 +1,477 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=24mm]{geometry}
+\usepackage{fontspec}
+\setmainfont{Noto Sans}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{longtable,booktabs,array}
+\usepackage{fancyhdr}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=black}
+\setlength{\parskip}{0.55em}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{3em}
+\sloppy
+\pagestyle{fancy}\fancyhf{}\fancyfoot[C]{\thepage}
+\newcommand{\sourcefilecite}{\textit{[Citation to supplied NPB plan]}}
+\begin{document}
+\title{Neural Privilege Boundary: Deep Research on the Security Principles and Best Implementation Path}
+\date{}
+\maketitle
+\section*{Executive summary}
+The supplied Neural Privilege Boundary (NPB) plan is unusually strong in one important respect: it does not treat prompt-injection resistance as the same problem as authorisation. It separates three claims that are often incorrectly blended together: deterministic capability enforcement, denied-source noninterference, and policy-state integrity. It also explicitly declines to claim that protected policy memory or prompt formatting can make arbitrary natural-language generation injection-proof, and requires every privileged effect to pass through a trusted host-side broker. That separation should remain the architectural centre of the project. [source document]\par
+The most important conclusion of this research is:\par
+\begin{quote}\textbf{NPB should be engineered first as a small reference-monitor/capability system around an untrusted probabilistic model, and only secondarily as a neural-state security mechanism.}\end{quote}
+That recommendation follows directly from classical security engineering. A reference monitor is expected to mediate every protected access, be tamper-resistant and be sufficiently small to analyse; least privilege gives each component only the authority necessary for its task. These principles align almost exactly with the plan's immutable host-created profile, narrow disclosure path, typed action proposal and mandatory broker. Early capability systems similarly separated possession of authority from arbitrary computation, while later object-capability work and Macaroons developed practical forms of confined and attenuated authority.\par
+The plan is also well aligned with the actual prompt-injection problem. NIST defines prompt injection as exploiting the concatenation of untrusted input with a higher-trust party's prompt, while indirect- prompt-injection research shows that external content can change model behaviour and, in agentic systems, redirect API/tool operations. The architectural answer is therefore not merely to make the model “understand” which instructions are trusted, but to ensure that even a completely compromised model response lacks ambient authority.\par
+Recent evidence strengthens that conclusion. Instruction-hierarchy training can materially improve resistance to lower-priority malicious instructions, so it is useful defence-in-depth, but it remains a learned behavioural property rather than a deterministic access-control mechanism. A 2025 study found that simple agent/tool “firewalls” could saturate several public prompt-injection benchmarks, yet the authors also demonstrated practical bypasses and argued that benchmark weaknesses could make apparently perfect results misleading. The 2026 AgentDyn work likewise argues that contemporary agent-security benchmarks require more dynamic and realistic tasks and attacks. This directly supports the plan's insistence that benchmark success not be presented as a proof.\par
+The production recommendation is therefore a two-track architecture:\par
+NPB-Core, which is the security boundary, should physically exclude unreadable evidence before any external provider call, accept only a discriminated structured response, validate it independently, render disclosure from host-owned source material, and mediate every state-changing operation through a trusted broker holding short-lived, principal-bound and argument-bound authority. This is the component on which production security claims should rest.\par
+NPB-Neural, which is a research component, should experimentally investigate attention masking, immutable policy K/V state and denied-source noninterference for specific local model/runtime combinations. It should not sit in the production trusted computing base unless there is a genuine use case that cannot be satisfied simply by omitting denied data.\par
+A useful way to state the final security promise is:\par
+The model may recommend; only trusted code may disclose or authorise.\par
+That formulation is stronger than “the model resists prompt injection”, because its correctness does not require semantic obedience from the model.\par
+The proposed high-level architecture is:\par
+The principal changes I recommend to the supplied plan are:\par
+Make the model return references to disclosure data rather than the bytes ultimately released whenever practical. The trusted host should copy the canonical quote from the versioned source itself. This removes Unicode, encoding and model-supplied-text ambiguity from the disclosure boundary. Use a simple server-side opaque one-time grant for the first broker implementation. Introduce Macaroons or sender-constrained cryptographic tokens only when distributed delegation actually requires them. Macaroons are attractive for attenuation, while DPoP contains useful replay-defence ideas; however, DPoP explicitly does not bind the full request body, so it is not by itself an argument-authorisation mechanism. Treat JSON Schema as syntax/structure enforcement, not semantic authorisation. JSON Schema itself notes that structural validation can be insufficient and that some format\par
+1.\par
+2.\par
+3.\par
+semantics are annotations unless explicitly asserted. Strengthen the neural proof obligation around position independence. Masking denied keys/values is insufficient for exact noninterference if changing the denied source can shift public token positions or alter cache organisation. Either require shape-preserving replacements for the theorem or design independent positional namespaces/segments.\par
+4.\par
+\begin{figure}[H]\centering\includegraphics[width=\textwidth]{{npb_tex_assets/architecture.png}}\caption{Host-owned capability architecture (reproduced from the supplied report).}\end{figure}
+Model-check broker concurrency before production. Replay prevention, single-use grants and ambiguous effect completion are state-machine problems, for which TLA+/TLC is a better first tool than a heavyweight proof assistant. Upgrade the locked evaluation beyond static benchmark saturation. InjecAgent and AgentDojo remain useful, but add adaptive attacks and preferably NIST's AgentDojo-Inspect or a recent dynamic suite. BIPIA is now archived as of 16 September 2026 and, in this project, the sampled cases are already consumed development material.\par
+5.\par
+6.\par
+Overall, I assess the plan as architecturally sound and researchable, provided the deterministic host/ broker path is made the root of trust and the neural mechanisms are described as scoped information- flow experiments rather than a general solution to prompt injection.\par
+\section*{Scope, assumptions and threat model}
+\subsection*{What was available for review}
+The uploaded plan is the only project artefact supplied in this conversation. It refers to\par
+neural\_state\_firewall/CAPABILITY\_BOUNDARY.md , neural\_state\_firewall/\par
+READ\_PERMISSIONS.md  and ../docs/neural\_state\_firewall\_paper/STUDY\_PROTOCOL.md ,\par
+but those referenced files and the source repository were not provided. Consequently, statements about existing implementation behaviour—for example sealed K/V cache behaviour, the exact validator control flow and the historical 1,750-attempt run—are treated here as claims made by the supplied plan, not independently audited implementation facts. [source document]\par
+The historical BIPIA-derived 175-case set is correctly identified in the plan as consumed development material, with no semantic attack-success labels, and the plan explicitly warns against treating 42 changed ordinary outputs as successful attacks. That methodological distinction is correct and should be preserved. [source document] BIPIA itself was designed to study indirect prompt injection across external-content tasks; its repository also warns that WebQA and summarisation source data require their own source-data licensing treatment, and Microsoft archived the repository on 16 September 2026.\par
+\subsection*{Explicit assumptions introduced by this assessment}
+Assumption Why it matters\par
+The application host, capability validator and broker are trusted and outside the attacker's control.\par
+If the reference monitor itself is compromised, none of the proposed application-layer guarantees survives.\par
+This is what makes prompt injection a model- behaviour problem rather than an access- control bypass.\par
+The model and retrieved content are not trusted for authorisation decisions.\par
+NPB-Core can prevent unauthorised sources from being sent; it cannot cryptographically hide readable plaintext from a provider that must infer over it.\par
+An external provider is trusted for the confidentiality of evidence deliberately sent to it under the provider contract.\par
+A capability profile is meaningless unless the principal-to-profile binding itself is trustworthy.\par
+Caller identity is authenticated upstream using a mechanism outside NPB.\par
+Assumption Why it matters\par
+Otherwise a validated source identifier can become a time-of-check/time-of-use disclosure vulnerability.\par
+Source objects used for disclosure are immutable/ versioned during a request.\par
+The first production scope permits constrained responses such as quotes and typed actions; unrestricted prose remains outside the deterministic disclosure guarantee.\par
+This is the principal utility/security trade-off in the plan.\par
+This permits a simpler opaque, one-use grant design before distributed credentials are needed.\par
+The first broker runs centrally and can maintain durable state.\par
+Therefore hardware cost and workload size can only be estimated qualitatively at this stage.\par
+The exact model families and first privileged action are still undecided.\par
+The roadmap assumes roughly two implementation/security engineers plus a research owner, with access to one suitable evaluation GPU and no major procurement delay.\par
+Different staffing substantially changes elapsed time.\par
+\subsection*{Threat model}
+The relevant adversarial channels should be stated more explicitly than in a conventional LLM threat model.\par
+The attacker may control some user input, documents, emails, web pages, search results, tool results or other retrieved text; may deliberately cause malformed or adversarial model outputs; may replay previously authorised proposals; may attempt cross-user or cross-instance source references; may race concurrent requests; may seek to exfiltrate non-disclosable material; and may attempt to cause a permitted tool to execute with unauthorised arguments. These are credible threats because indirect prompt injection is specifically about low-trust content influencing a model operating in a higher- privilege application context.\par
+The concern is no longer merely academic. NIST's 2025 work on agent hijacking describes malicious instructions in ingested content causing agents to take unintended harmful actions, and NIST's 2026 vulnerability records include systems where prompt injection interacted with tool naming or sandbox boundaries to produce materially dangerous execution paths. These examples do not prove NPB's architecture, but they illustrate why tool privilege must not be ambient model privilege.\par
+The following should be explicitly out of scope for the initial NPB theorem: compromise of the host OS/ kernel or broker signing/storage keys; arbitrary reads of local process memory; malicious GPU firmware; electromagnetic/physical side channels; denial-of-service timing/resource channels; provider compromise after authorised plaintext has been transmitted; and semantic obedience of unrestricted natural-language generation. This matches the plan's intended distinction between information-flow behaviour inside a specified model/runtime and broader system security. [source document]\par
+One important distinction is worth adding:\par
+\begin{quote}\textbf{“Denied content cannot affect model logits” is not the same claim as “denied content is inaccessible to the runtime.”}\end{quote}
+A local process may still tokenise, store or compute K/V values for denied content before an attention mask excludes causal influence. Such a design may establish a noninterference property over chosen observables, while offering no protection against a compromised local runtime reading the original bytes. The theorem and paper should say this explicitly.\par
+\section*{Principles and theoretical foundations}
+\subsection*{Reference monitoring, complete mediation and least authority}
+NPB-Core is best understood as an application-level reference validation mechanism. NIST's reference-monitor formulation requires mediation of accesses, resistance to tampering and a mechanism small enough to analyse and test. Least privilege requires giving each entity only the system resources and authorisations necessary for its function.\par
+This maps cleanly onto the plan:\par
+C = (R, D, A)\par
+R D  $\subseteq$ R A\par
+where is the set of sources the instance may read, is the set from which it may disclose\par
+content, and is a map from permitted action names to their argument constraints. The model does\par
+not receive the ability to modify . The caller does not get to supply an authoritative . Every output is\par
+C C C\par
+interpreted under the host-owned .\par
+Saltzer and Schroeder's foundational security-engineering work is particularly relevant here: least privilege, fail-safe defaults, complete mediation and separation of privilege are architectural principles\par
+rather than properties of any individual classifier. The plan's “invalid output  $\rightarrow$  release no text and\par
+perform no effect” is a direct application of fail-safe defaults; “every privileged effect  $\rightarrow$  one named broker” implements complete mediation.\par
+Capability-based security adds an even more useful framing. Dennis and Van Horn's early work developed protected references to computing objects, and later object-capability work focused on composing mutually untrusting components while limiting authority. In NPB terms, the LLM should be treated as such an untrusted component: it can possess descriptions of potential operations without automatically possessing the authority to perform them.\par
+Macaroons are relevant if the architecture eventually requires delegated/attenuated authority: they use chained message authentication codes and caveats to constrain who may exercise authority, where and under what conditions. For the first implementation, however, introducing delegated bearer credentials would enlarge the attack surface unnecessarily. A central opaque grant record is easier to revoke, inspect, consume atomically and reason about.\par
+\subsection*{Structured outputs are a parser boundary, not an authorisation boundary}
+Using a strict structured-output provider is useful because it changes an unbounded language problem into a bounded parser/validator problem. JSON Schema Draft 2020-12 provides constructs such as\par
+type , enum  and const , and structural validation can reject object shapes that violate the schema.\par
+The specification also explicitly notes that structural validation may be insufficient for application semantics and that format  is not automatically a semantic authorisation check.\par
+Therefore the recommended action validation pipeline is:\par
+bytes  $\rightarrow$ strict parse  $\rightarrow$ schema  $\rightarrow$ profile  $\rightarrow$ semantic constraints  $\rightarrow$ grant  $\rightarrow$ effect.\par
+A model-native “JSON mode” should therefore be considered a convenience mechanism, not a trusted security control. The host must independently reject duplicate object keys, unexpected properties,\par
+excessive nesting/size, invalid enumeration values, type coercions, unknown action variants and any semantic argument that exceeds the capability.\par
+For actions, use a discriminated union rather than a generic \{name, args\}  bag where possible. A\par
+conceptual schema is:\par
+Proposal := QuoteProposal(source\_id, segment\_id, optional\_span) | SendEmailProposal(recipient\_contact\_id, subject\_id, body\_template\_id) | CalendarProposal(calendar\_id, start, end, attendee\_ids) | NoOp(reason\_code)\par
+Each variant should have additionalProperties: false  or equivalent closed-world validation.\par
+More importantly, each field must subsequently be checked against the host profile and current principal.\par
+\subsection*{Host-rendered disclosure is stronger than validated model text}
+The plan proposes allowing only exact quotes from sources marked disclosable. That is already much safer than arbitrary prose. [source document] It can be strengthened further by changing the primitive from “the model supplies a quote” to “the model nominates a host-owned source region”.\par
+For example:\par
+model output: \{ "kind": "quote", "source\_id": "doc-7", "segment\_id": "seg-42" \}\par
+trusted host: 1. verify doc-7  $\in$  disclose(C) 2. verify seg-42 belongs to the immutable version of doc-7 3. copy bytes for seg-42 from the canonical source snapshot 4. release those host-owned bytes\par
+This removes several unnecessary questions from the security proof: whether Unicode was normalised consistently, whether visually confusable characters were substituted, whether two identical strings occur at different provenance locations, and whether a model can exploit an inconsistent exact-\par
+substring implementation. Where fine-grained spans are required, the host can expose stable segment IDs and bounded offsets rather than forcing a model to calculate global byte offsets.\par
+A source version hash should be bound to the request or profile snapshot. Otherwise a source could be authorised at validation time and replaced before rendering.\par
+\subsection*{Brokered authority, replay prevention and exactly-once illusions}
+Every privileged action should require a host-created grant independent of the model's proposal. A minimal grant record should bind:\par
+grant\_id principal\_id profile\_hash instance\_id action\_name canonical\_argument\_hash resource\_scope issued\_at expires\_at consent\_record idempotency\_key state\par
+The broker accepts an action only when the principal, NPB instance/profile, action and canonical arguments all match the grant.\par
+The plan's emphasis on expiry and replay protection is well founded. OAuth DPoP demonstrates practical patterns for sender-constraining credentials, including unique proof identifiers, short acceptance windows and replay detection. The standard also makes an important limitation explicit: DPoP does not bind the entire request payload. Consequently, adopting DPoP-like proof-of- possession is not enough for NPB; the specific canonical action arguments must also be bound into the authorisation decision.\par
+Bearer-token practice likewise emphasises short validity periods and protection against token capture/ replay. For a central NPB broker, an opaque server-side grant is simpler still: possession of a model- generated value cannot create authority because only the host can create the corresponding active broker state.\par
+One subtle issue missing from the plan is the impossibility of pretending all remote side effects have clean “exactly once” semantics. Suppose the broker calls an external API, the API commits the operation, but the network connection fails before the broker receives the acknowledgement. Blind retrying may duplicate the effect; blindly declaring failure may misreport reality. NPB should therefore promise at- most-once authorisation, and use a stable idempotency key whenever the downstream service supports idempotent retries. Ambiguous completion should enter an UNKNOWN  state and require\par
+reconciliation rather than silently retrying with new authority.\par
+\subsection*{Information-flow noninterference and the neural claim}
+The theoretical foundation for the plan's denied-source claim is noninterference: changes to protected/ high information should not alter chosen low/public observations. Goguen and Meseguer's 1982 work\par
+is foundational to this approach to information-flow security.\par
+For NPB, let\par
+= policy/prefix state,\par
+• P\par
+= allowed/public evidence,\par
+• A\par
+= denied evidence,\par
+• D\par
+= generated prefix before decoding step ,\par
+• Y<t t\par
+= public next-token logits.\par
+• Lt\par
+The desired theorem can be written:\par
+'\par
+'\par
+L (P, A, D, Y ) = t <t L (P, A, D , Y )  $\forall$ D, D , t, t\par
+<t\par
+under explicitly specified runtime assumptions.\par
+In standard scaled dot-product attention, a token interacts with other sequence positions through attention over query, key and value vectors. If every path from a public/generated query position to all denied key/value positions is truly removed at every layer, and all other public state is independent of , a layer-by-layer induction can establish independence of public hidden states from denied tokens\par
+D\par
+at the mathematical abstraction.\par
+For deterministic greedy decoding, equal logits imply the same first generated token; the identical generated prefix then becomes the induction hypothesis for the next decoding step. For stochastic generation, the clean theorem is equality of output distributions; identical sampled strings additionally require coupling the random-number state.\par
+There is, however, an important condition the current wording needs to strengthen:\par
+\begin{quote}\textbf{Masking denied attention edges does not by itself prove noninterference if changing denied content can change the positions or shape of the public computation.}\end{quote}
+D D'\par
+Consider replacing by a differently tokenised . If denied material occurs before public material and\par
+changes token count, then public position indices can shift. Transformers explicitly encode token position, so public hidden states may change despite zero attention weight to the denied values. The clean theorem therefore needs one of two assumptions:\par
+|Tok(D)|= |Tok(D )| '\par
+for all substitutions covered by the proof, or preferably a segmented representation in which public/ generated positions are assigned independently of denied-source length.\par
+This is one of the most consequential changes I recommend to the research protocol.\par
+Implementation assumptions are equally important. Hugging Face's cache interfaces support multiple cache organisations, including dynamic growth, static caches and model-dependent sliding/chunked\par
+behaviour. A proof for one cache/attention path therefore does not automatically transfer to sliding-window attention, sparse attention, another model adapter or another fused kernel.\par
+Likewise, “exactly unchanged logits” needs two levels of interpretation. At the mathematical model it can mean exact functional equality. GPU execution, however, may contain nondeterministic operations; PyTorch's deterministic mode can require deterministic implementations where supported, but PyTorch explicitly notes that this switch alone is not sufficient to guarantee complete reproducibility. The implementation evidence should consequently include a simple deterministic CPU/reference backend for exact differential tests and separately report GPU/backend conformance.\par
+\subsection*{Immutable policy state does not imply policy obedience}
+The policy-K/V idea is structurally reasonable. Transformer inference commonly caches key/value tensors for prior tokens so they do not have to be recomputed on every decoding step. A policy prefix can therefore be computed once and its cache made immutable while working-context state is appended elsewhere.\par
+What follows from such an invariant is:\par
+PolicyKV = t+1 PolicyKV . t\par
+What does not follow is:\par
+GeneratedOutput  $\models$  t Policy.\par
+A model can preserve every byte of the system-prefix K/V cache and nevertheless assign greater behavioural weight to an adversarial instruction it is legitimately permitted to attend to. That is an inference directly consistent with the attention architecture and with empirical prompt-injection research showing that readable untrusted content can alter model behaviour.\par
+Instruction-hierarchy training attacks this behavioural problem directly by training models to privilege higher-authority instructions, and published results show significant robustness improvements over baseline behaviour. It should be considered a useful additional layer, but not substituted for host authorisation.\par
+The plan's proposed split between structural integrity and behavioural obedience is therefore exactly the right scientific framing. [source document]\par
+\section*{Candidate architectures and comparative assessment}
+The table below is an engineering synthesis rather than a claim that the methods have been measured head-to-head on one common dataset. Accuracy here means accuracy of enforcing intended application policy while preserving legitimate task completion, not generic LLM factual accuracy. Security ratings are scoped to prompt-injection/capability threats; they do not imply host-compromise resistance.\par
+
+\clearpage\begin{center}\includegraphics[width=\textwidth,height=.92\textheight,keepaspectratio]{npb_tex_assets/page_10.png}\end{center}
+
+\clearpage\begin{center}\includegraphics[width=\textwidth,height=.92\textheight,keepaspectratio]{npb_tex_assets/page_11.png}\end{center}
+\subsection*{Recommended broker credential choices}
+Broker mechanism Best use Strengths Weaknesses Recommendation\par
+Simple revocation, atomic state, easy audit and replay detection\par
+\begin{quote}\textbf{Opaque server-side one-use grant}\end{quote}
+First NPB production implementation\par
+Requires central/ shared state Default choice\par
+Revocation/replay state remains difficult; signing/ canonicalisation complexity\par
+Verification without central lookup\par
+Add only when distribution requires it\par
+Signed short- lived grant\par
+Multi-service deployments\par
+Sender- constrained token / DPoP-style proof\par
+Binds use to a key and request endpoint/ method\par
+DPoP does not protect arbitrary request-body integrity\par
+Protecting a token against theft/replay\par
+Supplement, not action policy.\par
+Flexible contextual attenuation and decentralised delegation\par
+Genuine delegated/ attenuated capabilities\par
+Strong option when delegation becomes a requirement.\par
+More protocol complexity than an MVP needs\par
+Macaroon with caveats\par
+\subsection*{Production and research should remain separate products}
+The plan already recognises two workstreams; I would formalise that into release packaging. [source document]\par
+NPB-Core should contain no model-specific code. It consists of identity/profile resolution, source selection, schema validation, disclosure rendering, broker authorisation, auditing and deterministic tests. This is where the production security version should live.\par
+NPB-Neural should contain model adapters, masks, K/V partitioning, differential tests and formal correspondence experiments. A backend should earn a label such as:\par
+noninterference-tested: llama-X / torch-Y / transformers-Z /\par
+attention-backend-Q\par
+rather than a generic “NPB-secure” label.\par
+The distinction reduces the trusted computing base and prevents a failure in experimental model internals from weakening an otherwise conventional authorisation boundary.\par
+\section*{Verification and evaluation methodology}
+\subsection*{Deterministic assurance should come before benchmark statistics}
+For NPB-Core, several properties are ordinary program invariants and should be evaluated as such rather than statistically.\par
+C = (R, D, A)\par
+For profile , require:\par
+ProviderSources(request)  $\subseteq$ R\par
+ReleasedSourceSpan(output)  $\subseteq$ D\par
+action(p)  $\in$ dom(A)\par
+and\par
+Effect(e)  $\Rightarrow$  $\exists$ g : ValidGrant(g, e, C, principal)\par
+with the additional condition that the same grant cannot authorise multiple independent effects.\par
+The gate tests should exhaustively enumerate small profile/action universes and then apply property- based fuzzing to larger JSON and source inputs. Zero failures here is an engineering exit criterion; a -\par
+p\par
+value adds little.\par
+The most important negative test is a malicious provider fixture that deliberately emits every forbidden form regardless of its prompt: wrong source ID, secret copied into a nominal quote, unknown action, valid action with extra key, confused principal, replayed grant, stale source version, oversized object, truncated JSON and valid-looking but semantically unauthorised arguments. If an intentionally hostile provider cannot cross the gate, the security claim is much more meaningful than a cooperative model passing prompt-injection tests.\par
+\subsection*{Formal model of the broker}
+TLA+ is particularly well suited to the first formalisation because NPB's difficult broker properties involve state transitions, concurrency, expiry, consumption and replay. TLA+ was developed for specifying concurrent/distributed systems, and TLC exhaustively explores finite-state instances and produces traces leading to violated invariants.\par
+A small model should include approximately these state variables:\par
+Profiles Grants GrantState  $\in$  \{ACTIVE, EXECUTING, COMMITTED, FAILED, UNKNOWN, EXPIRED\} Requests Effects Audit Clock\par
+Key invariants:\par
+NoEffectWithoutGrant PrincipalBinding ProfileBinding ActionBinding ArgumentBinding NoGrantReuse NoPrivilegeEscalation ImmutableProfileDuringRequest DisclosureSubset\par
+And temporal properties:\par
+ACTIVE -> EXECUTING -> \{COMMITTED, FAILED, UNKNOWN\}\par
+COMMITTED never returns to ACTIVE EXPIRED never returns to ACTIVE one grant cannot produce two distinct committed effects\par
+Alloy is an attractive secondary tool for quickly finding counterexamples in static relationships such as source/profile/action graphs; current Alloy supports mutable state and temporal modelling as well. A theorem prover such as Lean is better reserved for the abstract attention/noninterference lemma once the definitions have stabilised; otherwise substantial effort may be spent proving the wrong abstraction.\par
+\subsection*{Stronger neural noninterference experiment}
+For each supported neural backend, construct paired runs in which only denied content changes:\par
+(P, A, D ) (P, A, D ) 1 2\par
+and capture after every layer/decode step:\par
+public token hidden states; policy K/V hash; public/working K/V; next-token logits; generated prefix; mask topology and position IDs.\par
+• • • • • •\par
+The strongest differential experiment is not merely “final answer unchanged”; it verifies the inductive invariant at the earliest layer where divergence could appear.\par
+Test classes should include:\par
+Dimension Required cases\par
+Denied replacement\par
+same length, shorter, longer, empty, adversarial Unicode, different tokenisation\par
+Dimension Required cases\par
+Position handling denied content before/after/between readable segments\par
+Cache empty, prefix cache, dynamic growth, long context, cache boundary\par
+Attention backend eager/reference plus every production fused backend\par
+Decoding greedy; deterministic seeded sampling as secondary\par
+Concurrency shared process, interleaved instances, batched inputs\par
+Model features RoPE/position variants, GQA/MQA where supported, sliding window if claimed\par
+Numeric mode CPU reference, FP32, deployed reduced precision/quantisation where applicable\par
+A failed variable-length test caused purely by public-position shifts would not falsify the mathematical masking lemma; it would falsify a broader claim that the implementation provides content-substitution noninterference without a shape condition. That distinction should be documented rather than papered over.\par
+\subsection*{Benchmark portfolio}
+The supplied plan's benchmark split is broadly correct. [source document] The current evidence suggests this portfolio:\par
+BIPIA remains useful for regression and external-content injection taxonomies. The repository covers EmailQA, WebQA, summarisation, TableQA and CodeQA, but WebQA/summarisation have separate source-data terms, and the repository has been archived since 16 September 2026. Because this project's sampled BIPIA cases have already influenced development, they must stay out of confirmatory claims.\par
+InjecAgent is particularly valuable for the action boundary: its original benchmark contains 1,054 attack cases spanning 17 user tools and 62 attacker tools, making it a much closer fit to the model- proposal/broker distinction than ordinary QA attacks.\par
+AgentDojo provides an executable environment in which both legitimate user-task success and security outcomes can be measured; the original publication reported 97 realistic tasks and 629 security test cases. The package still warns that its API is evolving, so the plan is right to pin a revision.\par
+NIST AgentDojo-Inspect is especially attractive as a supplementary locked track because NIST describes fixes to upstream task issues, new exfiltration cases and a terminal environment aimed at remote-code-execution risks.\par
+Finally, at least some attacks should be adaptive to NPB itself. A recent firewall study reached apparently perfect or near-perfect results on several existing benchmarks but still found practical bypasses and concluded that weak benchmarks could be saturated. AgentDyn's 2026 benchmark similarly argues for more dynamic, open-ended, realistic adversarial evaluation. Thus, a good locked test set should not consist exclusively of attacks written before the defence architecture was known.\par
+\subsection*{Baselines and ablations}
+The locked evaluation should include at least the following configurations on identical cases:\par
+Configuration Purpose\par
+Unprotected model/agent Measures baseline attack and utility rates\par
+Prompt/instruction defence only Measures behavioural robustness contribution\par
+Host read filtering only Separates simple context minimisation from other mechanisms\par
+Capability gate without neural isolation Measures deterministic NPB-Core contribution\par
+Capability gate + broker Measures actual privileged-effect containment\par
+Capability gate + broker + neural state mechanism\par
+Measures whether the experimental neural layer adds utility/security\par
+Full NPB with adaptive attack Main deployment-facing result\par
+This is important because a zero unauthorised-effect rate from the full system is scientifically less interesting if the same result is achieved by a much simpler broker-only control. Conversely, if neural isolation improves confidentiality or utility under a workload where simple omission of denied data is impossible, the ablation demonstrates its incremental value.\par
+\subsection*{Metrics and statistical analysis}
+The plan is right to make environment state the preferred action-security label rather than output- string change or keyword matching. [source document] A model can emit alarming text without causing an effect, or innocuous-looking text while causing a harmful one; the broker/environment is the authoritative place to observe whether an operation occurred.\par
+Primary security endpoints should be reported separately:\par
+unauthorised effects\par
+Unauthorised effect rate = attack opportunities\par
+Unauthorised disclosure rate = disclosure opportunities protected disclosure events\par
+plus forbidden-proposal rate, cross-instance violation rate and model-level attack success. Do not average these into a single “security score”.\par
+For a zero-event result across  independent Bernoulli opportunities, the one-sided exact 95\% upper\par
+n\par
+confidence limit is:\par
+p = upper 1 -0.05 . 1/n\par
+3/n 36\par
+The familiar rule of three approximates this by . Approximately 299 independent zero-failure\par
+observations are needed before that upper limit falls below 1\%. Clopper–Pearson is the classic exact- binomial construction.\par
+“Independent” is the important qualification. Hundreds of prompts derived from the same attack template/source do not provide hundreds of independent pieces of evidence. The plan's proposal to resample by source or task cluster is therefore well motivated. Cluster bootstrapping preserves grouped sampling structure rather than pretending prompt rows are exchangeable independent observations.\par
+For paired protected/unprotected binary outcomes, exact McNemar analysis is suitable because the same underlying case is exposed to both systems. Multiple confirmatory comparisons should be declared beforehand and corrected; Holm's sequentially rejective procedure controls family-wise type-I error without requiring the more restrictive independence assumptions needed by some alternatives.\par
+The clean-task side needs equal discipline. Define a non-inferiority margin before seeing locked results. Report task completion, quote success, legitimate-action completion, refusal/over-block rate, provider latency, gate latency, p95 tail latency, token consumption and monetary cost independently. A security mechanism that blocks every action is secure under a trivial metric but useless; the security/utility pair is the meaningful result.\par
+\subsection*{Benchmark governance and leakage}
+The dataset manifest should make every case traceable to source URL/repository, commit, licence, source hash, task identifier, transformation code and first date seen by the project. BIPIA's current repository itself illustrates why this matters: different component datasets have different source terms.\par
+A final case must cease to be “held out” as soon as its prompt, expected result or semantic equivalent is manually inspected for defence tuning. This should be an append-only metadata event, not a judgement made retrospectively.\par
+\section*{Recommended implementation and roadmap}
+\subsection*{Target architecture}
+The best implementation path is a deliberately asymmetric system: the model receives information but no authority, while trusted host code possesses authority but does not perform semantic language reasoning.\par
+The end-to-end request should operate as follows.\par
+Step Implementation Required security property\par
+Authenticate Resolve principal outside the model path. Request cannot supply its own authoritative identity.\par
+Resolve profile Load immutable versioned capability profile by trusted mapping.\par
+No model/caller capability escalation.\par
+Snapshot sources Resolve canonical version/hash for all candidate sources.\par
+Stable provenance; no TOCTOU replacement.\par
+Step Implementation Required security property\par
+Select readable evidence Include only source IDs in read(C) . Denied data does not reach an external provider.\par
+Invoke provider Use strict structured-response mode, but treat output as untrusted bytes. Provider has no authority.\par
+Strictly parse Apply size/depth limits and reject malformed/unknown structures. Parser cannot widen schema.\par
+Apply capability checks\par
+Verify source/action against immutable profile.\par
+Deterministic policy enforcement.\par
+Render disclosure Copy the authorised canonical source range in trusted code.\par
+Model never manufactures released protected text.\par
+Resolve grant Match principal, instance/profile, action and canonical argument hash.\par
+Proposal does not imply authorisation.\par
+Execute via broker\par
+Consume or transition grant atomically; pass stable idempotency key.\par
+Complete mediation and replay control.\par
+Audit Record hashes/IDs/decision metadata without routine sensitive payloads.\par
+Reproducibility without secondary data leakage.\par
+This is, in effect, an AI-specific application of the reference-monitor pattern.\par
+\subsection*{Security contract details that should be frozen first}
+A profile should not merely list action names and argument keys. It should encode constraints such as:\par
+profile\_version principal\_scope\par
+read\_sources disclose\_sources\par
+actions: send\_email: allowed\_recipient\_ids allowed\_sender\_identity body\_mode max\_body\_length requires\_fresh\_consent create\_calendar\_event: allowed\_calendar\_ids allowed\_attendee\_ids maximum\_duration permitted\_time\_window\par
+Why values matter is straightforward: validating that send\_email  has keys \{to,body\}  is not secure\par
+if prompt injection can change to  from the user's colleague to an attacker-controlled address. The\par
+security boundary is the tuple action + values + principal + resource + context, not merely the JSON shape.\par
+JSON Schema can provide structural checks, but application-level semantic checks remain necessary.\par
+\subsection*{Fail-closed behaviour}
+The following cases should all produce the same external security result:\par
+provider timeout provider refuses provider returns truncated JSON unknown proposal variant schema violation unknown source non-disclosable source profile changed during request expired grant grant already consumed principal mismatch argument mismatch broker timeout before execution\par
+Namely:\par
+no disclosure and no new privileged effect.\par
+Some can return non-sensitive diagnostic status codes to the caller; none should cause the system to “fall back” to an unrestricted model answer. This follows classical fail-safe-default reasoning.\par
+\subsection*{Concurrency-safe broker state}
+I recommend a state transition rather than a simple Boolean used  flag:\par
+ACTIVE | v EXECUTING /   |    \textbackslash\{\} v    v     v COMMITTED FAILED UNKNOWN\par
+UNKNOWN  is important when an external effect may have succeeded but acknowledgement was lost. A\par
+replay of an UNKNOWN  grant should not simply execute again unless the external operation supports\par
+the original idempotency key.\par
+The atomic transition from ACTIVE  to EXECUTING  should be the broker's replay barrier. Concurrent\par
+requests attempting to consume the same grant must not both succeed.\par
+\subsection*{Neural research implementation}
+For NPB-Neural, preserve a deliberately narrow compatibility matrix. The plan currently specifies a reproducible neural environment around Python 3.11, Torch 2.6.0 and Transformers 4.57.6; that version\par
+pin is a project requirement rather than a universal backend guarantee. [source document]\par
+The sequence should be:\par
+Implement a tiny mathematical/reference attention model whose semantics are easy to inspect. State the noninterference theorem including position/shape conditions. Prove the layer induction on that abstraction. Implement the corresponding mask/cache transition in one real model family. Differentially test hidden states and logits against denied-source substitutions. Repeat on a second architecturally different family before claiming model-family generality. Treat every new attention/cache/kernel backend as a new conformance target rather than inheriting the claim automatically.\par
+1. 2. 3. 4. 5. 6. 7.\par
+The project should also test the strongest counterexample to the policy-memory narrative: construct a toy model that preserves an immutable policy cache perfectly but deliberately chooses an output based only on readable attacker context. A successful counterexample is valuable because it formally demonstrates why “cache integrity” cannot entail “instruction obedience”.\par
+\subsection*{Roadmap}
+The following is an aggressive but realistic research-engineering sequence assuming the staffing and infrastructure assumptions stated earlier. It deliberately puts the deterministic boundary before expensive model evaluation.\par
+A useful go/no-go ladder is:\par
+Research-ready: definitions, threat model and deterministic reference implementation frozen.\par
+Integration-ready: malicious fake-provider tests cannot produce forbidden disclosures or effects.\par
+Evaluation-ready: broker model checked, benchmark manifest pinned, preregistration frozen.\par
+Production-candidate: zero deterministic invariant violations, no unauthorised effect/disclosure in locked testing, clean-task utility within pre-agreed bound, and operational failure modes demonstrated.\par
+\begin{figure}[H]\centering\includegraphics[width=\textwidth]{{npb_tex_assets/roadmap.png}}\caption{NPB research and engineering roadmap (reproduced from the supplied report).}\end{figure}
+Production-qualified: identity/profile integrity, secrets management, audit privacy, incident response, source/provider licence review and runtime/version pinning complete.\par
+No model benchmark result should be permitted to waive a deterministic gate failure.\par
+\subsection*{Compute and cost}
+The supplied plan is sensible to keep the standard-library gate/CI environment independent of the neural model environment and to defer paid GPU work until the experimental matrix is known. [source document] Most of the highest-value early work—schema design, validator tests, broker state machine, model checking, dataset manifests and fake-provider fuzzing—requires no GPU.\par
+The lowest-cost path is therefore to make NPB-Core complete before provisioning broad model evaluation. This also provides a useful scientific ablation: if the deterministic gate already solves the privileged-effect problem, GPU work can focus narrowly on the separate noninterference research question rather than being treated as a prerequisite for application security.\par
+For production confidentiality, simple source omission is preferable to carrying denied tokens through a neural runtime and masking them. It is easier to reason about, cheaper computationally, and shrinks the amount of sensitive data exposed to model code. Neural masking only earns its extra complexity where the research question or a concrete shared-state use case specifically requires denied information to coexist inside the local model computation.\par
+\section*{Risks, patent landscape and further reading}
+\subsection*{Principal engineering risks}
+Risk Failure mode Recommended mitigation\par
+“Immutable policy cache” becomes “prompt injection solved”.\par
+Maintain separate capability, noninterference and behavioural claims in every document/ release.\par
+\begin{quote}\textbf{Claim inflation}\end{quote}
+Make the broker the only network/service credential holder; scan/test for direct-effect paths. This is the reference-monitor requirement.\par
+\begin{quote}\textbf{Incomplete mediation}\end{quote}
+One tool/API path bypasses the broker.\par
+\begin{quote}\textbf{Argument smuggling}\end{quote}
+Action name allowed but dangerous values pass.\par
+Bind semantic values and canonical argument digest, not merely key names.\par
+Quote validated against one version and released from another.\par
+\begin{quote}\textbf{TOCTOU source replacement}\end{quote}
+Immutable source snapshots/version hashes and host-rendered output.\par
+Atomic grant-state transition, short expiry, idempotency key, replay store; DPoP offers useful analogous replay controls.\par
+Replay/race One authorised proposal causes multiple effects.\par
+Provider and host interpret structured output differently.\par
+Validate raw provider output in one strict trusted implementation; reject unknown/duplicate constructs and coercion.\par
+\begin{quote}\textbf{Schema/parser differential}\end{quote}
+Risk Failure mode Recommended mitigation\par
+Shared cache/source ID/ profile accidentally crosses tenant boundary.\par
+Instance-bound source handles, profile hashes, cache isolation and explicit cross-principal adversarial tests.\par
+\begin{quote}\textbf{Cross-instance leakage}\end{quote}
+Sensitive evidence leaks through debugging/ observability.\par
+Metadata/hashes by default, narrowly controlled encrypted diagnostics when necessary.\par
+\begin{quote}\textbf{Log leakage}\end{quote}
+Versioned compatibility matrix and rerun conformance suite per backend. Hugging Face cache behaviour is implementation/model dependent.\par
+New kernel/cache/model violates masking assumptions.\par
+\begin{quote}\textbf{Neural backend drift}\end{quote}
+Adaptive attacks, independently locked tasks, multiple environments and explicit confidence intervals. Recent work has demonstrated this saturation problem.\par
+Apparent zero-ASR is mistaken for broad robustness.\par
+\begin{quote}\textbf{Benchmark saturation}\end{quote}
+Huge context/output or malformed structures exhaust resources.\par
+\begin{quote}\textbf{Availability attacks}\end{quote}
+Input/output bounds, execution deadlines, quotas and no-effect failure semantics.\par
+Quote-only/strict action contract makes product unusable.\par
+Measure clean-task non-inferiority separately; introduce new capabilities deliberately rather than falling back to unrestricted effects.\par
+\begin{quote}\textbf{Utility collapse}\end{quote}
+\subsection*{Patent landscape}
+A non-exhaustive patent search finds several adjacent families, which is enough to justify a professional novelty/freedom-to-operate review before commercialisation but not enough to draw any legal conclusion.\par
+One published family, WO2024238244A1, describes signing or otherwise protecting prompts to detect/ prevent prompt-injection-style manipulation. US12340000B2 concerns prompt-injection detection/ firewall behaviour involving test or forbidden instructions and checking model responses. US20260003958A1 describes prompt-injection detection using measures of trusted-prompt influence/ trust. Searches also surface attention/KV-management inventions using non-contiguous masks, although their purpose is cache/computation management rather than the specific security theorem proposed by NPB.\par
+This limited search did not establish that the particular combination of immutable policy K/V, denied- source causal noninterference, host-level disclosure constraints and brokered capabilities is either novel or non-infringing. Patent publications are themselves claims about inventions, not empirical evidence that the security techniques work, and apparently similar terminology can have materially different claim scope. A patent professional should search full claim families, prosecution histories and relevant jurisdictions before any freedom-to-operate assertion.\par
+From a research-publication standpoint, the safer contribution framing is also the more scientifically defensible one: rather than claiming invention of “a prompt-injection-proof neural firewall”, make precise contributions around formal noninterference under a specified Transformer architecture,\par
+
+\clearpage\begin{center}\includegraphics[width=\textwidth,height=.92\textheight,keepaspectratio]{npb_tex_assets/page_23.png}\end{center}
+
+\clearpage\begin{center}\includegraphics[width=\textwidth,height=.92\textheight,keepaspectratio]{npb_tex_assets/page_24.png}\end{center}
+Macaroons: Cookies with Contextual Caveats for Decentralized Authorization in the Cloud - NDSS Symposium\par
+\url{https://www.ndss-symposium.org/ndss2014/ndss-2014-programme/macaroons-cookies-contextual-caveats-decentralized-}\par
+authorization-cloud/\par
+JSON Schema Validation: A Vocabulary for Structural Validation of JSON\par
+\url{https://json-schema.org/draft/2020-12/json-schema-validation}\par
+Specifying Systems: The TLA+ Language and Tools for Hardware and Software Engineers - Microsoft Research\par
+\url{https://www.microsoft.com/en-us/research/publication/specifying-systems-the-tla-language-and-tools-for-hardware-and-}\par
+software-engineers/?lang=fr-ca\par
+GitHub - microsoft/BIPIA: A benchmark for evaluating the robustness of LLMs and defenses to indirect prompt injection attacks. · GitHub\par
+\url{https://github.com/microsoft/BIPIA}\par
+Technical Blog: Strengthening AI Agent Hijacking Evaluations | NIST\par
+\url{https://www.nist.gov/news-events/news/2025/01/technical-blog-strengthening-ai-agent-hijacking-evaluations}\par
+Publications of Jerome H. Saltzer\par
+\url{https://www.mit.edu/~Saltzer/publications/pubs.html}\par
+RFC 9449: OAuth 2.0 Demonstrating Proof of Possession (DPoP) | RFC Editor\par
+\url{https://www.rfc-editor.org/info/rfc9449/}\par
+RFC 6750: The OAuth 2.0 Authorization Framework: Bearer Token Usage | RFC Editor\par
+\url{https://www.rfc-editor.org/info/rfc6750/}\par
+Security Policies and Security Models - Illinois Experts\par
+\url{https://experts.illinois.edu/en/publications/security-policies-and-security-models/}\par
+Attention is All you Need\par
+\url{https://papers.neurips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html}\par
+Cache strategies · Hugging Face\par
+\url{https://huggingface.co/docs/transformers/main/kv_cache}\par
+torch.use\_deterministic\_algorithms — PyTorch main documentation\par
+\url{https://docs.pytorch.org/docs/main/generated/torch.use_deterministic_algorithms.html}\par
+alloytools.org\par
+\url{https://alloytools.org/documentation.html}\par
+The Lean Theorem Prover (System Description) - Microsoft Research\par
+\url{https://www.microsoft.com/en-us/research/publication/the-lean-theorem-prover-system-description/}\par
+InjecAgent: Benchmarking Indirect Prompt Injections in Tool-Integrated Large Language Model Agents - ACL Anthology\par
+\url{https://aclanthology.org/2024.findings-acl.624/}\par
+AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents\par
+\url{https://arxiv.org/abs/2406.13352}\par
+agentdojo · PyPI\par
+\url{https://pypi.org/project/agentdojo/}\par
+PDR: AgentDojo-Inspect\par
+\url{https://data.nist.gov/pdr/lps/ark\%3A/88434/mds2-3690}\par
+If nothing goes wrong, is everything all right? Interpreting zero numerators.\par
+\url{https://pubmed.ncbi.nlm.nih.gov/6827763/}\par
+THE USE OF CONFIDENCE OR FIDUCIAL LIMITS ILLUSTRATED IN THE CASE OF THE BINOMIAL | Biometrika | Oxford Academic\par
+\url{https://doi.org/10.2307/2331986}\par
+Use of the bootstrap in analysing cost data from cluster randomised trials: some simulation results | BMC Health Services Research | Springer Nature Link\par
+\url{https://springerlink.fh-diploma.de/article/10.1186/1472-6963-4-33}\par
+Note on the Sampling Error of the Difference Between Correlated Proportions or Percentages | Psychometrika | Cambridge Core\par
+\url{https://www.cambridge.org/core/journals/psychometrika/article/note-on-the-sampling-error-of-the-difference-between-}\par
+correlated-proportions-or-percentages/698C2461BE63F5848763502D54E534FD\par
+Rankless | A Simple Sequentially Rejective Multiple Test Procedure\par
+\url{https://www.rankless.org/hit-papers/10.2307/4615733}\par
+WO2024238244A1 - Signing large language model prompts to prevent prompt injection attacks - Google Patents\par
+\url{https://patents.google.com/patent/WO2024238244A1/en}\par
+US12340000B2 - Prompt injection detection for large language models - Google Patents\par
+\url{https://patents.google.com/patent/US12340000B2/en}\par
+US20260003958A1 - Method and apparatus for detecting prompt injections in llm-integrated applications - Google Patents\par
+\url{https://patents.google.com/patent/US20260003958A1/en}\par
+WO2025259390A1 - Non-contiguous attention mask for key-value (kv) cache management for fixed- length transformer models - Google Patents\par
+\url{https://patents.google.com/patent/WO2025259390A1/en}\par
+dblp: Security Policies and Security Models.\par
+\url{https://dblp.org/rec/conf/sp/GoguenM82a.html}\par
+Not what you've signed up for: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection\par
+\url{https://arxiv.org/abs/2302.12173}\par
+InjecAgent: Benchmarking Indirect Prompt Injections in Tool-Integrated Large Language Model Agents\par
+\url{https://arxiv.org/abs/2403.02691}\par
+\end{document}
