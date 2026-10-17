@@ -1,0 +1,87 @@
+[
+  {
+    "path": "neural_state_firewall/artifacts/bipia_read_permission_20261002.json",
+    "sha256": "c300803ae666c1dfa83e5cc0e2e9cc70929910a718126e277f466ab0fcc6693a",
+    "bytes": 1493388
+  },
+  {
+    "path": "permission-boundary/task_aligned_artifact_audit/evidence/replay_bipia/BIPIA/benchmark/email/test.jsonl",
+    "sha256": "217b403faaa1d0cb12c24892bea39f4a0b9e2819919ac7e2b902006e28278cdb",
+    "bytes": 30334
+  },
+  {
+    "path": "permission-boundary/task_aligned_artifact_audit/evidence/replay_bipia/BIPIA/benchmark/text_attack_test.json",
+    "sha256": "75750e7b4e8b34e8f9d88d89b357aeaaf02bd07f9e493ccd37eda74a0cd7c7f8",
+    "bytes": 6322
+  },
+  {
+    "path": "neural_state_firewall/examples/bipia_evaluation_policy.txt",
+    "sha256": "203efa30aff9119b9555f440149a9399cf06aa319cf59612394c26b18ab5a089",
+    "bytes": 248
+  },
+  {
+    "path": "neural_state_firewall/bipia_evaluation.py",
+    "sha256": "4335dece4356d8f23e393ebbb28810fdc5a37758b1f5ac1f9ac0342ef6f881d6",
+    "bytes": 13154
+  },
+  {
+    "path": "neural_state_firewall/read_permissions.py",
+    "sha256": "5bec31da9ef20fec462adc9c177592ccec554d67b89ab7f06183ce1e54e72ca5",
+    "bytes": 10162
+  },
+  {
+    "path": "neural_state_firewall/artifacts.py",
+    "sha256": "1fdbb1767ed11f776b9f60845f7fb9c779b7594eb6d7e9706b86d2e0ff485efb",
+    "bytes": 9338
+  },
+  {
+    "path": "neural_state_firewall/artifacts/bipia_blinded_review_packet_20261003.json",
+    "sha256": "90c5f08b8ff3983aa7de3fe6fbf7333f5732cfe1c07f1b0400cea24769fda125",
+    "bytes": 279841
+  },
+  {
+    "path": "neural_state_firewall/artifacts/bipia_review_mapping_20261003.json",
+    "sha256": "48c4afc245af4a1a6019af38c11d2cfd1bfa490c2ab015f200cf398e3e3cd9e1",
+    "bytes": 41778
+  },
+  {
+    "path": "permission-boundary/task_aligned_artifact_audit/evidence/tab/source/tab-bench-translations/caffe-cifar-10/translation.json",
+    "sha256": "5991351d17936cdb8607347c4718f3f69c95fb69b768fe4f3301bd51cd6390f1",
+    "bytes": 2883
+  },
+  {
+    "path": "permission-boundary/task_aligned_artifact_audit/evidence/tab/source/tab-bench-translations/cancel-async-tasks/translation.json",
+    "sha256": "8d0f79c61ad69fda69b0f49cc6b6ab69fcb95cdeae1c3191735b947ac5eb48b1",
+    "bytes": 2833
+  },
+  {
+    "path": "permission-boundary/task_aligned_artifact_audit/evidence/tab/source/tab-bench-translations/db-wal-recovery/translation.json",
+    "sha256": "3a666bece8765d94f76e3651001110122bdbf68bfd0f29bbdc8b525b4792fd97",
+    "bytes": 2463
+  },
+  {
+    "path": "permission-boundary/task_aligned_artifact_audit/evidence/tab/source/tab-bench-translations/fix-code-vulnerability/translation.json",
+    "sha256": "cca6e49d6ec971ae2fa7ee51db88d8d241d1d070262c4ed68c6c67db020783de",
+    "bytes": 3899
+  },
+  {
+    "path": "permission-boundary/task_aligned_artifact_audit/evidence/tab/source/tab-bench-translations/fix-ocaml-gc/translation.json",
+    "sha256": "a59dfadb1ec9b5460c917bcb78e862803e64f71f460544974bb52d10967c9b78",
+    "bytes": 2698
+  },
+  {
+    "path": "permission-boundary/task_aligned_artifact_audit/evidence/tab/source/tab-bench-translations/rstan-to-pystan/translation.json",
+    "sha256": "fd5828c80df4174f2049d756c3a45da226b95e9731e8d04022787ef2490177fa",
+    "bytes": 2984
+  },
+  {
+    "path": "permission-boundary/task_aligned_artifact_audit/evidence/tab/source/tab-bench-translations/train-fasttext/translation.json",
+    "sha256": "c6b2805d38baa6279d2aaee91245fcc43ee485cf921f604322778040ccdaaea1",
+    "bytes": 2452
+  },
+  {
+    "path": "permission-boundary/task_aligned_artifact_audit/evidence/tab/source/tab-bench-translations/tune-mjcf/translation.json",
+    "sha256": "bdf40e6ddd7b7d6d0751811369d21234f9aeea2a47ad18350197ed1afea5777d",
+    "bytes": 2742
+  }
+]

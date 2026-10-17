@@ -1,0 +1,162 @@
+[
+  {
+    "path": "samples/trials/caffe-cifar-10__ow3k6qp/agent/trajectory.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/caffe-cifar-10__ow3k6qp/agent/trajectory.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:49.781747+00:00",
+    "bytes": 60208,
+    "sha256": "e41d3c25849934ef921c900a8444426792e72fc604cd88e8bfcbafa086d64cff"
+  },
+  {
+    "path": "samples/trials/caffe-cifar-10__ow3k6qp/result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/caffe-cifar-10__ow3k6qp/result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:49.535268+00:00",
+    "bytes": 74,
+    "sha256": "e11bb8e5806fd91bde2d0cd8ef07297ad157191a3ff84ae5ee80770385454e54"
+  },
+  {
+    "path": "samples/trials/caffe-cifar-10__ow3k6qp/verifier/tab_result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/caffe-cifar-10__ow3k6qp/verifier/tab_result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:49.535538+00:00",
+    "bytes": 157,
+    "sha256": "b8ecfe07fffbf218e28739af5b33ef0a93f2f6734c26b90d3534121503f971e9"
+  },
+  {
+    "path": "samples/trials/cancel-async-tasks__Y5wzPxY/agent/trajectory.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/cancel-async-tasks__Y5wzPxY/agent/trajectory.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:49.535849+00:00",
+    "bytes": 9705,
+    "sha256": "d0e6f648415220861fab22abb53113ba707f268904f1e0097ef8fc611b684d46"
+  },
+  {
+    "path": "samples/trials/cancel-async-tasks__Y5wzPxY/result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/cancel-async-tasks__Y5wzPxY/result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:49.535688+00:00",
+    "bytes": 74,
+    "sha256": "e11bb8e5806fd91bde2d0cd8ef07297ad157191a3ff84ae5ee80770385454e54"
+  },
+  {
+    "path": "samples/trials/cancel-async-tasks__Y5wzPxY/verifier/tab_result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/cancel-async-tasks__Y5wzPxY/verifier/tab_result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.046535+00:00",
+    "bytes": 139,
+    "sha256": "8273a9f373ab9d80c1d78c98f3acb7af0d74df0d7d277bd26431551ce472ebc9"
+  },
+  {
+    "path": "samples/trials/db-wal-recovery__DGd2b5b/agent/trajectory.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/db-wal-recovery__DGd2b5b/agent/trajectory.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.058660+00:00",
+    "bytes": 20634,
+    "sha256": "15f5106c56960c15e686831c7728dcd97c7c6ce05511589050047a6d329cd349"
+  },
+  {
+    "path": "samples/trials/db-wal-recovery__DGd2b5b/result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/db-wal-recovery__DGd2b5b/result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.042546+00:00",
+    "bytes": 74,
+    "sha256": "e11bb8e5806fd91bde2d0cd8ef07297ad157191a3ff84ae5ee80770385454e54"
+  },
+  {
+    "path": "samples/trials/db-wal-recovery__DGd2b5b/verifier/tab_result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/db-wal-recovery__DGd2b5b/verifier/tab_result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.074003+00:00",
+    "bytes": 144,
+    "sha256": "de305bc09876f7d64f788219f4098c67b643225ab28d4429f39a97bd1ada6e34"
+  },
+  {
+    "path": "samples/trials/fix-code-vulnerability__vEqj4D7/agent/trajectory.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/fix-code-vulnerability__vEqj4D7/agent/trajectory.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.097306+00:00",
+    "bytes": 4759,
+    "sha256": "a9acd60c5a55c51cd782fe20b338c45b2543de70097f657a45bba1fed1fa0980"
+  },
+  {
+    "path": "samples/trials/fix-ocaml-gc__qchzirc/agent/trajectory.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/fix-ocaml-gc__qchzirc/agent/trajectory.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.384779+00:00",
+    "bytes": 117021,
+    "sha256": "ced11862aa2aa8254fb401abc806089812e5d6f05270417e676fd4d27ccb1eec"
+  },
+  {
+    "path": "samples/trials/fix-ocaml-gc__qchzirc/result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/fix-ocaml-gc__qchzirc/result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.596148+00:00",
+    "bytes": 74,
+    "sha256": "10e70b5844ed8caae1079f1cf14b2e7e7b937007b891559e2435cf62a14012d5"
+  },
+  {
+    "path": "samples/trials/fix-ocaml-gc__qchzirc/verifier/tab_result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/fix-ocaml-gc__qchzirc/verifier/tab_result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.375707+00:00",
+    "bytes": 153,
+    "sha256": "2b8b11a579fdccd60ee77409ce669338c079f198b658eb18455da240ca4677cc"
+  },
+  {
+    "path": "samples/trials/rstan-to-pystan__Hxwbc8T/agent/trajectory.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/rstan-to-pystan__Hxwbc8T/agent/trajectory.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.412619+00:00",
+    "bytes": 68409,
+    "sha256": "00b5ae2c449ee91fa189c7ed4afb971a2264e2ea7effe992b92d25b12814cc68"
+  },
+  {
+    "path": "samples/trials/rstan-to-pystan__Hxwbc8T/result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/rstan-to-pystan__Hxwbc8T/result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.417564+00:00",
+    "bytes": 74,
+    "sha256": "e11bb8e5806fd91bde2d0cd8ef07297ad157191a3ff84ae5ee80770385454e54"
+  },
+  {
+    "path": "samples/trials/rstan-to-pystan__Hxwbc8T/verifier/tab_result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/rstan-to-pystan__Hxwbc8T/verifier/tab_result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.690275+00:00",
+    "bytes": 143,
+    "sha256": "5504e1ce89fd395ef86e911725dbbb40376ea567243944862112b642ec82004c"
+  },
+  {
+    "path": "samples/trials/train-fasttext__yNkn5WU/agent/trajectory.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/train-fasttext__yNkn5WU/agent/trajectory.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.727553+00:00",
+    "bytes": 85124,
+    "sha256": "69399b8205f465032636e9a7d1195fef3d995c07f19b8ee6c5e38443b28d46b3"
+  },
+  {
+    "path": "samples/trials/train-fasttext__yNkn5WU/result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/train-fasttext__yNkn5WU/result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.741803+00:00",
+    "bytes": 3,
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+  },
+  {
+    "path": "samples/trials/tune-mjcf__U7uNVQa/agent/trajectory.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/tune-mjcf__U7uNVQa/agent/trajectory.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.748998+00:00",
+    "bytes": 51878,
+    "sha256": "f1d23d73cb2c52f54a5a14905dbc7ef0e8f6ce0de5a897eb2c66f67937fd7634"
+  },
+  {
+    "path": "samples/trials/tune-mjcf__U7uNVQa/result.json",
+    "url": "https://raw.githubusercontent.com/Dormant-Neurons/tab/ec95937fc54337e05fdffa707516f32c2b6ac243/samples/trials/tune-mjcf__U7uNVQa/result.json",
+    "revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+    "retrieved_utc": "2026-10-16T20:50:50.898646+00:00",
+    "bytes": 3,
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+  }
+]

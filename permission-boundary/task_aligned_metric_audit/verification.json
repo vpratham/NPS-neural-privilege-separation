@@ -1,0 +1,29 @@
+{
+  "verified_utc": "2026-10-17T00:00:00+05:30",
+  "repository_revision_at_preservation": "95c4040bb2a37630ef5de111d2c9aca40c602a7d",
+  "verification_command": "python3 permission-boundary/task_aligned_metric_audit/reproduce.py",
+  "reproduction_result": "passed",
+  "protected_historical_files": 553,
+  "prior_manifest_entries_verified": 389,
+  "historical_file_hash_mismatches": [],
+  "required_documents": [
+    "README.md",
+    "DATA_AVAILABILITY.md",
+    "ANNOTATION_PROTOCOL.md",
+    "ANNOTATED_RECORDS.jsonl",
+    "METRIC_CONFLATION_ANALYSIS.md",
+    "ROBUSTNESS_ANALYSIS.md",
+    "FINAL_DECISION.md",
+    "REPRODUCIBILITY.md"
+  ],
+  "required_documents_exist": true,
+  "selected_record_units": 35,
+  "saved_model_outputs": 34,
+  "records_with_saved_output_and_original_scores": 32,
+  "final_decision": "INCONCLUSIVE",
+  "limitations": [
+    "No model inference, training, GPU execution, or weight download occurred.",
+    "No independent human semantic review was performed.",
+    "No fully applicable opinion-attribution, false-claim-acceptance, and redirection record was available."
+  ]
+}

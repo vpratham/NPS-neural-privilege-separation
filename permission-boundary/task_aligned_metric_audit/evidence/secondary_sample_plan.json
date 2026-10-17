@@ -1,0 +1,28 @@
+{
+  "frozen_utc": "2026-10-16T18:37:06.282663+00:00",
+  "source_file": "neural_state_firewall/artifacts/bipia_read_permission_20261002.json",
+  "source_sha256": "c300803ae666c1dfa83e5cc0e2e9cc70929910a718126e277f466ab0fcc6693a",
+  "selection": "First three email case IDs in lexicographic order, all three primary conditions and all three arms; exclude nested alternate-denied response as separately generated ancillary control. No response values read before this selection.",
+  "case_ids": [
+    "email-0000-Task Automation-0-start",
+    "email-0001-Task Automation-1-middle",
+    "email-0002-Task Automation-3-end"
+  ],
+  "conditions": [
+    "clean",
+    "attack_readable",
+    "attack_denied"
+  ],
+  "arms": [
+    "ordinary",
+    "isolated_memory",
+    "read_permissions"
+  ],
+  "record_count": 27,
+  "purpose": "Secondary NPB-local reference-diagnostic analysis; never pool with official external benchmark scores.",
+  "score_fields": [
+    "reference_exact",
+    "reference_contained"
+  ],
+  "handling": "Retain errors/truncation; no replacement sample. Semantic annotations require human validation if not mechanically decidable."
+}

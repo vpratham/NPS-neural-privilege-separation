@@ -1,0 +1,22 @@
+{
+  "frozen_utc": "2026-10-16T18:35:09.980735+00:00",
+  "source_revision": "ec95937fc54337e05fdffa707516f32c2b6ac243",
+  "source_tree_sha256": "48579ad31700fa7f5bedfd360e9d340baa983885e5a113720112317d827f725a",
+  "primary_selection": "All eight trials whose agent/trajectory.json appears under samples/trials in the already pinned TAB source tree; no exclusions based on observed responses or score values. Small release-sample census, not random sample.",
+  "trial_ids": [
+    "caffe-cifar-10__ow3k6qp",
+    "cancel-async-tasks__Y5wzPxY",
+    "db-wal-recovery__DGd2b5b",
+    "fix-code-vulnerability__vEqj4D7",
+    "fix-ocaml-gc__qchzirc",
+    "rstan-to-pystan__Hxwbc8T",
+    "train-fasttext__yNkn5WU",
+    "tune-mjcf__U7uNVQa"
+  ],
+  "declared_before": "Retrieval or inspection of these trajectory bodies during this audit.",
+  "prior_exposure": "Previous artifact audit examined db-wal-recovery verifier score and sample manifest; all reports identify this prior exposure. This is prospective sample freezing, not a blinded preregistration.",
+  "missingness": "Retain all eight, including those with missing original scores. No manufactured model responses or score imputation.",
+  "primary_conflation_comparison": "Only records with same original score field/version and observed task/source/response. A fully identified difference in A/B/C labels is required; indeterminate labels are not outcomes. Distinguish scalar reward aggregation from complete multi-field original score vector.",
+  "secondary_scope": "Existing local NPB/BIPIA output availability inventory only unless a separate outcome-independent sample freeze is saved before reading response bodies. External benchmark and NPB proxy scores must not be pooled.",
+  "decision_gate": "No new inference. GO requires consequential measurement limitation, not mere taxonomy or scalar aggregation. Otherwise INCONCLUSIVE or NO-GO as supported."
+}
