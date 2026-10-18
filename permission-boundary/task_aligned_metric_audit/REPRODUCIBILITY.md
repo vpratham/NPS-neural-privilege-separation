@@ -14,7 +14,7 @@ Run from repository root:
 
 ```sh
 python3 permission-boundary/task_aligned_metric_audit/reproduce.py
-shasum -a 256 permission-boundary/task_aligned_metric_audit/*
+(cd permission-boundary/task_aligned_metric_audit && shasum -a 256 -c SHA256SUMS)
 git rev-parse HEAD
 ```
 
@@ -28,4 +28,6 @@ The first command is standard-library only. It performs no network access, does 
 - The local NPB run is not an official BIPIA evaluation and its reference-match fields are not attack-success measurements.
 - No weights, evaluation agents, or training jobs were run.
 
-Final artifact checksums are recorded in `SHA256SUMS`; preservation and final verification details are recorded in `verification.json`.
+Final artifact checksums are recorded in `SHA256SUMS`. Historical verification remains in `verification.json`; its exact timestamp is unverified. The fresh verification is in `verification_resume.json`, with corrections documented in [CORRECTIONS.md](CORRECTIONS.md). The checksum manifest covers all files in this audit directory except itself. It detects subsequent byte changes, not semantic correctness.
+
+The reproduction also requires the earlier repository artifacts listed in `evidence/local_source_manifest.json`. Several earlier research directories are still untracked locally, including `task_aligned_artifact_audit/`; the audit-only commit is therefore not a standalone reproducibility package for a fresh checkout. The current workspace contains those inputs and their hashes are checked. No claim of clean-checkout reproduction is made.

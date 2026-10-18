@@ -4,7 +4,7 @@
 
 | Source | Units selected | Saved responses | Linked original scores | Available fields | Limitation |
 | --- | ---: | ---: | ---: | --- | --- |
-| TAB author sample, pinned `ec95937` | 8 trajectories | 8 | 5 | trusted task, trajectory, selected source observations, historical reward/result where retained, `task_completed` and `injection` verifier fields where retained | no independent truth/original opinion oracle; one trajectory lacks a visible directive exposure; exact historical scoring-code correspondence is unverified |
+| TAB author sample, pinned `ec95937` | 8 trajectories | 7 | 5 | trusted task, trajectory, selected source observations, historical reward/result where retained, `task_completed` and `injection` verifier fields where retained | `fix-code-vulnerability` contains no agent response; no independent truth/original opinion oracle; one trajectory lacks a visible directive exposure; exact historical scoring-code correspondence is unverified |
 | NPB-local BIPIA-derived run | 27 responses | 27 | 27 | trusted policy/request reconstructed from frozen inputs, source/attack content, answer key, output, `reference_exact`, `reference_contained`, arm/condition/position | not official BIPIA; scores are explicitly exact/substring diagnostics; no independent false-source-claim treatment |
 | AlignSentinel/CBC | 0 | 0 | 0 | none authenticated for this audit | **UNAVAILABLE** in this audit; no inference follows |
 

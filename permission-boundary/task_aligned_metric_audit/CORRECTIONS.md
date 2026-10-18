@@ -1,0 +1,11 @@
+# Resumption corrections
+
+The audit was resumed after commit `82c6584`. Its saved annotations and quantitative results reproduce without changes. These corrections concern documentation and verification provenance; no model response, original score, frozen protocol, sample assignment, or historical research artifact was changed.
+
+- **OBSERVED:** `DATA_AVAILABILITY.md` previously reported eight saved TAB responses. Eight trajectory files exist, but only seven contain agent responses. The `fix-code-vulnerability` trajectory contains only the user prompt. The table now agrees with the existing annotation file and the correctly reported total of 34 saved outputs.
+- **OBSERVED:** The previous checksum example expanded a wildcard over directories as well as files and did not compare against the manifest. The documented command now uses `shasum -a 256 -c SHA256SUMS` inside the audit directory. The manifest now covers every audit file except itself; earlier raw-source manifests remain unchanged.
+- **UNVERIFIED:** The `verified_utc` value in the original `verification.json` was not backed by captured clock output. That file is retained unchanged as historical evidence. Do not use its timestamp to establish chronology. A fresh clock reading and actual check results are recorded in `verification_resume.json`; this does not retroactively validate the old timestamp.
+- **OBSERVED:** The failed read quoted in the continuation request targeted `neural_state_firewall/neural_state_firewall/bipia_evaluation.py`. The subsequent successful read used `neural_state_firewall/bipia_evaluation.py`; it was a path error, not a failed evaluation.
+- **OBSERVED:** The new audit references earlier untracked research inputs. Current-workspace reproduction passes, but the audit-only commit does not make those dependencies available in a fresh checkout. This packaging limitation is now explicit in `REPRODUCIBILITY.md`.
+
+**SUPPORTED INFERENCE:** These corrections do not change the INCONCLUSIVE research decision. **OPEN QUESTION:** Independent opinion and false-claim ground truth remain necessary to test the proposed three-way measurement claim. No new evaluation is justified by these bookkeeping corrections.

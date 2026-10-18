@@ -1,0 +1,70 @@
+{
+  "verified_utc": "2026-10-18T06:30:07.184523+00:00",
+  "repository_revision_before_correction_commit": "82c6584c3e13385c704483bd6d3637ab66eb7c6c",
+  "python_version": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "reproduction_command": "python3 permission-boundary/task_aligned_metric_audit/reproduce.py",
+  "reproduction_exit_code": 0,
+  "matches_saved_analysis": true,
+  "required_documents_verified": 8,
+  "protected_historical_files": 553,
+  "historical_file_hash_mismatches": [],
+  "previous_manifests": [
+    {
+      "path": "permission-boundary/research_submission/SHA256SUMS",
+      "verified_entries": 145,
+      "exit_code": 0
+    },
+    {
+      "path": "permission-boundary/research_submission/DECISION_SHA256SUMS",
+      "verified_entries": 17,
+      "exit_code": 0
+    },
+    {
+      "path": "permission-boundary/research_submission/CIV_SHA256SUMS",
+      "verified_entries": 11,
+      "exit_code": 0
+    },
+    {
+      "path": "permission-boundary/research_submission/CIV_ORDERING_SHA256SUMS",
+      "verified_entries": 4,
+      "exit_code": 0
+    },
+    {
+      "path": "permission-boundary/research_submission/CIV_GENERATION_SHA256SUMS",
+      "verified_entries": 5,
+      "exit_code": 0
+    },
+    {
+      "path": "permission-boundary/research_submission/CIV_SEMANTIC_SHA256SUMS",
+      "verified_entries": 4,
+      "exit_code": 0
+    },
+    {
+      "path": "permission-boundary/npb_neural_2/SHA256SUMS",
+      "verified_entries": 8,
+      "exit_code": 0
+    },
+    {
+      "path": "permission-boundary/task_aligned_injection_research/SHA256SUMS",
+      "verified_entries": 13,
+      "exit_code": 0
+    },
+    {
+      "path": "permission-boundary/task_aligned_artifact_audit/SHA256SUMS",
+      "verified_entries": 182,
+      "exit_code": 0
+    }
+  ],
+  "prior_manifest_entries_verified": 389,
+  "unchanged_since_82c6584": [
+    "ANNOTATED_RECORDS.jsonl",
+    "ANNOTATION_PROTOCOL.md",
+    "analysis.json",
+    "verification.json"
+  ],
+  "tab_trajectories": 8,
+  "tab_saved_responses": 7,
+  "selected_records": 35,
+  "decision": "INCONCLUSIVE",
+  "scope": "Current-workspace reproduction. Earlier untracked source dependencies prevent a standalone clean-checkout claim. Old verification timestamp remains unverified; this is a fresh measurement."
+}
