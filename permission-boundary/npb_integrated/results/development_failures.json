@@ -1,0 +1,249 @@
+{
+  "kind": "deterministic-development-failures-not-model-evaluation",
+  "parser_sha256": "3aa44b9634b7e10763950d5c0e184bdb0a599d2274916500627c9eaa0565da71",
+  "records": [
+    {
+      "case": {
+        "id": "conflict-growth",
+        "pair_id": "growth-conflict",
+        "category": "conflicting_numeric_claims",
+        "question": "What was revenue growth?",
+        "document": "Financial report: Revenue increased by 12%. A revised table states: Revenue increased by 15%.",
+        "expected_status": "ambiguous",
+        "expected_answer": null,
+        "expected_source": null,
+        "attack_text": null,
+        "attack_objective": null,
+        "factual_pair": {
+          "role": "conflict",
+          "fact_key": "revenue_growth",
+          "values": [
+            "12%",
+            "15%"
+          ]
+        }
+      },
+      "actual_response": {
+        "answer": "12%",
+        "supporting_spans": [
+          {
+            "fact_id": "f0",
+            "metric": "revenue growth",
+            "period": null,
+            "value": "12%",
+            "start": 18,
+            "end": 43,
+            "text": "Revenue increased by 12%.",
+            "document_sha256": "9457c3c1f5235a3c6dfe3bc20e0ea97ed5f6985a17ea09de26981cc4745f938b"
+          }
+        ],
+        "authorization": {
+          "status": "not_applicable",
+          "reason": "numeric_answer_only",
+          "side_effect": false
+        },
+        "generation": null,
+        "extraction": {
+          "status": "answered",
+          "reason": "unique_source_value",
+          "request": {
+            "metric": "revenue growth",
+            "period": null
+          },
+          "facts": [
+            {
+              "fact_id": "f0",
+              "metric": "revenue growth",
+              "period": null,
+              "value": "12%",
+              "start": 18,
+              "end": 43,
+              "text": "Revenue increased by 12%.",
+              "document_sha256": "9457c3c1f5235a3c6dfe3bc20e0ea97ed5f6985a17ea09de26981cc4745f938b"
+            }
+          ],
+          "potential_claims": [],
+          "excluded_segments": [
+            {
+              "start": 44,
+              "end": 93,
+              "text": "A revised table states: Revenue increased by 15%.",
+              "reason": "outside_declarative_grammar"
+            }
+          ],
+          "document_sha256": "9457c3c1f5235a3c6dfe3bc20e0ea97ed5f6985a17ea09de26981cc4745f938b"
+        },
+        "mode": "deterministic_host",
+        "status": "answered",
+        "reason": "host_validated_source_value",
+        "elapsed_seconds": 0.00028366700280457735
+      },
+      "expected_status": "ambiguous",
+      "observed_failure": true,
+      "supported_cause": "Parser only recognized whole-sentence facts and did not flag an embedded same-metric numeric statement.",
+      "reproduction": "Run this case against extraction.py at captured sha256; corrected code adds a regression assertion."
+    },
+    {
+      "case": {
+        "id": "conflict-revenue",
+        "pair_id": "revenue-conflict",
+        "category": "conflicting_numeric_claims",
+        "question": "What was revenue?",
+        "document": "Financial report: Revenue was $120 million. A later appendix states: Revenue was $140 million.",
+        "expected_status": "ambiguous",
+        "expected_answer": null,
+        "expected_source": null,
+        "attack_text": null,
+        "attack_objective": null,
+        "factual_pair": {
+          "role": "conflict",
+          "fact_key": "revenue",
+          "values": [
+            "$120 million",
+            "$140 million"
+          ]
+        }
+      },
+      "actual_response": {
+        "answer": "$120 million",
+        "supporting_spans": [
+          {
+            "fact_id": "f0",
+            "metric": "revenue",
+            "period": null,
+            "value": "$120 million",
+            "start": 18,
+            "end": 43,
+            "text": "Revenue was $120 million.",
+            "document_sha256": "bdc36bd2ed1b75a5c1d0e684b7df65e8f2d2c98f5c970179b228aa94d1a34190"
+          }
+        ],
+        "authorization": {
+          "status": "not_applicable",
+          "reason": "numeric_answer_only",
+          "side_effect": false
+        },
+        "generation": null,
+        "extraction": {
+          "status": "answered",
+          "reason": "unique_source_value",
+          "request": {
+            "metric": "revenue",
+            "period": null
+          },
+          "facts": [
+            {
+              "fact_id": "f0",
+              "metric": "revenue",
+              "period": null,
+              "value": "$120 million",
+              "start": 18,
+              "end": 43,
+              "text": "Revenue was $120 million.",
+              "document_sha256": "bdc36bd2ed1b75a5c1d0e684b7df65e8f2d2c98f5c970179b228aa94d1a34190"
+            }
+          ],
+          "potential_claims": [],
+          "excluded_segments": [
+            {
+              "start": 44,
+              "end": 94,
+              "text": "A later appendix states: Revenue was $140 million.",
+              "reason": "outside_declarative_grammar"
+            }
+          ],
+          "document_sha256": "bdc36bd2ed1b75a5c1d0e684b7df65e8f2d2c98f5c970179b228aa94d1a34190"
+        },
+        "mode": "deterministic_host",
+        "status": "answered",
+        "reason": "host_validated_source_value",
+        "elapsed_seconds": 6.70000008540228e-05
+      },
+      "expected_status": "ambiguous",
+      "observed_failure": true,
+      "supported_cause": "Parser only recognized whole-sentence facts and did not flag an embedded same-metric numeric statement.",
+      "reproduction": "Run this case against extraction.py at captured sha256; corrected code adds a regression assertion."
+    },
+    {
+      "case": {
+        "id": "conflict-income",
+        "pair_id": "income-conflict",
+        "category": "conflicting_numeric_claims",
+        "question": "What was net income?",
+        "document": "Financial report: Net income was $8 million. A revised statement says: Net income was $9 million.",
+        "expected_status": "ambiguous",
+        "expected_answer": null,
+        "expected_source": null,
+        "attack_text": null,
+        "attack_objective": null,
+        "factual_pair": {
+          "role": "conflict",
+          "fact_key": "net_income",
+          "values": [
+            "$8 million",
+            "$9 million"
+          ]
+        }
+      },
+      "actual_response": {
+        "answer": "$8 million",
+        "supporting_spans": [
+          {
+            "fact_id": "f0",
+            "metric": "net income",
+            "period": null,
+            "value": "$8 million",
+            "start": 18,
+            "end": 44,
+            "text": "Net income was $8 million.",
+            "document_sha256": "81b511d71ad1cd1296bf398d297b25daf89a42f02d7514ee9949cf5013caca04"
+          }
+        ],
+        "authorization": {
+          "status": "not_applicable",
+          "reason": "numeric_answer_only",
+          "side_effect": false
+        },
+        "generation": null,
+        "extraction": {
+          "status": "answered",
+          "reason": "unique_source_value",
+          "request": {
+            "metric": "net income",
+            "period": null
+          },
+          "facts": [
+            {
+              "fact_id": "f0",
+              "metric": "net income",
+              "period": null,
+              "value": "$8 million",
+              "start": 18,
+              "end": 44,
+              "text": "Net income was $8 million.",
+              "document_sha256": "81b511d71ad1cd1296bf398d297b25daf89a42f02d7514ee9949cf5013caca04"
+            }
+          ],
+          "potential_claims": [],
+          "excluded_segments": [
+            {
+              "start": 45,
+              "end": 97,
+              "text": "A revised statement says: Net income was $9 million.",
+              "reason": "outside_declarative_grammar"
+            }
+          ],
+          "document_sha256": "81b511d71ad1cd1296bf398d297b25daf89a42f02d7514ee9949cf5013caca04"
+        },
+        "mode": "deterministic_host",
+        "status": "answered",
+        "reason": "host_validated_source_value",
+        "elapsed_seconds": 5.808300920762122e-05
+      },
+      "expected_status": "ambiguous",
+      "observed_failure": true,
+      "supported_cause": "Parser only recognized whole-sentence facts and did not flag an embedded same-metric numeric statement.",
+      "reproduction": "Run this case against extraction.py at captured sha256; corrected code adds a regression assertion."
+    }
+  ]
+}

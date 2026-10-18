@@ -1,0 +1,52 @@
+{
+  "verified_utc": "2026-10-18T07:11:57.710911+00:00",
+  "repository_revision": "0a0072731821e2b2e0b86860bb12f82154682cb1",
+  "new_package": "permission-boundary/npb_integrated",
+  "required_files_verified": 17,
+  "python_files_syntax_checked": 18,
+  "integrated_unit_tests": {
+    "command": "cd permission-boundary && PYTHONPATH=.. python3 -m unittest discover -s npb_integrated/tests -v",
+    "passed": 36,
+    "exit_code": 0
+  },
+  "existing_core_tests": {
+    "command": "cd permission-boundary && env PYTHONPATH=.. python3 -m unittest discover -s npb_core/tests -q",
+    "passed": 40,
+    "exit_code": 0,
+    "observed_elapsed_seconds": 8.184,
+    "note": "Loopback socket tests passed with sandbox network permission after 13 sandbox permission errors; no Core code changed."
+  },
+  "result_verification": {
+    "pilot_inputs": 32,
+    "repeat_inputs": 2,
+    "pilot_calls": 59,
+    "repeat_calls": 4,
+    "total_calls": 63,
+    "source_and_score_checks": "passed",
+    "repeat_answer_checks": "passed",
+    "paired_latency_ratio_median": 1.609716379395784,
+    "paired_latency_ratio_median_both_generated": 1.6821802700994781
+  },
+  "historical_files_unchanged": 553,
+  "historical_hash_mismatches": [],
+  "historical_manifest_entries_verified": 389,
+  "metric_audit_manifest_entries_verified": 40,
+  "reused_source_sha256": {
+    "permission-boundary/npb_core/__init__.py": "f30c84d391a196e4040969eea0f4c7805119c9fe3a74c5b32f5dafc69e2621d8",
+    "permission-boundary/npb_core/core.py": "168aeefbdf7829fe7797fe1083743ccb663cd2d12cb9c48782ea12bada8f058b",
+    "permission-boundary/npb_core/broker.py": "1b2507d28c5033a53526ee9d5acebe530a09b2c007bc571b682170535158df9e",
+    "permission-boundary/neural_state_firewall/capabilities.py": "769645ff1560439f04d68b97ab2b126ab82c1b3000135d0c202c7879591bc33c",
+    "permission-boundary/neural_state_firewall/artifacts.py": "454350bff373203f08b86f67a4dfcc793822aef794072983be059cf02207e256",
+    "nps_gateway/contracts.py": "4d255f149a9e8d6c08f4b043fc449fdb6b96c4fccad8ce020125527814c1bd81",
+    "nps_gateway/store.py": "f6103f632968a6deff82b090a8212b74b37eb798c118428ab6ac170bf97ab0fd"
+  },
+  "temporary_ollama_server_stopped": true,
+  "gpu_evidence": "All 63 saved generations report cpu_only_verified=true and size_vram=0; options num_gpu=0; server offloaded 0/37 layers. Metal capability discovery initialized; inference allocations were CPU.",
+  "pending_semantic_review_records": 5,
+  "limitations": [
+    "Synthetic development data, not held out.",
+    "Optional local HF provider was not used in this evaluation.",
+    "Core dependencies currently exist as untracked repository files; not a standalone fresh-checkout package.",
+    "No observed comparative tool-authorization benefit: both arms lack an executor."
+  ]
+}

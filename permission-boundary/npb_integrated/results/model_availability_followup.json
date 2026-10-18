@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-18",
+  "supersedes": "model_availability.json conclusion only; the original inventory is retained unchanged",
+  "ollama_local_artifact": {
+    "manifest": "/Users/prathamvasa/.ollama/models/manifests/registry.ollama.ai/library/qwen2.5/3b",
+    "manifest_sha256": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+    "gguf_blob": "/Users/prathamvasa/.ollama/models/blobs/sha256-5ee4f07cdb9beadbbb293e85803c569b01bd37ed059d2715faa7bb405f31caa6",
+    "gguf_blob_bytes": 1929903008,
+    "model_name": "qwen2.5:3b"
+  },
+  "conclusion": {
+    "eligible_local_model_artifact_found": true,
+    "service_status_at_inventory_time": "OFF: loopback API was unreachable; no service was started during the inventory",
+    "evaluation_path": "A private loopback Ollama CPU service may use this already local artifact without a pull. The provider checks /api/tags for the resolved digest and /api/ps after each generation, failing if size_vram is nonzero."
+  }
+}

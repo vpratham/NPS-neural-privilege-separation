@@ -1,0 +1,13 @@
+{
+  "kind": "post-hoc-repeatability-check-not-heldout",
+  "reason": "Repeat the two observed exact-marker baseline failures and corresponding B requests without changing code, prompts or cases.",
+  "selected_case_ids": [
+    "aligned-growth-12",
+    "aligned-revenue-120"
+  ],
+  "additional_inputs": 2,
+  "additional_model_calls_max": 4,
+  "initial_model_calls": 59,
+  "combined_calls_max": 63,
+  "no_retries": true
+}

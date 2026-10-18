@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-18",
+  "host": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.14.6",
+    "cpu_count": "UNVERIFIED: sysctl is prohibited by the sandbox",
+    "memory_bytes": "UNVERIFIED: sysctl is prohibited by the sandbox"
+  },
+  "packages": {
+    "torch": "2.9.0",
+    "transformers": "4.57.1",
+    "accelerate": null,
+    "ollama_python": null
+  },
+  "accelerators": {
+    "cuda_available": false,
+    "mps_available": false,
+    "evaluation_device": "cpu"
+  },
+  "huggingface_cache": [
+    {
+      "cache_directory": "models--sentence-transformers--all-mpnet-base-v2",
+      "revision": "e8c3b32edf5434bc2275fc9bab85f82640a19130",
+      "architectures": ["MPNetForMaskedLM"],
+      "model_type": "mpnet",
+      "causal_lm_compatible": false,
+      "reason": "The bounded provider requires AutoModelForCausalLM; this cached checkpoint is a masked-language encoder."
+    }
+  ],
+  "ollama": {
+    "executable": "/opt/homebrew/bin/ollama",
+    "service_endpoint": "http://127.0.0.1:11434/api/tags",
+    "service_reachable": false,
+    "installed_models": "UNVERIFIED: the read-only loopback request could not connect; no service was started."
+  },
+  "conclusion": {
+    "compatible_local_generation_model_available": false,
+    "evaluation_blocker": "No cached causal language model and no reachable pre-existing local model service were observed. No weights were downloaded and no inference was run.",
+    "permitted_recovery": "Provide an already cached/local causal model path or start a local CPU model service before running eval/run_eval.py."
+  },
+  "commands": [
+    "python3 package/version and torch accelerator probe",
+    "inspect ~/.cache/huggingface/hub/models--*/snapshots/*/config.json",
+    "command -v ollama",
+    "curl --max-time 2 http://127.0.0.1:11434/api/tags"
+  ]
+}

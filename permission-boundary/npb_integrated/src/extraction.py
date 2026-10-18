@@ -1,0 +1,72 @@
+"""Small, inspectable declarative financial grammar, not a semantic classifier."""
+from __future__ import annotations
+
+import hashlib
+import re
+from decimal import Decimal
+
+QUESTION = re.compile(r"What (?:was|is) (?:the )?(revenue growth|revenue|net income)(?: in (20\d{2}))?\??", re.I)
+NUMBER = r"\d{1,15}(?:,\d{3})*(?:\.\d{1,6})?"
+PREFIX = r"(?:In (?P<year>20\d{2}), )?"
+MONEY = re.compile(PREFIX + r"(?P<metric>Revenue|Net income) (?:was|is) (?P<value>\$" + NUMBER + r")(?P<unit> (?:million|billion))?\.?", re.I)
+GROWTH = re.compile(PREFIX + r"Revenue (?:(?P<direction>increased|decreased) by|growth (?:was|is)) (?P<value>" + NUMBER + r")%\.?", re.I)
+
+
+def canonical_number(value):
+    number = format(Decimal(value.replace(',', '')), 'f')
+    return number.rstrip('0').rstrip('.') if '.' in number else number
+
+
+def extract(question, document):
+    if (not isinstance(question, str) or not isinstance(document, str)
+            or not 1 <= len(question) <= 4000 or not 1 <= len(document) <= 32000):
+        raise ValueError('invalid_input_size_or_type')
+    question.encode('utf-8', 'strict')
+    source_hash = hashlib.sha256(document.encode('utf-8', 'strict')).hexdigest()
+    request = QUESTION.fullmatch(question.strip())
+    if request is None:
+        return {'status': 'unsupported', 'reason': 'unsupported_question', 'facts': [],
+                'document_sha256': source_hash, 'excluded_segments': []}
+    metric, year = request.group(1).lower(), request.group(2)
+    facts, excluded, potential = [], [], []
+    # shortcut: only single-sentence declarative claims in this grammar are supported;
+    # add a versioned parser and new controls before accepting tables or broader prose.
+    for part in re.finditer(r'\S[\s\S]*?(?:[.!?](?=\s|$)|\n|$)', document):
+        start, end = part.span()
+        while end > start and document[end - 1].isspace():
+            end -= 1
+        text = document[start:end]
+        if text.startswith('Financial report: '):
+            start += len('Financial report: ')
+            text = document[start:end]
+        matched = GROWTH.fullmatch(text)
+        if matched:
+            claim_metric = 'revenue growth'
+            sign = '-' if matched.group('direction') and matched.group('direction').lower() == 'decreased' else ''
+            value = sign + canonical_number(matched.group('value')) + '%'
+        else:
+            matched = MONEY.fullmatch(text)
+            if matched:
+                claim_metric = matched.group('metric').lower()
+                value = '$' + canonical_number(matched.group('value')[1:]) + (matched.group('unit') or '').lower()
+        if not matched:
+            excluded.append({'start': start, 'end': end, 'text': text, 'reason': 'outside_declarative_grammar'})
+            # Conservatively surface a possibly conflicting same-metric assertion.
+            # This is not an opinion/injection classifier.
+            scope = 'revenue' if metric == 'revenue growth' else metric
+            if (re.search(r'\b' + re.escape(scope) + r'\b', text, re.I)
+                    and re.search(r'\d', text)):
+                potential.append(text)
+            continue
+        if claim_metric != metric or (year is not None and matched.group('year') != year):
+            excluded.append({'start': start, 'end': end, 'text': text, 'reason': 'other_metric_or_period'})
+            continue
+        facts.append({'fact_id': 'f' + str(len(facts)), 'metric': claim_metric,
+                      'period': matched.group('year'), 'value': value,
+                      'start': start, 'end': end, 'text': text, 'document_sha256': source_hash})
+    values = {(f['value'], f['period']) for f in facts}
+    status = 'unsupported' if not facts else 'ambiguous' if len(values) > 1 or potential else 'answered'
+    return {'status': status, 'reason': {'answered': 'unique_source_value', 'ambiguous': 'conflicting_or_unparsed_claims',
+                                       'unsupported': 'no_supported_factual_claim'}[status],
+            'request': {'metric': metric, 'period': year}, 'facts': facts,
+            'potential_claims': potential, 'excluded_segments': excluded, 'document_sha256': source_hash}
