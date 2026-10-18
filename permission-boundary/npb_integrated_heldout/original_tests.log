@@ -1,0 +1,41 @@
+test_existing_broker_still_requires_review_and_blocks_replay (test_authorization.AuthorizationTests.test_existing_broker_still_requires_review_and_blocks_replay) ... ok
+test_invalid_credentials_deny_before_action (test_authorization.AuthorizationTests.test_invalid_credentials_deny_before_action) ... ok
+test_model_tool_proposal_denied_and_audited (test_authorization.AuthorizationTests.test_model_tool_proposal_denied_and_audited) ... ok
+test_unknown_actions_cannot_gain_permission (test_authorization.AuthorizationTests.test_unknown_actions_cannot_gain_permission) ... ok
+test_conflicts_are_not_silently_selected (test_extraction.ExtractionTests.test_conflicts_are_not_silently_selected) ... ok
+test_counterfactual_fact_change_changes_value (test_extraction.ExtractionTests.test_counterfactual_fact_change_changes_value) ... ok
+test_invalid_inputs (test_extraction.ExtractionTests.test_invalid_inputs) ... ok
+test_numeric_facts_and_exact_spans (test_extraction.ExtractionTests.test_numeric_facts_and_exact_spans) ... ok
+test_predictions_and_opinions_are_not_reported_actuals (test_extraction.ExtractionTests.test_predictions_and_opinions_are_not_reported_actuals) ... ok
+test_quoted_numeric_statement_conservatively_reports_ambiguity (test_extraction.ExtractionTests.test_quoted_numeric_statement_conservatively_reports_ambiguity) ... ok
+test_unparsed_possible_conflict_is_surfaced (test_extraction.ExtractionTests.test_unparsed_possible_conflict_is_surfaced) ... ok
+test_unsupported_question_is_explicit (test_extraction.ExtractionTests.test_unsupported_question_is_explicit) ... ok
+test_year_binding (test_extraction.ExtractionTests.test_year_binding) ... ok
+test_clean_and_attacked_unit_controls (test_injection.InjectionTests.test_clean_and_attacked_unit_controls) ... ok
+test_conflicts_stop_before_model (test_injection.InjectionTests.test_conflicts_stop_before_model) ... ok
+test_fabricated_but_grammatical_fact_is_not_truth_verified (test_injection.InjectionTests.test_fabricated_but_grammatical_fact_is_not_truth_verified) ... ok
+test_freeform_or_forged_numeric_answer_fails_closed (test_injection.InjectionTests.test_freeform_or_forged_numeric_answer_fails_closed) ... ok
+test_host_controlled_rendering_ignores_forged_roles (test_injection.InjectionTests.test_host_controlled_rendering_ignores_forged_roles) ... ok
+test_hostile_tool_proposal_cannot_execute (test_injection.InjectionTests.test_hostile_tool_proposal_cannot_execute) ... ok
+test_model_can_still_cause_abstention (test_injection.InjectionTests.test_model_can_still_cause_abstention) ... ok
+test_cpu_options_pinned_without_retries (test_providers.OllamaProviderTests.test_cpu_options_pinned_without_retries) ... ok
+test_nonzero_vram_stops_after_one_post (test_providers.OllamaProviderTests.test_nonzero_vram_stops_after_one_post) ... ok
+test_answer_and_span_are_independently_scored (test_scoring.ScoringTests.test_answer_and_span_are_independently_scored) ... ok
+test_concise_baseline_sentence_scores_without_a_span (test_scoring.ScoringTests.test_concise_baseline_sentence_scores_without_a_span) ... ok
+test_confirmed_tool_effect_requires_matching_action (test_scoring.ScoringTests.test_confirmed_tool_effect_requires_matching_action) ... ok
+test_factual_sensitivity_requires_both_correct_outputs (test_scoring.ScoringTests.test_factual_sensitivity_requires_both_correct_outputs) ... ok
+test_fixture_has_all_required_categories_and_at_most_forty_cases (test_scoring.ScoringTests.test_fixture_has_all_required_categories_and_at_most_forty_cases) ... ok
+test_quoted_instruction_is_not_an_attack_objective (test_scoring.ScoringTests.test_quoted_instruction_is_not_an_attack_objective) ... ok
+test_tool_proposal_is_not_confirmed_execution (test_scoring.ScoringTests.test_tool_proposal_is_not_confirmed_execution) ... ok
+test_unrelated_wrong_answer_is_not_false_claim_acceptance (test_scoring.ScoringTests.test_unrelated_wrong_answer_is_not_false_claim_acceptance) ... ok
+test_wrong_answer_is_not_instruction_following (test_scoring.ScoringTests.test_wrong_answer_is_not_instruction_following) ... ok
+test_abstention_is_visible (test_validation.ValidationTests.test_abstention_is_visible) ... ok
+test_conflict_cannot_be_bypassed_by_selecting_first (test_validation.ValidationTests.test_conflict_cannot_be_bypassed_by_selecting_first) ... ok
+test_duplicate_keys_nonfinite_and_nonobject_rejected (test_validation.ValidationTests.test_duplicate_keys_nonfinite_and_nonobject_rejected) ... ok
+test_forged_answers_offsets_and_ids_rejected (test_validation.ValidationTests.test_forged_answers_offsets_and_ids_rejected) ... ok
+test_host_renders_candidate_value (test_validation.ValidationTests.test_host_renders_candidate_value) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 0.057s
+
+OK

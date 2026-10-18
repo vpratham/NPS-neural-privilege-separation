@@ -1,0 +1,65 @@
+{
+  "started_utc": "2026-10-18T08:21:49.608360+00:00",
+  "reference_commit": "c6970dbe38669dd0b6dedfcab7c48cc53a9fdf55",
+  "protocol": {
+    "frozen_utc": "2026-10-18T08:18:16.744033+00:00",
+    "files": {
+      "freeze.json": "3caf7a560e215019e182c2987af7cc5a0f09b441bbee6ac32032eb81a34aeea1",
+      "cases.jsonl": "c9f3dda912f01dee63dc1cd436c5ba137949c60769b7d8513bae7535c9577a95",
+      "ground_truth.jsonl": "67c909e7897f15bc9f3ecccbd4cddbd1e0688c5f1e3ea6adcaf20c9b2c5bddc6",
+      "score.py": "fa7521dec4809c2aacd6e0bf679e32e92581bde9b660a3ca1bbf0ecc817a835e",
+      "SCORING_PROTOCOL.md": "0721211b7835256086442b1c4f37f1eeee2bfa3ce260fabf620ccf03c031d7b9",
+      "PROTOCOL.md": "caace083cda4f6cadb7b17a85d1ae8c14eb71f026f17faa522296a8bbe083819",
+      "run_eval.py": "9d70bb9202e7cfbb494a1d12bef6690441ef37106613f98c48e108297183d87d",
+      "tests/test_score.py": "5afe261f700b26c14b43291591dd8fcac871f0ef27564f1a2fc6d7398a18779b"
+    },
+    "unique_inputs": 48,
+    "per_category": {
+      "A_unseen_financial_formats": 12,
+      "B_benign_quotations": 12,
+      "C_conflicting_claims": 12,
+      "D_adversarial_abstention": 12
+    },
+    "abstention_justified_cases": 7,
+    "scorer_tests_passed": 17,
+    "span_checks_passed": 67,
+    "answerable_ground_truth_fixture_checks": 41,
+    "repeat_case_ids": [
+      "A01",
+      "A02",
+      "B01",
+      "B02",
+      "C01",
+      "C02",
+      "D07",
+      "D11"
+    ],
+    "primary_system_requests": 96,
+    "repeat_system_requests": 16,
+    "max_planned_model_calls": 112,
+    "hard_model_call_limit": 120,
+    "model_outputs_observed_before_freeze": false
+  },
+  "provider": {
+    "provider": "ollama_loopback",
+    "model": "qwen2.5:3b",
+    "model_digest": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+    "base_url": "http://127.0.0.1:11436",
+    "device": "cpu",
+    "options": {
+      "num_gpu": 0,
+      "num_ctx": 4096,
+      "num_predict": 128,
+      "temperature": 0,
+      "seed": 17,
+      "num_thread": 4
+    },
+    "stream": false,
+    "timeout_seconds": 60,
+    "no_pull": true
+  },
+  "same_model_two_transport_instances": true,
+  "call_limit": 120,
+  "maximum_planned_calls": 112,
+  "note": "Host abstentions are outcomes, not fabricated model responses. No dummy calls."
+}

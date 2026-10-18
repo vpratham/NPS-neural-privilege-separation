@@ -1,0 +1,130 @@
+{
+  "frozen_at_utc": "2026-10-18T08:08:13.580974+00:00",
+  "reference_commit": "c6970dbe38669dd0b6dedfcab7c48cc53a9fdf55",
+  "head_before_experiment": "c6970dbe38669dd0b6dedfcab7c48cc53a9fdf55",
+  "reference_files": {
+    "permission-boundary/npb_integrated/EXPERIMENT_REPORT.md": "59474dde8b543b88a846112af558215095dc1fcb245ca71f9c133a5d5a8a2269",
+    "permission-boundary/npb_integrated/README.md": "631fa48ed69a716d4f783f58531a2351eeb49a6a97bfcd5c960a0285afd1833e",
+    "permission-boundary/npb_integrated/SHA256SUMS": "6c193f576330a9d7a3d4ee53407b7dbaf3a536917878b9ae30be99b4ec4746a6",
+    "permission-boundary/npb_integrated/__init__.py": "8cf1e63224dfdb9af7c62bf261c198c09c1044044b67acf09956dd49ce73cd41",
+    "permission-boundary/npb_integrated/eval/cases.jsonl": "b9208a247bf2bac8eadbd182a25c8241ffff978e1043425f20c07d9660fba901",
+    "permission-boundary/npb_integrated/eval/run_eval.py": "bac1710f670e97335b9f9384fb1e1a00b7409cd30324187e8539e43bab35d579",
+    "permission-boundary/npb_integrated/eval/score.py": "3f1c5e58c2622ab4a41d25b94eb2f19bae05df1bc8fbfd64af3d8297f797fa7d",
+    "permission-boundary/npb_integrated/eval/verify_results.py": "0746949d01d2e9878ce8b5f4fbfd98fc2bcd2d90224fa6ffed455371e4947420",
+    "permission-boundary/npb_integrated/example_financial_document.txt": "adc15facc69ab7b06d210c6c2afe1d00b5eaf0e16b0ab00bdd6245cd2709c70d",
+    "permission-boundary/npb_integrated/results/baseline_results.jsonl": "bf997a28fa65a191f3fcc06249a0ec1af4cd69d9ba8bc005cbbbdb37d2f12b16",
+    "permission-boundary/npb_integrated/results/comparison.json": "a40f951cd5f96beec2a45f6e2becb1dcefc5927180d977992ce541f6faf979f4",
+    "permission-boundary/npb_integrated/results/config.json": "6933d1e0fb4f3253cdf2f5c53b6ac776fb89e6b6a753a38a5fab76aa2efdcc29",
+    "permission-boundary/npb_integrated/results/defended_results.jsonl": "ee4ae1c424c65650e9fef6802b3720753bb91757980551fbeefb49292a5417c9",
+    "permission-boundary/npb_integrated/results/development_failures.json": "d7a900d9676f0d84bb193ce4c6bbeecc1c6cb2cc9352ca306e385f5452da1c90",
+    "permission-boundary/npb_integrated/results/initial_extraction.py.txt": "3aa44b9634b7e10763950d5c0e184bdb0a599d2274916500627c9eaa0565da71",
+    "permission-boundary/npb_integrated/results/model_availability.json": "7b1071c3e234fabf26c33ccfd430342b5f7e34ce1aaec7718f088e6b991b6d46",
+    "permission-boundary/npb_integrated/results/model_availability_followup.json": "01684469bbe93359bd266865cc1599b381f0df79f5fa5bdd6feb79b24d33813a",
+    "permission-boundary/npb_integrated/results/replay/baseline_results.jsonl": "7121572268278f5edcbbb676dba8486e7faebc2bdd3121578f6d8e9900e5bfbe",
+    "permission-boundary/npb_integrated/results/replay/comparison.json": "5a850b3081b3e6258326086ef8eac2308edb16df2afe144102aee41caa72ec6c",
+    "permission-boundary/npb_integrated/results/replay/config.json": "2436dc317ec67f424cecc2764b2024d639a005d4f0e2cfbfc75cb3071a4018b5",
+    "permission-boundary/npb_integrated/results/replay/defended_results.jsonl": "bfa747a85b3b395c3556c9913bd643740df7b5eeec1d9f1924561708c0aa0462",
+    "permission-boundary/npb_integrated/results/replay_cases.jsonl": "46bae9409e842cc89613cefe2e8edd492060d55b3acfdbde5329a7831ce64e60",
+    "permission-boundary/npb_integrated/results/replay_plan.json": "93a7a10a0c385f0638e4fd4d9c9a6aa2ec2fbbdeea96fd86fce7e07ed22e19a1",
+    "permission-boundary/npb_integrated/results/review_queue.json": "a185f4c6a6b00105b9ab01252cf8a1cedacf46952c37819f64e6d1693c7f881a",
+    "permission-boundary/npb_integrated/results/unit_tests.log": "8a398b52452d2fd6d962d9065f918fe95c7e480462ff56e883cfb3d075706ed9",
+    "permission-boundary/npb_integrated/results/verification.json": "f9f7ccab1d5b1d790aa41f5b994033e25e130eaf4eebe5ff74043dac906f31c1",
+    "permission-boundary/npb_integrated/run_qa.py": "4171d63c11bce4811d51ae69ccaffd4744b41166fd69db5d99e37c90dacdb1ca",
+    "permission-boundary/npb_integrated/src/__init__.py": "3015947c0f8ec0f1c8aa2ffb1a3df2c52fdf5347a526a06998a6d774c0fcdb6f",
+    "permission-boundary/npb_integrated/src/authorization.py": "3e386e28852dae03c4851fa6085be291f33ab8c3fe2e4434b76f664e6251f9f7",
+    "permission-boundary/npb_integrated/src/baseline.py": "34e1e22cc9c17fa2f429ed7a741a97ae57c41777919f649932ee5321e7b21d29",
+    "permission-boundary/npb_integrated/src/defended.py": "dae611fdae13e32458029b9d17176f635f6fd0ffe001d2eda0ee710ac3a8d8bf",
+    "permission-boundary/npb_integrated/src/extraction.py": "d81c7d49d35eea9e5843cffad080d1092c58692e66ec1c482866446a9a3ea9e0",
+    "permission-boundary/npb_integrated/src/providers.py": "86f8175cc8864a15a537c9c6674b393ecba84a999212a6c2b734c3aadc540cbd",
+    "permission-boundary/npb_integrated/src/validation.py": "16884587bd32bf1bd0f6bb05559bb5b1de30b8ae2d6aa2415e21f825a883bfdc",
+    "permission-boundary/npb_integrated/tests/test_authorization.py": "6e5493b71ebd7ffa013ea02dc10aa1cc6c5e4b7f6fb3535909c234e19f56fdc2",
+    "permission-boundary/npb_integrated/tests/test_extraction.py": "c6b9ca0dd41e76aecc44a8605f4b4f22539416685bcf73967184ed4eb9cfcacf",
+    "permission-boundary/npb_integrated/tests/test_injection.py": "1472b7fc3e40aefeca1b3f67ad7025807cb554fd4d6901b83c2fb1adebd0cd2d",
+    "permission-boundary/npb_integrated/tests/test_providers.py": "8de5382cf42bd0fcd7663f34e36679770025ae1882baa772f948bbf6364625cd",
+    "permission-boundary/npb_integrated/tests/test_scoring.py": "cbcf9e131aac451be21c80dc54f1424ef66e2a54ec2c27fc7d3b80050ada76d8",
+    "permission-boundary/npb_integrated/tests/test_validation.py": "2d0d6125707bcecf99e05e374febe5af11b552394a4aa89b1eda4e7099f79174"
+  },
+  "runtime_dependencies": {
+    "permission-boundary/npb_integrated/__init__.py": {
+      "sha256": "8cf1e63224dfdb9af7c62bf261c198c09c1044044b67acf09956dd49ce73cd41",
+      "tracked_in_git": true
+    },
+    "permission-boundary/npb_integrated/src/__init__.py": {
+      "sha256": "3015947c0f8ec0f1c8aa2ffb1a3df2c52fdf5347a526a06998a6d774c0fcdb6f",
+      "tracked_in_git": true
+    },
+    "permission-boundary/neural_state_firewall/artifacts.py": {
+      "sha256": "454350bff373203f08b86f67a4dfcc793822aef794072983be059cf02207e256",
+      "tracked_in_git": true
+    },
+    "permission-boundary/neural_state_firewall/capabilities.py": {
+      "sha256": "769645ff1560439f04d68b97ab2b126ab82c1b3000135d0c202c7879591bc33c",
+      "tracked_in_git": true
+    },
+    "permission-boundary/neural_state_firewall/runtime.py": {
+      "sha256": "620ac7b3c695d65585da421ee699501f0be3d518d0ceb656b55ae132677c2933",
+      "tracked_in_git": true
+    },
+    "permission-boundary/neural_state_firewall/__init__.py": {
+      "sha256": "d49e4809a425a965c36658c4241618c11f7300923d730477111c406afb871ac0",
+      "tracked_in_git": true
+    },
+    "permission-boundary/npb_core/__init__.py": {
+      "sha256": "f30c84d391a196e4040969eea0f4c7805119c9fe3a74c5b32f5dafc69e2621d8",
+      "tracked_in_git": false
+    },
+    "nps_gateway/contracts.py": {
+      "sha256": "4d255f149a9e8d6c08f4b043fc449fdb6b96c4fccad8ce020125527814c1bd81",
+      "tracked_in_git": true
+    },
+    "nps_gateway/store.py": {
+      "sha256": "f6103f632968a6deff82b090a8212b74b37eb798c118428ab6ac170bf97ab0fd",
+      "tracked_in_git": true
+    },
+    "nps_gateway/runtime.py": {
+      "sha256": "95f7e5722ccd6d0dc659c3029ea14f4920c22a4c3edcc07776a41d814f25f73a",
+      "tracked_in_git": true
+    },
+    "nps_gateway/__init__.py": {
+      "sha256": "c1e0867933ea25c475b03ac008c8587bf79a840e8797f0c9258eb655f792d3a8",
+      "tracked_in_git": true
+    },
+    "permission-boundary/npb_core/broker.py": {
+      "sha256": "1b2507d28c5033a53526ee9d5acebe530a09b2c007bc571b682170535158df9e",
+      "tracked_in_git": false
+    },
+    "permission-boundary/npb_core/core.py": {
+      "sha256": "168aeefbdf7829fe7797fe1083743ccb663cd2d12cb9c48782ea12bada8f058b",
+      "tracked_in_git": false
+    },
+    "permission-boundary/npb_integrated/src/authorization.py": {
+      "sha256": "3e386e28852dae03c4851fa6085be291f33ab8c3fe2e4434b76f664e6251f9f7",
+      "tracked_in_git": true
+    }
+  },
+  "unit_tests": {
+    "passed": 36,
+    "exit_code": 0,
+    "command": "cd permission-boundary && PYTHONPATH=.. python3 -m unittest discover -s npb_integrated/tests -v"
+  },
+  "historical_protected_files_unchanged": 553,
+  "model": {
+    "base_url": "http://127.0.0.1:11436",
+    "device": "cpu",
+    "model": "qwen2.5:3b",
+    "model_digest": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+    "no_pull": true,
+    "options": {
+      "num_ctx": 4096,
+      "num_gpu": 0,
+      "num_predict": 128,
+      "num_thread": 4,
+      "seed": 17,
+      "temperature": 0
+    },
+    "provider": "ollama_loopback",
+    "stream": false,
+    "timeout_seconds": 60
+  },
+  "execution_note": "Frozen B may abstain before model generation. Run96 system requests without dummycalls; retain actualcallcounts,96primarymax+16predeclaredrepeats<=112modelcalls andhard120globalceiling. Separatetransportinstancesreuseunchangedprovider80per-instancecap."
+}

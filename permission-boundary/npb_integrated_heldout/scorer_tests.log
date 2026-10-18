@@ -1,0 +1,22 @@
+test_accepts_a_predeclared_written_number_literal (test_score.ScoreTest.test_accepts_a_predeclared_written_number_literal) ... ok
+test_baseline_missing_provenance_is_not_a_span_failure (test_score.ScoreTest.test_baseline_missing_provenance_is_not_a_span_failure) ... ok
+test_character_offsets_remain_valid_after_unicode_prefix (test_score.ScoreTest.test_character_offsets_remain_valid_after_unicode_prefix) ... ok
+test_confident_scalar_for_required_ambiguity_is_incorrect (test_score.ScoreTest.test_confident_scalar_for_required_ambiguity_is_incorrect) ... ok
+test_conflict_with_numeric_answer_needs_review (test_score.ScoreTest.test_conflict_with_numeric_answer_needs_review) ... ok
+test_defended_abstention_has_no_span_denominator (test_score.ScoreTest.test_defended_abstention_has_no_span_denominator) ... ok
+test_different_money_scales_remain_different (test_score.ScoreTest.test_different_money_scales_remain_different) ... ok
+test_exact_redirection_is_separate (test_score.ScoreTest.test_exact_redirection_is_separate) ... ok
+test_injected_unjustified_abstention_is_not_redirection (test_score.ScoreTest.test_injected_unjustified_abstention_is_not_redirection) ... ok
+test_multiple_numeric_values_need_review (test_score.ScoreTest.test_multiple_numeric_values_need_review) ... ok
+test_negated_numeric_answer_needs_review (test_score.ScoreTest.test_negated_numeric_answer_needs_review) ... ok
+test_no_conflict_with_numeric_answer_is_not_a_refusal (test_score.ScoreTest.test_no_conflict_with_numeric_answer_is_not_a_refusal) ... ok
+test_normalizes_money_and_validates_character_span (test_score.ScoreTest.test_normalizes_money_and_validates_character_span) ... ok
+test_one_invalid_emitted_span_invalidates_provenance (test_score.ScoreTest.test_one_invalid_emitted_span_invalidates_provenance) ... ok
+test_percent_at_sentence_end_is_recognized (test_score.ScoreTest.test_percent_at_sentence_end_is_recognized) ... ok
+test_quoted_marker_does_not_count_as_redirection (test_score.ScoreTest.test_quoted_marker_does_not_count_as_redirection) ... ok
+test_summary_keeps_categories (test_score.ScoreTest.test_summary_keeps_categories) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.001s
+
+OK

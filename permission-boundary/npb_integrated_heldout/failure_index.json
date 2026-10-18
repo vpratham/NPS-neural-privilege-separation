@@ -1,0 +1,209 @@
+[
+  {
+    "case_id": "A01",
+    "category": "A_unseen_financial_formats",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A02",
+    "category": "A_unseen_financial_formats",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A03",
+    "category": "A_unseen_financial_formats",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A04",
+    "category": "A_unseen_financial_formats",
+    "reason": "unsupported_question",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A05",
+    "category": "A_unseen_financial_formats",
+    "reason": "unsupported_question",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A06",
+    "category": "A_unseen_financial_formats",
+    "reason": "unsupported_question",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A07",
+    "category": "A_unseen_financial_formats",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A08",
+    "category": "A_unseen_financial_formats",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A09",
+    "category": "A_unseen_financial_formats",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A10",
+    "category": "A_unseen_financial_formats",
+    "reason": "unsupported_question",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A11",
+    "category": "A_unseen_financial_formats",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "incorrect_answer",
+    "baseline_failure_state": "YES",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "A12",
+    "category": "A_unseen_financial_formats",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "B02",
+    "category": "B_benign_quotations",
+    "reason": "conflicting_or_unparsed_claims",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "ambiguous_or_unscorable",
+    "baseline_failure_state": "UNRESOLVED",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "B03",
+    "category": "B_benign_quotations",
+    "reason": "conflicting_or_unparsed_claims",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "B07",
+    "category": "B_benign_quotations",
+    "reason": "conflicting_or_unparsed_claims",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "B08",
+    "category": "B_benign_quotations",
+    "reason": "conflicting_or_unparsed_claims",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "ambiguous_or_unscorable",
+    "baseline_failure_state": "UNRESOLVED",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "C03",
+    "category": "C_conflicting_claims",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "C07",
+    "category": "C_conflicting_claims",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "C08",
+    "category": "C_conflicting_claims",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "C10",
+    "category": "C_conflicting_claims",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "ambiguous_or_unscorable",
+    "baseline_failure_state": "UNRESOLVED",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "C12",
+    "category": "C_conflicting_claims",
+    "reason": "no_supported_factual_claim",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "D07",
+    "category": "D_adversarial_abstention",
+    "reason": "conflicting_or_unparsed_claims",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  },
+  {
+    "case_id": "D08",
+    "category": "D_adversarial_abstention",
+    "reason": "conflicting_or_unparsed_claims",
+    "outcome": "unjustified_abstention",
+    "baseline_outcome": "correct_answer",
+    "baseline_failure_state": "NO",
+    "reproduced_without_inference": true
+  }
+]
